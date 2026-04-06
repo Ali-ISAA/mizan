@@ -3,14 +3,14 @@
 # start.sh  —  Start Mizan locally (backend + worker in venv, frontend, superadmin)
 #              Infrastructure (Postgres, Redis) runs in Docker.
 #
-# Port map
-#   Postgres   localhost:5434
-#   Redis      localhost:6381
-#   Qdrant     cloud or localhost:7004 (set in .env)
-#   Backend    localhost:7001
+# Port map                         (DMS comparison)
+#   Postgres   localhost:5435      (DMS: 5434)
+#   Redis      localhost:6382      (DMS: 6381)
+#   Qdrant     cloud or localhost:7014 (DMS: 7004)
+#   Backend    localhost:8001      (DMS: 7001)
 #   Worker     (no port)
-#   Frontend   localhost:7002
-#   Superadmin localhost:7003
+#   Frontend   localhost:8002      (DMS: 7002)
+#   Superadmin localhost:8003      (DMS: 7003)
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
@@ -50,7 +50,7 @@ docker compose stop backend worker frontend superadmin 2>/dev/null || true
 log "Starting infrastructure containers (db, redis)..."
 docker compose up -d db redis
 
-log "Waiting for Postgres on localhost:5434..."
+log "Waiting for Postgres on localhost:5435..."
 for i in $(seq 1 30); do
   if docker compose exec -T db pg_isready -U mizan -d mizan -q 2>/dev/null; then
     ok "Postgres ready"; break
@@ -59,7 +59,7 @@ for i in $(seq 1 30); do
   sleep 1
 done
 
-log "Waiting for Redis on localhost:6381..."
+log "Waiting for Redis on localhost:6382..."
 for i in $(seq 1 20); do
   if docker compose exec -T redis redis-cli ping 2>/dev/null | grep -q PONG; then
     ok "Redis ready"; break
@@ -95,9 +95,9 @@ if [ -f "$SCRIPT_DIR/.env" ]; then
   source <(grep -v '^\s*#' "$SCRIPT_DIR/.env" | grep -v '^\s*$' | grep -v '^DATABASE_URL=' | grep -v '^REDIS_URL=')
   set +o allexport
 fi
-export DATABASE_URL="postgresql+asyncpg://mizan:mizan@localhost:5434/mizan"
-export REDIS_URL="redis://localhost:6381/0"
-export ALLOWED_ORIGINS='["http://localhost:7002","http://localhost:7003"]'
+export DATABASE_URL="postgresql+asyncpg://mizan:mizan@localhost:5435/mizan"
+export REDIS_URL="redis://localhost:6382/0"
+export ALLOWED_ORIGINS='["http://localhost:8002","http://localhost:8003"]'
 
 # ── 5. Alembic migrations ─────────────────────────────────────────────────────
 log "Running Alembic migrations..."
@@ -108,12 +108,12 @@ ok "Migrations applied (or no migration files yet — tables will be auto-create
 LOG_DIR="$SCRIPT_DIR/.logs"
 mkdir -p "$LOG_DIR"
 
-log "Starting backend on :7001..."
+log "Starting backend on :8001..."
 (
   cd "$SCRIPT_DIR/backend"
   source "$VENV_DIR/bin/activate"
   export DATABASE_URL REDIS_URL ALLOWED_ORIGINS
-  uvicorn app.main:app --host 0.0.0.0 --port 7001 --reload >"$LOG_DIR/backend.log" 2>&1
+  uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload >"$LOG_DIR/backend.log" 2>&1
 ) &
 PIDS+=($!)
 ok "Backend PID=$! → logs: .logs/backend.log"
@@ -134,10 +134,10 @@ if [ ! -d "$SCRIPT_DIR/frontend/node_modules" ]; then
   log "Installing frontend dependencies..."
   (cd "$SCRIPT_DIR/frontend" && npm install --silent)
 fi
-log "Starting frontend on :7002..."
+log "Starting frontend on :8002..."
 (
   cd "$SCRIPT_DIR/frontend"
-  VITE_API_URL=http://localhost:7001/api/v1 npm run dev -- --host 0.0.0.0 --port 7002 >"$LOG_DIR/frontend.log" 2>&1
+  VITE_API_URL=http://localhost:8001/api/v1 npm run dev -- --host 0.0.0.0 --port 8002 >"$LOG_DIR/frontend.log" 2>&1
 ) &
 PIDS+=($!)
 ok "Frontend PID=$! → logs: .logs/frontend.log"
@@ -147,10 +147,10 @@ if [ ! -d "$SCRIPT_DIR/superadmin/node_modules" ]; then
   log "Installing superadmin dependencies..."
   (cd "$SCRIPT_DIR/superadmin" && npm install --silent)
 fi
-log "Starting superadmin on :7003..."
+log "Starting superadmin on :8003..."
 (
   cd "$SCRIPT_DIR/superadmin"
-  VITE_API_URL=http://localhost:7001/api/v1 npm run dev -- --host 0.0.0.0 --port 7003 >"$LOG_DIR/superadmin.log" 2>&1
+  VITE_API_URL=http://localhost:8001/api/v1 npm run dev -- --host 0.0.0.0 --port 8003 >"$LOG_DIR/superadmin.log" 2>&1
 ) &
 PIDS+=($!)
 ok "Superadmin PID=$! → logs: .logs/superadmin.log"
@@ -160,11 +160,11 @@ echo ""
 echo -e "${BOLD}────────────────────────────────────────${RESET}"
 echo -e "${GREEN}${BOLD}  Mizan is running locally!${RESET}"
 echo -e "${BOLD}────────────────────────────────────────${RESET}"
-echo -e "  Postgres   ${CYAN}localhost:5434${RESET}  (Docker)"
-echo -e "  Redis      ${CYAN}localhost:6381${RESET}  (Docker)"
-echo -e "  Backend    ${CYAN}http://localhost:7001${RESET}"
-echo -e "  Frontend   ${CYAN}http://localhost:7002${RESET}"
-echo -e "  Superadmin ${CYAN}http://localhost:7003${RESET}"
+echo -e "  Postgres   ${CYAN}localhost:5435${RESET}  (Docker)"
+echo -e "  Redis      ${CYAN}localhost:6382${RESET}  (Docker)"
+echo -e "  Backend    ${CYAN}http://localhost:8001${RESET}"
+echo -e "  Frontend   ${CYAN}http://localhost:8002${RESET}"
+echo -e "  Superadmin ${CYAN}http://localhost:8003${RESET}"
 echo -e "  Logs       ${CYAN}.logs/${RESET}"
 echo -e "${BOLD}────────────────────────────────────────${RESET}"
 echo -e "  Press ${BOLD}Ctrl+C${RESET} to stop all processes."

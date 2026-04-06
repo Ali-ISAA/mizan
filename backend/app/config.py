@@ -11,13 +11,13 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
 
     # Database
-    database_url: str = "postgresql+asyncpg://mizan:mizan@localhost:5434/mizan"
+    database_url: str = "postgresql+asyncpg://mizan:mizan@localhost:5435/mizan"
 
     # Redis
-    redis_url: str = "redis://localhost:6381/0"
+    redis_url: str = "redis://localhost:6382/0"
 
     # CORS
-    allowed_origins: List[str] = ["http://localhost:7002", "http://localhost:7003"]
+    allowed_origins: List[str] = ["http://localhost:8002", "http://localhost:8003"]
 
     # Files
     upload_dir: str = "/tmp/mizan-uploads"
@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     noesia_profile_slug: str = ""
 
     # Qdrant
-    qdrant_url: str = "http://localhost:7004"
+    qdrant_url: str = "http://localhost:7014"
     qdrant_host: str = ""
     qdrant_api_key: str = ""
 
