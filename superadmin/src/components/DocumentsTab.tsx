@@ -32,7 +32,7 @@ export function DocumentsTab({ doc, chunks = [], isLoading }: DocumentsTabProps)
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-400px)] space-y-4">
+    <div className="flex flex-col h-[calc(100vh-300px)] min-h-96 gap-4">
       {/* Document Info */}
       <div className="bg-white border rounded-lg p-4 flex-shrink-0">
         <div className="flex items-center justify-between">
@@ -51,9 +51,9 @@ export function DocumentsTab({ doc, chunks = [], isLoading }: DocumentsTabProps)
         </div>
       </div>
 
-      {/* Extracted Content - Expanded */}
-      <div className="bg-white border rounded-lg p-6 overflow-hidden flex flex-col flex-grow min-h-0">
-        <div className="overflow-y-auto flex-grow">
+      {/* Extracted Content - Fills Remaining Space */}
+      <div className="bg-white border rounded-lg p-6 overflow-hidden flex flex-col flex-1 min-h-0">
+        <div className="overflow-y-auto flex-1">
           <ExtractedContent chunks={chunks} isLoading={isLoading} />
         </div>
       </div>

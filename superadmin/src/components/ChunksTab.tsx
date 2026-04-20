@@ -43,7 +43,7 @@ export function ChunksTab({ chunks = [], isLoading }: ChunksTabProps) {
   const selectedChunk = chunks?.find(c => c.id === selectedChunkId);
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-400px)]">
+    <div className="flex gap-4 h-[calc(100vh-300px)] min-h-96">
       {/* Left: Chunks list */}
       <div className="flex-1 overflow-hidden flex flex-col">
         {/* Search bar */}
