@@ -196,7 +196,7 @@ export default function DocumentDetail() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Documents
+              Document
             </button>
           </div>
 

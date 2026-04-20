@@ -63,20 +63,19 @@ export function ExtractedContent({ chunks = [], isLoading }: ExtractedContentPro
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {sections.map((section, idx) => (
-        <div key={idx}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+        <div key={idx} className="border-l-4 border-slate-300 pl-4 py-2">
+          <h3 className="text-base font-bold text-slate-900 mb-4 uppercase tracking-wide">
             {section.header}
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {section.chunks.map((chunk, chunkIdx) => (
-              <p
-                key={chunk.id}
-                className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap"
-              >
-                {chunk.text}
-              </p>
+              <div key={chunk.id} className="bg-gray-50 rounded p-4 hover:bg-gray-100 transition-colors">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {chunk.text}
+                </p>
+              </div>
             ))}
           </div>
         </div>
