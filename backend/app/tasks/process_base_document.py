@@ -5,10 +5,15 @@ import mimetypes
 import os
 import uuid
 
+import nest_asyncio
+
 from app.db.models.base_document import BaseDocument
 from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
 from app.services.noesia import NoesiaError, noesia_client
 from app.worker import celery_app
+
+# Allow nested asyncio.run() calls in Celery worker processes
+nest_asyncio.apply()
 
 logger = logging.getLogger(__name__)
 
