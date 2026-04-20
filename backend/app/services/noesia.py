@@ -40,7 +40,7 @@ class NoesiaClient:
     ) -> list[tuple[str, str]]:
         async def _upload_one(display_filename, content, content_type, doc_id, document_name):
             stem, ext = os.path.splitext(display_filename)
-            unique_filename = f"{stem}_{doc_id[:8]}{ext}"
+            unique_filename = f"{stem}_{doc_id.replace('-', '')}{ext}"
             async with httpx.AsyncClient(timeout=120) as http:
                 logger.info("upload: uploading %s as %s (%d bytes)", display_filename, unique_filename, len(content))
                 resp = await http.post(
@@ -156,7 +156,16 @@ class NoesiaClient:
             if not resp.is_success:
                 raise NoesiaError(resp.status_code, resp.text)
             data = resp.json()
-        return data.get("data") or data.get("items") or []
+        return data.get("chunks") or data.get("data") or data.get("items") or []
+
+    async def delete_document(self, document_id: str) -> None:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.delete(
+                f"{self.base_url}/api/v1/developer/documents/{document_id}",
+                headers=self._headers(),
+            )
+            if not resp.is_success:
+                raise NoesiaError(resp.status_code, resp.text)
 
     async def delete_collection(self, collection_id: str) -> None:
         async with httpx.AsyncClient(timeout=30) as client:

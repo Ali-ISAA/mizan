@@ -17,14 +17,15 @@ COLLECTION_NAME = "mizan_base_documents"
 
 async def _process_base_document(doc_id: str, file_path: str) -> None:
     doc_uuid = uuid.UUID(doc_id)
+    SessionLocal = AsyncSessionLocal()  # Create fresh sessionmaker in current event loop context
 
     async def get_doc() -> BaseDocument | None:
-        async with AsyncSessionLocal() as db:
+        async with SessionLocal() as db:
             doc = await db.get(BaseDocument, doc_uuid)
             return doc
 
     async def set_status(status: str, **updates) -> None:
-        async with AsyncSessionLocal() as db:
+        async with SessionLocal() as db:
             doc = await db.get(BaseDocument, doc_uuid)
             if doc:
                 doc.processing_status = status

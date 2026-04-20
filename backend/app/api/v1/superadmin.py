@@ -40,7 +40,7 @@ class SuperadminLoginRequest(BaseModel):
 async def superadmin_login(body: SuperadminLoginRequest):
     if body.email != settings.superadmin_email or body.password != settings.superadmin_password.get_secret_value():
         raise HTTPException(status_code=401, detail="Invalid superadmin credentials")
-    token = _create_token({"sub": "superadmin", "role": "superadmin"}, timedelta(hours=8))
+    token = _create_token({"sub": "superadmin", "role": "superadmin"}, timedelta(days=settings.refresh_token_expire_days))
     return {"access_token": token, "token_type": "bearer"}
 
 

@@ -1,0 +1,108 @@
+<h2>Visual Style Direction</h2>
+<p class="subtitle">Which overall look and feel fits Mizan best? These apply to the whole app — sidebar, cards, buttons, typography.</p>
+
+<div class="cards" style="grid-template-columns:repeat(3,1fr);">
+
+  <!-- Option A: Clean Enterprise -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc;padding:16px;border-bottom:1px solid #e2e8f0;">
+      <div style="background:#1e3a5f;border-radius:6px;padding:10px 14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:20px;height:20px;background:#3b82f6;border-radius:4px;"></div>
+          <div style="color:white;font-size:12px;font-weight:700;">Mizan</div>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:3px;">
+          <div style="color:#93c5fd;font-size:10px;padding:4px 8px;background:rgba(59,130,246,.2);border-radius:4px;">📊 Dashboard</div>
+          <div style="color:#94a3b8;font-size:10px;padding:4px 8px;">📁 Projects</div>
+          <div style="color:#94a3b8;font-size:10px;padding:4px 8px;">📋 Reports</div>
+        </div>
+      </div>
+      <div style="background:white;border:1px solid #e2e8f0;border-radius:6px;padding:10px;">
+        <div style="font-size:10px;font-weight:600;color:#1e293b;margin-bottom:6px;">Compliance Overview</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:#eff6ff;border-radius:4px;padding:6px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#1d4ed8;">87%</div>
+            <div style="font-size:9px;color:#64748b;">Score</div>
+          </div>
+          <div style="background:#f0fdf4;border-radius:4px;padding:6px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#15803d;">12</div>
+            <div style="font-size:9px;color:#64748b;">Met</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Clean Enterprise</h3>
+      <p>Deep navy sidebar, white content area, blue accents. Professional, trustworthy. Think government/legal SaaS.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Modern Minimal -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fafafa;padding:16px;border-bottom:1px solid #e5e5e5;">
+      <div style="background:#18181b;border-radius:6px;padding:10px 14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:20px;height:20px;background:#a855f7;border-radius:50%;"></div>
+          <div style="color:white;font-size:12px;font-weight:700;">Mizan</div>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:3px;">
+          <div style="color:white;font-size:10px;padding:4px 8px;background:#27272a;border-radius:4px;">Dashboard</div>
+          <div style="color:#71717a;font-size:10px;padding:4px 8px;">Projects</div>
+          <div style="color:#71717a;font-size:10px;padding:4px 8px;">Reports</div>
+        </div>
+      </div>
+      <div style="background:white;border:1px solid #e5e5e5;border-radius:6px;padding:10px;">
+        <div style="font-size:10px;font-weight:600;color:#18181b;margin-bottom:6px;">Compliance Overview</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:#faf5ff;border-radius:4px;padding:6px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#7c3aed;">87%</div>
+            <div style="font-size:9px;color:#71717a;">Score</div>
+          </div>
+          <div style="background:#f0fdf4;border-radius:4px;padding:6px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#16a34a;">12</div>
+            <div style="font-size:9px;color:#71717a;">Met</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Modern Minimal</h3>
+      <p>Dark sidebar, clean whites, purple accent. Sleek, contemporary. Think Linear, Vercel, Notion.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Light & Airy -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f0f9ff;padding:16px;border-bottom:1px solid #bae6fd;">
+      <div style="background:white;border:1px solid #e0f2fe;border-radius:6px;padding:10px 14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:20px;height:20px;background:#0ea5e9;border-radius:4px;"></div>
+          <div style="color:#0c4a6e;font-size:12px;font-weight:700;">Mizan</div>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:3px;">
+          <div style="color:#0369a1;font-size:10px;padding:4px 8px;background:#e0f2fe;border-radius:4px;">📊 Dashboard</div>
+          <div style="color:#64748b;font-size:10px;padding:4px 8px;">📁 Projects</div>
+          <div style="color:#64748b;font-size:10px;padding:4px 8px;">📋 Reports</div>
+        </div>
+      </div>
+      <div style="background:white;border:1px solid #e0f2fe;border-radius:6px;padding:10px;">
+        <div style="font-size:10px;font-weight:600;color:#0c4a6e;margin-bottom:6px;">Compliance Overview</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:#e0f2fe;border-radius:4px;padding:6px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#0369a1;">87%</div>
+            <div style="font-size:9px;color:#64748b;">Score</div>
+          </div>
+          <div style="background:#dcfce7;border-radius:4px;padding:6px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#15803d;">12</div>
+            <div style="font-size:9px;color:#64748b;">Met</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Light & Airy</h3>
+      <p>White sidebar, sky blue accents, light backgrounds. Open, approachable. Think Tailwind UI, Stripe.</p>
+    </div>
+  </div>
+
+</div>

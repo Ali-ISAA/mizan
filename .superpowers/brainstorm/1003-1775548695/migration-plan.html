@@ -1,0 +1,110 @@
+<h2>Mizan Frontend Migration Plan</h2>
+<p class="subtitle">Take the full UI from <strong>mizan-ai-web-app-main</strong> as the base, wire it to the real Mizan backend. Here's exactly what maps where.</p>
+
+<div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+  <!-- What we take from source -->
+  <div>
+    <div class="label" style="color:#2563eb;margin-bottom:12px;">✅ Take from mizan-ai-web-app-main (UI/UX)</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#1d4ed8;">Design System</div>
+        <div style="font-size:12px;color:#3b82f6;margin-top:4px;">Full Tailwind config, CSS variables, light/dark mode, all shadcn/ui components, animations</div>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#1d4ed8;">Shell</div>
+        <div style="font-size:12px;color:#3b82f6;margin-top:4px;">AppSidebar (collapsible), AppHeader (search, theme toggle, user menu, notifications), AppLayout</div>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#1d4ed8;">Dashboard Components</div>
+        <div style="font-size:12px;color:#3b82f6;margin-top:4px;">StatsCards, ComplianceChart, RecentUploads, QuickActions, ActivityTimeline</div>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#1d4ed8;">Chat UI</div>
+        <div style="font-size:12px;color:#3b82f6;margin-top:4px;">FloatingChatButton, ChatInterface, ChatMessage — all the chat components</div>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#1d4ed8;">Page shells</div>
+        <div style="font-size:12px;color:#3b82f6;margin-top:4px;">Upload, Documents, Reports, Settings — layouts and UI patterns</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What we replace/add -->
+  <div>
+    <div class="label" style="color:#16a34a;margin-bottom:12px;">🔌 Wire to real Mizan backend</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#15803d;">Auth → Real JWT</div>
+        <div style="font-size:12px;color:#16a34a;margin-top:4px;">Replace localStorage mock auth with real <code>/auth/login</code>, <code>/auth/register</code>, refresh token rotation, Zustand store</div>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#15803d;">Dashboard → Real data</div>
+        <div style="font-size:12px;color:#16a34a;margin-top:4px;">Stats from <code>GET /projects</code>. Chart from project history. Activity from <code>GET /activity</code>.</div>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#15803d;">Upload → Project + 2-doc flow</div>
+        <div style="font-size:12px;color:#16a34a;margin-top:4px;">Create project → upload Doc A (requirements) + Doc B (compliance) → trigger analysis. Real progress via polling.</div>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#15803d;">Documents → Projects list</div>
+        <div style="font-size:12px;color:#16a34a;margin-top:4px;"><code>GET /projects</code> — list with status badges, scores, links to analysis results.</div>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#15803d;">Analysis Results — new page</div>
+        <div style="font-size:12px;color:#16a34a;margin-top:4px;">Score gauge, tabs: Summary / Requirements / Gaps / Chat. Wire to <code>/analysis</code>, <code>/requirements</code>, <code>/gaps</code>, <code>/ai/chat</code>.</div>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;">
+        <div style="font-weight:600;font-size:13px;color:#15803d;">Reports → Real export</div>
+        <div style="font-size:12px;color:#16a34a;margin-top:4px;">List completed analyses, download PDF/JSON reports via <code>/projects/:id/report</code>.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;">
+  <div class="label" style="margin-bottom:12px;">Page routing map</div>
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="background:#f1f5f9;">
+          <th style="text-align:left;padding:8px 12px;color:#475569;font-weight:600;">Route</th>
+          <th style="text-align:left;padding:8px 12px;color:#475569;font-weight:600;">Page</th>
+          <th style="text-align:left;padding:8px 12px;color:#475569;font-weight:600;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/login</td><td style="padding:8px 12px;">Login</td><td style="padding:8px 12px;"><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;">New UI + real auth</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/register</td><td style="padding:8px 12px;">Register</td><td style="padding:8px 12px;"><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;">New page</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/</td><td style="padding:8px 12px;">Dashboard</td><td style="padding:8px 12px;"><span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;">Source UI + real data</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/projects/new</td><td style="padding:8px 12px;">New Project (Upload)</td><td style="padding:8px 12px;"><span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;">Source UI + real upload</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/projects</td><td style="padding:8px 12px;">Projects (Documents)</td><td style="padding:8px 12px;"><span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;">Source UI + real API</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/projects/:id</td><td style="padding:8px 12px;">Project Detail</td><td style="padding:8px 12px;"><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;">New page</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/projects/:id/results</td><td style="padding:8px 12px;">Analysis Results</td><td style="padding:8px 12px;"><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;">New page (tabbed)</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/reports</td><td style="padding:8px 12px;">Reports</td><td style="padding:8px 12px;"><span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;">Source UI + real export</span></td></tr>
+        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 12px;">/settings</td><td style="padding:8px 12px;">Settings</td><td style="padding:8px 12px;"><span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;">Source UI + real API</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="margin-top:24px;">
+  <h3>Does this plan look right?</h3>
+  <div class="options">
+    <div class="option" data-choice="yes" onclick="toggleSelect(this)">
+      <div class="letter">✓</div>
+      <div class="content">
+        <h3>Yes, proceed</h3>
+        <p>Write the spec and start the implementation plan.</p>
+      </div>
+    </div>
+    <div class="option" data-choice="adjust" onclick="toggleSelect(this)">
+      <div class="letter">~</div>
+      <div class="content">
+        <h3>Mostly yes, but adjust</h3>
+        <p>I want to change something in the routing or what gets kept/replaced.</p>
+      </div>
+    </div>
+  </div>
+</div>

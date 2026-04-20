@@ -1,308 +1,233 @@
-import { useState, useCallback } from "react";
-import { Upload as UploadIcon, FileText, FileImage, File, X, CheckCircle } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { Upload as UploadIcon, FileText, CheckCircle, ChevronRight } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { api } from "@/lib/api";
 
-interface UploadedFile {
-  id: string;
-  name: string;
-  size: string;
-  type: string;
-  status: "uploading" | "processing" | "completed" | "error";
-  progress: number;
+const DOC_TYPES = ["GDPR", "SOX", "HIPAA", "ISO 27001", "CCPA", "PCI DSS", "Others"];
+
+interface BaseDoc {
+  id: string; filename: string; doc_type: string;
+  processing_status: string; chunk_count: number;
 }
 
-const Upload = () => {
-  const [files, setFiles] = useState<UploadedFile[]>([]);
+type Step = 1 | 2 | 3;
+
+export default function Upload() {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [step, setStep] = useState<Step>(1);
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedBaseDoc, setSelectedBaseDoc] = useState<BaseDoc | null>(null);
+  const [userFile, setUserFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [category, setCategory] = useState("");
-  const [jurisdiction, setJurisdiction] = useState("");
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+  const { data: baseDocs = [], isLoading: docsLoading } = useQuery<BaseDoc[]>({
+    queryKey: ["base-docs-user", selectedType],
+    queryFn: () => {
+      const params = selectedType ? `?doc_type=${encodeURIComponent(selectedType)}` : "";
+      return api.get(`/base-documents${params}`).then(r => r.data);
+    },
+    enabled: step === 2,
+  });
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
+  const uploadMutation = useMutation({
+    mutationFn: async () => {
+      if (!userFile || !selectedBaseDoc) throw new Error("Missing file or base document");
+      const form = new FormData();
+      form.append("file", userFile);
+      form.append("base_document_id", selectedBaseDoc.id);
+      form.append("doc_type", selectedType);
+      return api.post("/documents/upload", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    },
+    onSuccess: () => setUploadSuccess(true),
+    onError: (e: any) => setUploadError(e.response?.data?.detail || "Upload failed"),
+  });
 
+  const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); }, []);
+  const handleDragLeave = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); }, []);
   const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    handleFiles(droppedFiles);
+    e.preventDefault(); setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) setUserFile(file);
   }, []);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      handleFiles(selectedFiles);
-    }
-  }, []);
+  function reset() {
+    setStep(1); setSelectedType(""); setSelectedBaseDoc(null);
+    setUserFile(null); setUploadSuccess(false); setUploadError("");
+  }
 
-  const handleFiles = (newFiles: File[]) => {
-    const uploadedFiles: UploadedFile[] = newFiles.map((file, index) => ({
-      id: `file-${Date.now()}-${index}`,
-      name: file.name,
-      size: formatFileSize(file.size),
-      type: file.type,
-      status: "uploading" as const,
-      progress: 0
-    }));
-
-    setFiles(prev => [...prev, ...uploadedFiles]);
-
-    // Simulate upload progress
-    uploadedFiles.forEach((file) => {
-      simulateUpload(file.id);
-    });
-  };
-
-  const simulateUpload = (fileId: string) => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 15;
-      
-      setFiles(prev => prev.map(f => 
-        f.id === fileId 
-          ? { 
-              ...f, 
-              progress: Math.min(progress, 100),
-              status: progress >= 100 ? "processing" : "uploading"
-            }
-          : f
-      ));
-
-      if (progress >= 100) {
-        clearInterval(interval);
-        // Simulate processing
-        setTimeout(() => {
-          setFiles(prev => prev.map(f => 
-            f.id === fileId 
-              ? { ...f, status: "completed" }
-              : f
-          ));
-        }, 2000);
-      }
-    }, 200);
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const removeFile = (fileId: string) => {
-    setFiles(prev => prev.filter(f => f.id !== fileId));
-  };
-
-  const getFileIcon = (type: string) => {
-    if (type.includes('pdf')) return <FileText className="h-5 w-5 text-destructive" />;
-    if (type.includes('image')) return <FileImage className="h-5 w-5 text-success" />;
-    return <File className="h-5 w-5 text-muted" />;
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "uploading":
-        return <Badge variant="secondary">Uploading</Badge>;
-      case "processing":
-        return <Badge className="badge-warning">Processing</Badge>;
-      case "completed":
-        return <Badge className="badge-compliant">Completed</Badge>;
-      case "error":
-        return <Badge className="badge-critical">Error</Badge>;
-      default:
-        return null;
-    }
-  };
+  if (uploadSuccess) {
+    return (
+      <div className="flex-1 p-8 animate-fade-in">
+        <Card className="max-w-md mx-auto text-center p-8">
+          <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Document Uploaded</h3>
+          <p className="text-text-secondary text-sm mb-6">Your document is being processed and compared against the selected base document.</p>
+          <Button onClick={reset}>Upload Another</Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="flex-1 space-y-6 p-8 animate-fade-in">
       {/* Header */}
-      <div className="border-b pb-6">
-        <h1 className="text-3xl font-bold">Upload Documents</h1>
-        <p className="text-muted-foreground">
-          Upload legal documents for compliance analysis and review.
-        </p>
+      <div className="border-b border-border pb-6">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Upload Document</h1>
+        <p className="text-text-secondary mt-2">Upload your document for compliance comparison.</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Upload Area */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Document Upload</CardTitle>
-              <CardDescription>
-                Drag and drop files or click to browse. Supports PDF, DOCX, and TXT files.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div
-                className={`relative border-2 border-dashed rounded-lg p-8 transition-colors ${
-                  isDragging 
-                    ? "border-primary bg-primary/5" 
-                    : "border-border hover:border-primary/50"
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <div className="text-center">
-                  <UploadIcon className="mx-auto h-12 w-12 text-muted mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Drop files here</h3>
-                  <p className="text-muted-foreground mb-4">
-                    or click to browse your computer
-                  </p>
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.docx,.txt"
-                    onChange={handleFileSelect}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <Button variant="outline">Choose Files</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Step indicators */}
+      <div className="flex items-center gap-2">
+        {([1, 2, 3] as Step[]).map((s, i) => (
+          <div key={s} className="flex items-center gap-2">
+            <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+              step > s ? "bg-success text-white" : step === s ? "bg-accent-600 text-white" : "bg-muted text-muted-foreground"
+            }`}>
+              {step > s ? <CheckCircle className="h-4 w-4" /> : s}
+            </div>
+            <span className={`text-sm ${step === s ? "font-medium text-foreground" : "text-text-secondary"}`}>
+              {s === 1 ? "Select Type" : s === 2 ? "Choose Base Document" : "Upload Your Document"}
+            </span>
+            {i < 2 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          </div>
+        ))}
+      </div>
 
-          {/* File List */}
-          {files.length > 0 && (
-            <Card className="card-elevated">
-              <CardHeader>
-                <CardTitle>Uploaded Files ({files.length})</CardTitle>
+      {/* Step 1: Select Type */}
+      {step === 1 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Document Type</CardTitle>
+            <CardDescription>What type of compliance standard does your document relate to?</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {DOC_TYPES.map(type => (
+                <button
+                  key={type}
+                  onClick={() => { setSelectedType(type); setStep(2); }}
+                  className={`p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
+                    selectedType === type ? "border-accent-600 bg-accent-600/5" : "border-border"
+                  }`}
+                >
+                  <p className="font-semibold text-sm">{type}</p>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 2: Choose Base Document */}
+      {step === 2 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Choose Base Document</CardTitle>
                 <CardDescription>
-                  Track the upload and processing status of your documents.
+                  Select the <Badge variant="outline">{selectedType}</Badge> reference document to compare against.
                 </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {files.map((file) => (
-                    <div key={file.id} className="flex items-center gap-4 p-4 rounded-lg bg-surface">
-                      <div className="flex-shrink-0">
-                        {getFileIcon(file.type)}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-medium truncate">{file.name}</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFile(file.id)}
-                            className="h-6 w-6 p-0"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-2">{file.size}</p>
-                        
-                        {file.status === "uploading" && (
-                          <Progress value={file.progress} className="h-2" />
-                        )}
-                        
-                        <div className="flex items-center justify-between mt-2">
-                          {getStatusBadge(file.status)}
-                          {file.status === "completed" && (
-                            <CheckCircle className="h-4 w-4 text-success" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setStep(1)}>Change Type</Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {docsLoading && <p className="text-sm text-text-secondary">Loading documents...</p>}
+            {!docsLoading && baseDocs.length === 0 && (
+              <div className="text-center py-8">
+                <FileText className="h-10 w-10 mx-auto text-text-muted mb-3" />
+                <p className="text-sm font-medium">No base documents available</p>
+                <p className="text-xs text-text-secondary mt-1">No {selectedType} documents have been uploaded by the admin yet.</p>
+              </div>
+            )}
+            <div className="space-y-2">
+              {baseDocs.map(doc => (
+                <button
+                  key={doc.id}
+                  onClick={() => { setSelectedBaseDoc(doc); setStep(3); }}
+                  className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
+                    selectedBaseDoc?.id === doc.id ? "border-accent-600 bg-accent-600/5" : "border-border"
+                  }`}
+                >
+                  <FileText className="h-5 w-5 text-text-muted flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{doc.filename}</p>
+                    <p className="text-xs text-text-secondary mt-0.5">{doc.chunk_count} chunks</p>
+                  </div>
+                  <Badge variant="outline">{doc.doc_type}</Badge>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 3: Upload user file */}
+      {step === 3 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Upload Your Document</CardTitle>
+                <CardDescription>
+                  Comparing against: <span className="font-medium">{selectedBaseDoc?.filename}</span>
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setStep(2)}>Change Base Doc</Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div
+              className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${
+                isDragging ? "border-accent-600 bg-accent-600/5" : "border-border hover:border-accent-600/50"
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileRef.current?.click()}
+            >
+              {userFile ? (
+                <div className="flex flex-col items-center gap-2">
+                  <CheckCircle className="h-8 w-8 text-success" />
+                  <p className="font-medium text-sm">{userFile.name}</p>
+                  <p className="text-xs text-text-secondary">{(userFile.size / 1024).toFixed(1)} KB</p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <UploadIcon className="h-8 w-8 text-text-muted" />
+                  <p className="font-medium text-sm">Drag & drop or click to browse</p>
+                  <p className="text-xs text-text-secondary">PDF, DOC, DOCX, TXT</p>
+                </div>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.doc,.docx,.txt"
+                onChange={e => setUserFile(e.target.files?.[0] || null)}
+              />
+            </div>
 
-        {/* Settings Sidebar */}
-        <div className="space-y-6">
-          <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Document Settings</CardTitle>
-              <CardDescription>
-                Configure how your documents should be processed.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="category">Document Category</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="contract">Contract</SelectItem>
-                    <SelectItem value="policy">Policy</SelectItem>
-                    <SelectItem value="agreement">Agreement</SelectItem>
-                    <SelectItem value="legal-doc">Legal Document</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
 
-              <div className="space-y-2">
-                <Label htmlFor="jurisdiction">Jurisdiction</Label>
-                <Select value={jurisdiction} onValueChange={setJurisdiction}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select jurisdiction" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="us">United States</SelectItem>
-                    <SelectItem value="eu">European Union</SelectItem>
-                    <SelectItem value="uk">United Kingdom</SelectItem>
-                    <SelectItem value="canada">Canada</SelectItem>
-                    <SelectItem value="australia">Australia</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button 
-                className="w-full gradient-primary" 
-                disabled={files.length === 0}
-              >
-                Analyze Documents
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Quick Tips</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-sm">
-                <h4 className="font-medium mb-1">Supported Formats</h4>
-                <p className="text-muted-foreground">PDF, DOCX, TXT files up to 50MB each</p>
-              </div>
-              
-              <div className="text-sm">
-                <h4 className="font-medium mb-1">Processing Time</h4>
-                <p className="text-muted-foreground">Most documents are analyzed within 2-5 minutes</p>
-              </div>
-              
-              <div className="text-sm">
-                <h4 className="font-medium mb-1">Batch Upload</h4>
-                <p className="text-muted-foreground">Upload up to 10 documents at once for efficiency</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            <Button
+              className="w-full"
+              onClick={() => uploadMutation.mutate()}
+              disabled={!userFile || uploadMutation.isPending}
+            >
+              {uploadMutation.isPending ? "Uploading..." : "Upload & Compare"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
-};
-
-export default Upload;
+}

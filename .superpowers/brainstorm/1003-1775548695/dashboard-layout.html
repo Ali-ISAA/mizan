@@ -1,0 +1,100 @@
+<h2>Dashboard Layout</h2>
+<p class="subtitle">How should the main dashboard be structured? Both use the Light & Airy style with dark mode toggle.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Stats + Activity Feed</h3>
+      <p>Top row: 4 stat cards (total projects, completed, in-progress, avg score). Below: two columns — recent projects list on the left, recent activity feed on the right.</p>
+      <div style="margin-top:12px;background:#f0f9ff;border-radius:8px;padding:12px;font-size:12px;">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;">
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#0369a1;">5</div><div style="color:#64748b;font-size:10px;">Projects</div></div>
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#15803d;">3</div><div style="color:#64748b;font-size:10px;">Completed</div></div>
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#d97706;">1</div><div style="color:#64748b;font-size:10px;">In Progress</div></div>
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#7c3aed;">82%</div><div style="color:#64748b;font-size:10px;">Avg Score</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:3fr 2fr;gap:6px;">
+          <div style="background:white;border:1px solid #e0f2fe;border-radius:4px;padding:8px;">
+            <div style="font-size:10px;font-weight:600;color:#0c4a6e;margin-bottom:6px;">Recent Projects</div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px;background:#f8fafc;border-radius:3px;"><span style="font-size:10px;">ISO 27001 Audit</span><span style="font-size:10px;color:#15803d;font-weight:600;">91%</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px;background:#f8fafc;border-radius:3px;"><span style="font-size:10px;">GDPR Review</span><span style="font-size:10px;color:#d97706;font-weight:600;">68%</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px;background:#f8fafc;border-radius:3px;"><span style="font-size:10px;">RFP Analysis</span><span style="font-size:10px;color:#64748b;">Analyzing...</span></div>
+            </div>
+          </div>
+          <div style="background:white;border:1px solid #e0f2fe;border-radius:4px;padding:8px;">
+            <div style="font-size:10px;font-weight:600;color:#0c4a6e;margin-bottom:6px;">Activity</div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:9px;color:#64748b;padding:3px 0;border-bottom:1px solid #f1f5f9;">✅ ISO audit completed</div>
+              <div style="font-size:9px;color:#64748b;padding:3px 0;border-bottom:1px solid #f1f5f9;">📄 RFP doc uploaded</div>
+              <div style="font-size:9px;color:#64748b;padding:3px 0;">🔍 GDPR analysis started</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Stats + Score Chart</h3>
+      <p>Top row: 4 stat cards. Below: compliance score trend chart on the left (bar chart of last 5 analyses), recent projects table on the right with quick-action buttons.</p>
+      <div style="margin-top:12px;background:#f0f9ff;border-radius:8px;padding:12px;font-size:12px;">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;">
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#0369a1;">5</div><div style="color:#64748b;font-size:10px;">Projects</div></div>
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#15803d;">3</div><div style="color:#64748b;font-size:10px;">Completed</div></div>
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#d97706;">1</div><div style="color:#64748b;font-size:10px;">In Progress</div></div>
+          <div style="background:white;border:1px solid #bae6fd;border-radius:4px;padding:6px;text-align:center;"><div style="font-weight:700;color:#7c3aed;">82%</div><div style="color:#64748b;font-size:10px;">Avg Score</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 3fr;gap:6px;">
+          <div style="background:white;border:1px solid #e0f2fe;border-radius:4px;padding:8px;">
+            <div style="font-size:10px;font-weight:600;color:#0c4a6e;margin-bottom:6px;">Score Trend</div>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:48px;padding-top:4px;">
+              <div style="flex:1;background:#bae6fd;border-radius:2px 2px 0 0;height:55%;"></div>
+              <div style="flex:1;background:#7dd3fc;border-radius:2px 2px 0 0;height:72%;"></div>
+              <div style="flex:1;background:#38bdf8;border-radius:2px 2px 0 0;height:65%;"></div>
+              <div style="flex:1;background:#0ea5e9;border-radius:2px 2px 0 0;height:80%;"></div>
+              <div style="flex:1;background:#0284c7;border-radius:2px 2px 0 0;height:91%;"></div>
+            </div>
+            <div style="display:flex;gap:4px;margin-top:2px;">
+              <div style="flex:1;font-size:8px;color:#94a3b8;text-align:center;">Jan</div>
+              <div style="flex:1;font-size:8px;color:#94a3b8;text-align:center;">Feb</div>
+              <div style="flex:1;font-size:8px;color:#94a3b8;text-align:center;">Mar</div>
+              <div style="flex:1;font-size:8px;color:#94a3b8;text-align:center;">Apr</div>
+              <div style="flex:1;font-size:8px;color:#94a3b8;text-align:center;">May</div>
+            </div>
+          </div>
+          <div style="background:white;border:1px solid #e0f2fe;border-radius:4px;padding:8px;">
+            <div style="font-size:10px;font-weight:600;color:#0c4a6e;margin-bottom:6px;">Recent Projects</div>
+            <div style="display:flex;flex-direction:column;gap:3px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px;background:#f8fafc;border-radius:3px;">
+                <span style="font-size:10px;">ISO 27001 Audit</span>
+                <div style="display:flex;gap:4px;align-items:center;">
+                  <span style="font-size:10px;color:#15803d;font-weight:600;">91%</span>
+                  <span style="font-size:9px;background:#dcfce7;color:#15803d;border-radius:3px;padding:1px 4px;">View</span>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px;background:#f8fafc;border-radius:3px;">
+                <span style="font-size:10px;">GDPR Review</span>
+                <div style="display:flex;gap:4px;align-items:center;">
+                  <span style="font-size:10px;color:#d97706;font-weight:600;">68%</span>
+                  <span style="font-size:9px;background:#fef9c3;color:#854d0e;border-radius:3px;padding:1px 4px;">View</span>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px;background:#f8fafc;border-radius:3px;">
+                <span style="font-size:10px;">RFP Analysis</span>
+                <div style="display:flex;gap:4px;align-items:center;">
+                  <span style="font-size:9px;background:#dbeafe;color:#1d4ed8;border-radius:3px;padding:1px 4px;">Analyzing</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

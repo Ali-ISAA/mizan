@@ -1,5 +1,5 @@
-import { BarChart3, FileText, Shield, Upload, Settings, Home } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { BarChart3, FileText, Shield, Upload, Settings, Home } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -9,15 +9,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 const items = [
-  { title: "Dashboard", url: "/", icon: Home },
-  { title: "Upload Document", url: "/upload", icon: Upload },
-  { title: "My Documents", url: "/documents", icon: FileText },
-  { title: "Compliance Rules", url: "/rules", icon: Shield },
-  { title: "Reports & Analytics", url: "/reports", icon: BarChart3 },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: 'Dashboard', url: '/', icon: Home },
+  { title: 'Upload Document', url: '/upload', icon: Upload },
+  { title: 'My Documents', url: '/documents', icon: FileText },
+  { title: 'Compliance Rules', url: '/rules', icon: Shield },
+  { title: 'Reports & Analytics', url: '/reports', icon: BarChart3 },
+  { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -34,7 +34,7 @@ export function AppSidebar() {
           background: 'var(--gradient-sidebar)',
         }}
       >
-        {/* Modern Header */}
+        {/* Header */}
         <div className="px-4 py-6 border-b border-sidebar-border/50">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-600 shadow-glow-blue">
@@ -77,12 +77,9 @@ export function AppSidebar() {
                           }
                         `}
                       >
-                        {/* Active indicator */}
                         {active && (
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent-600 rounded-r-full" />
                         )}
-
-                        {/* Icon with glow on active */}
                         <item.icon
                           className={`
                             h-4 w-4 flex-shrink-0 transition-all duration-200
@@ -92,7 +89,6 @@ export function AppSidebar() {
                             }
                           `}
                         />
-
                         <span className="text-sm group-data-[collapsible=icon]:hidden">
                           {item.title}
                         </span>

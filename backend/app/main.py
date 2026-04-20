@@ -8,7 +8,7 @@ from app.db.base import Base
 from app.db.session import engine
 import app.db.models  # noqa: F401 — registers all ORM models with Base.metadata
 
-from app.api.v1 import auth, projects, documents, analysis, search, ai_chat, reports, activity, superadmin
+from app.api.v1 import auth, projects, documents, analysis, search, ai_chat, reports, activity, superadmin, base_documents
 
 
 @asynccontextmanager
@@ -28,6 +28,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
+    allow_origin_regex=r"http://localhost:\d+",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
@@ -42,6 +43,7 @@ app.include_router(ai_chat.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")
 app.include_router(activity.router, prefix="/api/v1")
 app.include_router(superadmin.router, prefix="/api/v1")
+app.include_router(base_documents.router, prefix="/api/v1")
 
 
 @app.get("/health")

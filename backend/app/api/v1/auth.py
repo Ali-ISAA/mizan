@@ -125,7 +125,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     access_token = _create_token({"sub": str(user.id), "tenant": str(tenant.id)}, timedelta(minutes=settings.access_token_expire_minutes))
     refresh_token = _create_token({"sub": str(user.id), "type": "refresh"}, timedelta(days=settings.refresh_token_expire_days))
     user.refresh_token = refresh_token
-    user.refresh_token_expires_at = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
+    user.refresh_token_expires_at = (datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)).replace(tzinfo=None)
     await db.commit()
 
     return TokenResponse(access_token=access_token, refresh_token=refresh_token, user_id=str(user.id), email=user.email, role=user.role, tenant_id=str(tenant.id))
@@ -144,7 +144,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     access_token = _create_token({"sub": str(user.id), "tenant": str(user.tenant_id)}, timedelta(minutes=settings.access_token_expire_minutes))
     refresh_token = _create_token({"sub": str(user.id), "type": "refresh"}, timedelta(days=settings.refresh_token_expire_days))
     user.refresh_token = refresh_token
-    user.refresh_token_expires_at = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
+    user.refresh_token_expires_at = (datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)).replace(tzinfo=None)
     await db.commit()
 
     return TokenResponse(access_token=access_token, refresh_token=refresh_token, user_id=str(user.id), email=user.email, role=user.role, tenant_id=str(user.tenant_id))
@@ -167,7 +167,7 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
     access_token = _create_token({"sub": str(user.id), "tenant": str(user.tenant_id)}, timedelta(minutes=settings.access_token_expire_minutes))
     refresh_token = _create_token({"sub": str(user.id), "type": "refresh"}, timedelta(days=settings.refresh_token_expire_days))
     user.refresh_token = refresh_token
-    user.refresh_token_expires_at = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
+    user.refresh_token_expires_at = (datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)).replace(tzinfo=None)
     await db.commit()
 
     return TokenResponse(access_token=access_token, refresh_token=refresh_token, user_id=str(user.id), email=user.email, role=user.role, tenant_id=str(user.tenant_id))
