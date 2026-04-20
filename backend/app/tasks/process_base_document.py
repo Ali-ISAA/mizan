@@ -6,6 +6,7 @@ import os
 import uuid
 
 from app.db.models.base_document import BaseDocument
+from app.db.models.base_document_chunk import BaseDocumentChunk
 from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
 from app.services.noesia import NoesiaError, noesia_client
 from app.worker import celery_app
@@ -91,6 +92,18 @@ async def _process_base_document(doc_id: str, file_path: str) -> None:
                     limit=500,
                 )
                 chunk_count = len(chunks)
+
+                # Save chunks to database
+                for idx, chunk in enumerate(chunks):
+                    db_chunk = BaseDocumentChunk(
+                        base_document_id=doc_uuid,
+                        chunk_index=idx,
+                        text=chunk.get("text") or "",
+                        section_header=chunk.get("metadata", {}).get("section_header"),
+                        section_level=chunk.get("metadata", {}).get("section_level"),
+                        document_name=noesia_filename,
+                    )
+                    db.add(db_chunk)
             else:
                 logger.warning("No collection_id returned from ingest for doc %s", doc_id)
                 chunk_count = 0

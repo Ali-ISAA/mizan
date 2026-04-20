@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.auth import require_user
 from app.api.v1.superadmin import require_superadmin
 from app.db.models.base_document import DOC_TYPES, BaseDocument
+from app.db.models.base_document_chunk import BaseDocumentChunk
 from app.db.session import get_db
 from app.tasks.process_base_document import process_base_document_task
 
@@ -119,27 +120,43 @@ async def get_chunks(
     _=Depends(require_superadmin),
     db: AsyncSession = Depends(get_db),
 ):
-    doc = await db.get(BaseDocument, uuid.UUID(doc_id))
-    if not doc or not doc.noesia_document_id:
-        raise HTTPException(status_code=404, detail="Not found or not yet processed")
-    if not doc.noesia_collection_id:
-        raise HTTPException(status_code=404, detail="Document has no collection yet — still processing?")
+    """Fetch chunks for a document from our database."""
+    doc_uuid = uuid.UUID(doc_id)
+    doc = await db.get(BaseDocument, doc_uuid)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if doc.processing_status != "completed":
+        raise HTTPException(status_code=400, detail=f"Document not ready yet (status: {doc.processing_status})")
 
-    from app.services.noesia import noesia_client
-    # Reconstruct the filename as it was uploaded to Noesia (with UUID suffix)
-    stem, ext = os.path.splitext(doc.filename)
-    noesia_filename = f"{stem}_{str(doc.id).replace('-', '')}{ext}"
-    chunks = await noesia_client.get_chunks(
-        collection_id=doc.noesia_collection_id,
-        document_name=noesia_filename,
-        limit=500,
+    # Fetch chunks from our database
+    result = await db.execute(
+        select(BaseDocumentChunk)
+        .where(BaseDocumentChunk.base_document_id == doc_uuid)
+        .order_by(BaseDocumentChunk.chunk_index)
     )
+    chunks = result.scalars().all()
 
+    # Format as list of dicts matching Noesia response format
+    chunk_dicts = [
+        {
+            "id": str(c.id),
+            "text": c.text,
+            "metadata": {
+                "section_header": c.section_header,
+                "section_level": c.section_level,
+                "chunk_index": c.chunk_index,
+                "document_name": c.document_name,
+            },
+        }
+        for c in chunks
+    ]
+
+    # Filter by search query if provided
     if q:
         q_lower = q.lower()
-        chunks = [c for c in chunks if q_lower in str(c.get("text", "")).lower()]
+        chunk_dicts = [c for c in chunk_dicts if q_lower in str(c.get("text", "")).lower()]
 
-    return {"chunks": chunks, "total": len(chunks)}
+    return {"chunks": chunk_dicts, "total": len(chunk_dicts)}
 
 
 @router.delete("/superadmin/base-documents/{doc_id}", status_code=204)
