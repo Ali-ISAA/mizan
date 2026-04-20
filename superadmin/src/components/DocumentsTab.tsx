@@ -1,5 +1,5 @@
-import { PDFViewer } from "./PDFViewer";
 import { ExtractedContent } from "./ExtractedContent";
+import { Download } from "lucide-react";
 
 interface Chunk {
   id?: string;
@@ -15,6 +15,7 @@ interface BaseDoc {
   id: string;
   filename: string;
   file_path?: string;
+  file_size?: number | null;
   [key: string]: any;
 }
 
@@ -25,15 +26,33 @@ interface DocumentsTabProps {
 }
 
 export function DocumentsTab({ doc, chunks = [], isLoading }: DocumentsTabProps) {
+  function formatSize(bytes: number | null | undefined) {
+    if (!bytes) return "—";
+    return bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  }
+
   return (
-    <div className="flex gap-4 h-[calc(100vh-500px)]">
-      {/* Left: PDF Viewer (50%) */}
-      <div className="w-1/2">
-        <PDFViewer filePath={doc.file_path} fileName={doc.filename} />
+    <div className="space-y-4">
+      {/* Document Info */}
+      <div className="bg-white border rounded-lg p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-gray-900">{doc.filename}</h3>
+            <p className="text-sm text-gray-500 mt-1">File size: {formatSize(doc.file_size)}</p>
+          </div>
+          <a
+            href={doc.file_path ? `/uploads${doc.file_path.startsWith("/") ? doc.file_path : "/" + doc.file_path}` : "#"}
+            download
+            className="flex items-center gap-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-md hover:bg-slate-800 transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </a>
+        </div>
       </div>
 
-      {/* Right: Extracted Content (50%) */}
-      <div className="w-1/2 border rounded-lg p-4 overflow-y-auto">
+      {/* Extracted Content */}
+      <div className="bg-white border rounded-lg p-6 overflow-y-auto h-[calc(100vh-600px)]">
         <ExtractedContent chunks={chunks} isLoading={isLoading} />
       </div>
     </div>
