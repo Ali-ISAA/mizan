@@ -14,7 +14,7 @@ import logging
 import uuid
 
 from app.db.models.analysis import AnalysisResult, ComplianceMapping, GapItem, RequirementItem
-from app.db.models.project import Project
+
 from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
 from app.services import compliance as compliance_service
 from app.services.llm import generate_executive_summary

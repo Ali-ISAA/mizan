@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.auth import require_user
 from app.db.models.analysis import AnalysisResult, ComplianceMapping, GapItem, RequirementItem
 from app.db.models.document import MizanDocument
-from app.db.models.project import Project
+
 from app.db.models.user import User
 from app.db.session import get_db
 from app.tasks.analysis import run_analysis_task

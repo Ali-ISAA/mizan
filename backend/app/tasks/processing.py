@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from slugify import slugify
 
 from app.db.models.document import MizanDocument
-from app.db.models.project import Project
+
 from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
 from app.services.llm import generate_summary
 from app.services.noesia import IngestResult, NoesiaError, noesia_client

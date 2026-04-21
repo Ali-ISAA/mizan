@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.auth import require_user
-from app.db.models.project import Project
+
 from app.db.models.user import User
 from app.db.session import get_db
 from app.services import llm as llm_service
