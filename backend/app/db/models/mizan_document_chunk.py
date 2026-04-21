@@ -20,7 +20,7 @@ class MizanDocumentChunk(Base):
     section_header: Mapped[str | None] = mapped_column(String(500))
     section_level: Mapped[int | None] = mapped_column(Integer)
     document_name: Mapped[str] = mapped_column(String(500))
-    metadata: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    chunk_metadata: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     mizan_document: Mapped["MizanDocument"] = relationship("MizanDocument", back_populates="chunks")

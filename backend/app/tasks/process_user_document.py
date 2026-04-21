@@ -72,7 +72,7 @@ async def _process_document(document_id: str, file_path: str):
                     section_header=chunk.get("metadata", {}).get("section_header"),
                     section_level=chunk.get("metadata", {}).get("section_level"),
                     document_name=chunk.get("metadata", {}).get("document_name", doc.name),
-                    metadata=chunk.get("metadata", {}),
+                    chunk_metadata=chunk.get("metadata", {}),
                 )
                 db.add(chunk_obj)
 
