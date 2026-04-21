@@ -83,151 +83,181 @@ export default function Upload() {
         <p className="text-text-secondary mt-2">Upload your document for compliance comparison.</p>
       </div>
 
-      {/* Step indicators */}
-      <div className="flex items-center gap-2">
-        {([1, 2, 3] as Step[]).map((s, i) => (
-          <div key={s} className="flex items-center gap-2">
-            <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
-              step > s ? "bg-success text-white" : step === s ? "bg-accent-600 text-white" : "bg-muted text-muted-foreground"
-            }`}>
-              {step > s ? <CheckCircle className="h-4 w-4" /> : s}
-            </div>
-            <span className={`text-sm ${step === s ? "font-medium text-foreground" : "text-text-secondary"}`}>
-              {s === 1 ? "Select Type" : s === 2 ? "Choose Base Document" : "Upload Your Document"}
-            </span>
-            {i < 2 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Main content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Step indicators */}
+          <div className="flex items-center gap-2">
+            {([1, 2, 3] as Step[]).map((s, i) => (
+              <div key={s} className="flex items-center gap-2">
+                <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                  step > s ? "bg-success text-white" : step === s ? "bg-accent-600 text-white" : "bg-muted text-muted-foreground"
+                }`}>
+                  {step > s ? <CheckCircle className="h-4 w-4" /> : s}
+                </div>
+                <span className={`text-sm ${step === s ? "font-medium text-foreground" : "text-text-secondary"}`}>
+                  {s === 1 ? "Select Type" : s === 2 ? "Choose Base Document" : "Upload Your Document"}
+                </span>
+                {i < 2 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Step 1: Select Type */}
-      {step === 1 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Select Document Type</CardTitle>
-            <CardDescription>What type of compliance standard does your document relate to?</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {DOC_TYPES.map(type => (
-                <button
-                  key={type}
-                  onClick={() => { setSelectedType(type); setStep(2); }}
-                  className={`p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
-                    selectedType === type ? "border-accent-600 bg-accent-600/5" : "border-border"
-                  }`}
-                >
-                  <p className="font-semibold text-sm">{type}</p>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          {/* Step 1: Select Type */}
+          {step === 1 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Select Document Type</CardTitle>
+                <CardDescription>What type of compliance standard does your document relate to?</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {DOC_TYPES.map(type => (
+                    <button
+                      key={type}
+                      onClick={() => { setSelectedType(type); setStep(2); }}
+                      className={`p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
+                        selectedType === type ? "border-accent-600 bg-accent-600/5" : "border-border"
+                      }`}
+                    >
+                      <p className="font-semibold text-sm">{type}</p>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-      {/* Step 2: Choose Base Document */}
-      {step === 2 && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Choose Base Document</CardTitle>
-                <CardDescription>
-                  Select the <Badge variant="outline">{selectedType}</Badge> reference document to compare against.
-                </CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => setStep(1)}>Change Type</Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {docsLoading && <p className="text-sm text-text-secondary">Loading documents...</p>}
-            {!docsLoading && baseDocs.length === 0 && (
-              <div className="text-center py-8">
-                <FileText className="h-10 w-10 mx-auto text-text-muted mb-3" />
-                <p className="text-sm font-medium">No base documents available</p>
-                <p className="text-xs text-text-secondary mt-1">No {selectedType} documents have been uploaded by the admin yet.</p>
-              </div>
-            )}
-            <div className="space-y-2">
-              {baseDocs.map(doc => (
-                <button
-                  key={doc.id}
-                  onClick={() => { setSelectedBaseDoc(doc); setStep(3); }}
-                  className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
-                    selectedBaseDoc?.id === doc.id ? "border-accent-600 bg-accent-600/5" : "border-border"
-                  }`}
-                >
-                  <FileText className="h-5 w-5 text-text-muted flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{doc.filename}</p>
-                    <p className="text-xs text-text-secondary mt-0.5">{doc.chunk_count} chunks</p>
+          {/* Step 2: Choose Base Document */}
+          {step === 2 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Choose Base Document</CardTitle>
+                    <CardDescription>
+                      Select the <Badge variant="outline">{selectedType}</Badge> reference document to compare against.
+                    </CardDescription>
                   </div>
-                  <Badge variant="outline">{doc.doc_type}</Badge>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                  <Button variant="outline" size="sm" onClick={() => setStep(1)}>Change Type</Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {docsLoading && <p className="text-sm text-text-secondary">Loading documents...</p>}
+                {!docsLoading && baseDocs.length === 0 && (
+                  <div className="text-center py-8">
+                    <FileText className="h-10 w-10 mx-auto text-text-muted mb-3" />
+                    <p className="text-sm font-medium">No base documents available</p>
+                    <p className="text-xs text-text-secondary mt-1">No {selectedType} documents have been uploaded by the admin yet.</p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  {baseDocs.map(doc => (
+                    <button
+                      key={doc.id}
+                      onClick={() => { setSelectedBaseDoc(doc); setStep(3); }}
+                      className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
+                        selectedBaseDoc?.id === doc.id ? "border-accent-600 bg-accent-600/5" : "border-border"
+                      }`}
+                    >
+                      <FileText className="h-5 w-5 text-text-muted flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{doc.filename}</p>
+                        <p className="text-xs text-text-secondary mt-0.5">{doc.chunk_count} chunks</p>
+                      </div>
+                      <Badge variant="outline">{doc.doc_type}</Badge>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-      {/* Step 3: Upload user file */}
-      {step === 3 && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Upload Your Document</CardTitle>
-                <CardDescription>
-                  Comparing against: <span className="font-medium">{selectedBaseDoc?.filename}</span>
-                </CardDescription>
+          {/* Step 3: Upload user file */}
+          {step === 3 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Upload Your Document</CardTitle>
+                    <CardDescription>
+                      Comparing against: <span className="font-medium">{selectedBaseDoc?.filename}</span>
+                    </CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setStep(2)}>Change Base Doc</Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div
+                  className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${
+                    isDragging ? "border-accent-600 bg-accent-600/5" : "border-border hover:border-accent-600/50"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {userFile ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <CheckCircle className="h-8 w-8 text-success" />
+                      <p className="font-medium text-sm">{userFile.name}</p>
+                      <p className="text-xs text-text-secondary">{(userFile.size / 1024).toFixed(1)} KB</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <UploadIcon className="h-8 w-8 text-text-muted" />
+                      <p className="font-medium text-sm">Drag & drop or click to browse</p>
+                      <p className="text-xs text-text-secondary">PDF, DOC, DOCX, TXT</p>
+                    </div>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.txt"
+                    onChange={e => setUserFile(e.target.files?.[0] || null)}
+                  />
+                </div>
+
+                {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+
+                <Button
+                  className="w-full"
+                  onClick={() => uploadMutation.mutate()}
+                  disabled={!userFile || uploadMutation.isPending}
+                >
+                  {uploadMutation.isPending ? "Uploading..." : "Upload & Compare"}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Sidebar: Quick Tips */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Tips</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-sm">
+                <h4 className="font-semibold text-foreground mb-1">Supported Formats</h4>
+                <p className="text-text-secondary">PDF, DOC, DOCX, TXT files up to 50MB each</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setStep(2)}>Change Base Doc</Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div
-              className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${
-                isDragging ? "border-accent-600 bg-accent-600/5" : "border-border hover:border-accent-600/50"
-              }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileRef.current?.click()}
-            >
-              {userFile ? (
-                <div className="flex flex-col items-center gap-2">
-                  <CheckCircle className="h-8 w-8 text-success" />
-                  <p className="font-medium text-sm">{userFile.name}</p>
-                  <p className="text-xs text-text-secondary">{(userFile.size / 1024).toFixed(1)} KB</p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-2">
-                  <UploadIcon className="h-8 w-8 text-text-muted" />
-                  <p className="font-medium text-sm">Drag & drop or click to browse</p>
-                  <p className="text-xs text-text-secondary">PDF, DOC, DOCX, TXT</p>
-                </div>
-              )}
-              <input
-                ref={fileRef}
-                type="file"
-                className="hidden"
-                accept=".pdf,.doc,.docx,.txt"
-                onChange={e => setUserFile(e.target.files?.[0] || null)}
-              />
-            </div>
 
-            {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+              <div className="text-sm">
+                <h4 className="font-semibold text-foreground mb-1">Processing Time</h4>
+                <p className="text-text-secondary">Most documents are analyzed within 2-5 minutes</p>
+              </div>
 
-            <Button
-              className="w-full"
-              onClick={() => uploadMutation.mutate()}
-              disabled={!userFile || uploadMutation.isPending}
-            >
-              {uploadMutation.isPending ? "Uploading..." : "Upload & Compare"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+              <div className="text-sm">
+                <h4 className="font-semibold text-foreground mb-1">Batch Upload</h4>
+                <p className="text-text-secondary">Upload up to 10 documents at once for efficiency</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
