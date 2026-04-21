@@ -20,6 +20,7 @@ from app.tasks.processing import process_document_task
 from app.tasks.process_user_document import process_user_document_task
 
 router = APIRouter(prefix="/projects/{project_id}/documents", tags=["documents"])
+global_router = APIRouter(prefix="/documents", tags=["documents"])
 
 
 class DocumentOut(BaseModel):
@@ -129,7 +130,7 @@ async def upload_document(
 
 
 # Global upload endpoint for user documents
-@router.post("/upload", status_code=201)
+@global_router.post("/upload", status_code=201)
 async def user_document_upload(
     file: UploadFile = File(...),
     base_document_id: str = Form(...),
@@ -194,7 +195,7 @@ async def user_document_upload(
 
 
 # Endpoint to get chunks for a document
-@router.get("/{document_id}/chunks")
+@global_router.get("/{document_id}/chunks")
 async def get_document_chunks(
     project_id: str,
     document_id: str,

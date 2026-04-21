@@ -237,7 +237,7 @@ export default function Upload() {
                   onClick={() => uploadMutation.mutate()}
                   disabled={!userFile || uploadMutation.isPending}
                 >
-                  {uploadMutation.isPending ? "Uploading..." : "Upload & Compare"}
+                  {uploadMutation.isPending ? "Uploading..." : "Upload"}
                 </Button>
               </CardContent>
             </Card>

@@ -37,6 +37,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(projects.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
+app.include_router(documents.global_router, prefix="/api/v1")
 app.include_router(analysis.router, prefix="/api/v1")
 app.include_router(search.router, prefix="/api/v1")
 app.include_router(ai_chat.router, prefix="/api/v1")
