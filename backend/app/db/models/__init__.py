@@ -7,3 +7,4 @@ from app.db.models.analysis import AnalysisResult, RequirementItem, ComplianceMa
 from app.db.models.activity import ActivityLog  # noqa: F401
 from app.db.models.base_document import BaseDocument  # noqa: F401
 from app.db.models.base_document_chunk import BaseDocumentChunk  # noqa: F401
+from app.db.models.mizan_document_chunk import MizanDocumentChunk  # noqa: F401

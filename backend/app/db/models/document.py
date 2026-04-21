@@ -39,4 +39,7 @@ class MizanDocument(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
+    base_document_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("base_documents.id"))
+    chunks: Mapped[list["MizanDocumentChunk"]] = relationship("MizanDocumentChunk", back_populates="mizan_document", cascade="all, delete-orphan")  # type: ignore[name-defined]
+
     project: Mapped["Project"] = relationship("Project", back_populates="documents")  # type: ignore[name-defined]
