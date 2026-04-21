@@ -83,35 +83,36 @@ export default function Upload() {
         <p className="text-text-secondary mt-2">Upload your document for compliance comparison.</p>
       </div>
 
+      {/* Step indicators */}
+      <div className="flex items-center gap-3 overflow-x-auto pb-4 mb-6">
+        {([1, 2, 3] as Step[]).map((s, i) => {
+          const getIcon = () => {
+            switch (s) {
+              case 1: return <Tag className="h-4 w-4" />;
+              case 2: return <BookOpen className="h-4 w-4" />;
+              case 3: return <FileUp className="h-4 w-4" />;
+              default: return s;
+            }
+          };
+          return (
+            <div key={s} className="flex items-center gap-2 flex-shrink-0">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                step > s ? "bg-success text-white" : step === s ? "bg-accent-600 text-white" : "bg-muted text-muted-foreground"
+              }`}>
+                {step > s ? <CheckCircle className="h-4 w-4" /> : getIcon()}
+              </div>
+              <span className={`text-sm whitespace-nowrap ${step === s ? "font-medium text-foreground" : "text-text-secondary"}`}>
+                {s === 1 ? "Select Type" : s === 2 ? "Choose Base Document" : "Upload Your Document"}
+              </span>
+              {i < 2 && <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+            </div>
+          );
+        })}
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3 items-start">
         {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Step indicators */}
-          <div className="flex items-center gap-3 overflow-x-auto pb-2">
-            {([1, 2, 3] as Step[]).map((s, i) => {
-              const getIcon = () => {
-                switch (s) {
-                  case 1: return <Tag className="h-4 w-4" />;
-                  case 2: return <BookOpen className="h-4 w-4" />;
-                  case 3: return <FileUp className="h-4 w-4" />;
-                  default: return s;
-                }
-              };
-              return (
-                <div key={s} className="flex items-center gap-2 flex-shrink-0">
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
-                    step > s ? "bg-success text-white" : step === s ? "bg-accent-600 text-white" : "bg-muted text-muted-foreground"
-                  }`}>
-                    {step > s ? <CheckCircle className="h-4 w-4" /> : getIcon()}
-                  </div>
-                  <span className={`text-sm whitespace-nowrap ${step === s ? "font-medium text-foreground" : "text-text-secondary"}`}>
-                    {s === 1 ? "Select Type" : s === 2 ? "Choose Base Document" : "Upload Your Document"}
-                  </span>
-                  {i < 2 && <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
-                </div>
-              );
-            })}
-          </div>
 
           {/* Step 1: Select Type */}
           {step === 1 && (
