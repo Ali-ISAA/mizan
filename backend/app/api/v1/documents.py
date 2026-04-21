@@ -12,10 +12,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.auth import require_user
 from app.config import settings
 from app.db.models.document import MizanDocument
+from app.db.models.mizan_document_chunk import MizanDocumentChunk
 from app.db.models.project import Project
 from app.db.models.user import User
 from app.db.session import get_db
 from app.tasks.processing import process_document_task
+from app.tasks.process_user_document import process_user_document_task
 
 router = APIRouter(prefix="/projects/{project_id}/documents", tags=["documents"])
 
@@ -124,3 +126,122 @@ async def upload_document(
     process_document_task.delay(str(doc.id), save_path, str(project.id))
 
     return DocumentOut(id=str(doc.id), project_id=str(doc.project_id), role=doc.role, name=doc.name, file_type=doc.file_type, file_size=doc.file_size, processing_status=doc.processing_status, ai_summary=doc.ai_summary, page_count=doc.page_count, word_count=doc.word_count, created_at=doc.created_at)
+
+
+# Global upload endpoint for user documents
+@router.post("/upload", status_code=201)
+async def user_document_upload(
+    file: UploadFile = File(...),
+    base_document_id: str = Form(...),
+    doc_type: str = Form(...),
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload a user document for comparison against a base document."""
+    try:
+        base_doc_uuid = uuid.UUID(base_document_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid base_document_id")
+
+    # Verify base document exists
+    from app.db.models.base_document import BaseDocument
+    base_doc = await db.get(BaseDocument, base_doc_uuid)
+    if not base_doc:
+        raise HTTPException(status_code=404, detail="Base document not found")
+
+    content = await file.read()
+    max_bytes = settings.max_file_size_mb * 1024 * 1024
+    if len(content) > max_bytes:
+        raise HTTPException(status_code=413, detail=f"File exceeds {settings.max_file_size_mb}MB limit")
+
+    # Save file
+    doc_id = uuid.uuid4()
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    save_name = f"{doc_id}{ext}"
+    save_path = os.path.join(settings.upload_dir, save_name)
+    os.makedirs(settings.upload_dir, exist_ok=True)
+
+    with open(save_path, "wb") as f:
+        f.write(content)
+
+    # Create MizanDocument
+    doc = MizanDocument(
+        id=doc_id,
+        tenant_id=user.tenant_id,
+        created_by=user.id,
+        role="compliance",  # User uploads are compliance docs
+        name=file.filename or "document",
+        file_type=ext.lstrip(".") or None,
+        file_size=len(content),
+        file_url=save_path,
+        processing_status="pending",
+        base_document_id=base_doc_uuid,
+    )
+    db.add(doc)
+    await db.commit()
+    await db.refresh(doc)
+
+    # Trigger Celery task for Noesia processing
+    process_user_document_task.delay(str(doc.id), save_path)
+
+    return {
+        "id": str(doc.id),
+        "name": doc.name,
+        "file_size": doc.file_size,
+        "processing_status": doc.processing_status,
+        "base_document_id": str(doc.base_document_id),
+    }
+
+
+# Endpoint to get chunks for a document
+@router.get("/{document_id}/chunks")
+async def get_document_chunks(
+    project_id: str,
+    document_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Fetch chunks for a user-uploaded document."""
+    try:
+        doc_uuid = uuid.UUID(document_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    # Verify project exists (for project-scoped documents)
+    try:
+        await _get_project(project_id, user, db)
+    except HTTPException:
+        # If project doesn't exist, still allow access to user's own documents
+        pass
+
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    if doc.processing_status != "completed":
+        raise HTTPException(status_code=400, detail=f"Document not ready (status: {doc.processing_status})")
+
+    # Fetch chunks
+    result = await db.execute(
+        select(MizanDocumentChunk)
+        .where(MizanDocumentChunk.mizan_document_id == doc_uuid)
+        .order_by(MizanDocumentChunk.chunk_index)
+    )
+    chunks = result.scalars().all()
+
+    # Format response (match superadmin format)
+    chunk_dicts = [
+        {
+            "id": str(c.id),
+            "text": c.text,
+            "metadata": {
+                "section_header": c.section_header,
+                "section_level": c.section_level,
+                "chunk_index": c.chunk_index,
+                "document_name": c.document_name,
+            },
+        }
+        for c in chunks
+    ]
+
+    return {"chunks": chunk_dicts, "total": len(chunk_dicts)}
