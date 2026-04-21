@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2 } from "lucide-react";
 import { DocumentDetail } from "@/components/enhanced-document-detail";
+import { ChunksModal } from "@/components/ChunksModal";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -27,88 +30,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const documents = [
-  {
-    id: 1,
-    name: "Employment_Contract_v2.pdf",
-    type: "Contract",
-    uploadDate: "2024-01-15",
-    status: "compliant" as const,
-    score: 94,
-    size: "2.3 MB",
-    issues: 0
-  },
-  {
-    id: 2,
-    name: "Privacy_Policy_Updated.docx",
-    type: "Policy",
-    uploadDate: "2024-01-14",
-    status: "warning" as const,
-    score: 78,
-    size: "1.8 MB",
-    issues: 3
-  },
-  {
-    id: 3,
-    name: "Saudi_Labor_Contract_KSA.pdf",
-    type: "Contract",
-    uploadDate: "2024-01-13",
-    status: "compliant" as const,
-    score: 91,
-    size: "3.1 MB",
-    issues: 1
-  },
-  {
-    id: 4,
-    name: "Data_Processing_Terms.pdf",
-    type: "Legal Doc",
-    uploadDate: "2024-01-12",
-    status: "critical" as const,
-    score: 52,
-    size: "3.2 MB",
-    issues: 8
-  },
-  {
-    id: 5,
-    name: "CMA_Disclosure_Policy_2024.pdf",
-    type: "Policy",
-    uploadDate: "2024-01-11",
-    status: "compliant" as const,
-    score: 89,
-    size: "2.7 MB",
-    issues: 1
-  },
-  {
-    id: 6,
-    name: "SAMA_Banking_Agreement.pdf",
-    type: "Agreement",
-    uploadDate: "2024-01-10",
-    status: "warning" as const,
-    score: 72,
-    size: "4.2 MB",
-    issues: 4
-  },
-  {
-    id: 7,
-    name: "Commercial_Registration_KSA.pdf",
-    type: "Legal Doc",
-    uploadDate: "2024-01-09",
-    status: "compliant" as const,
-    score: 88,
-    size: "1.9 MB",
-    issues: 2
-  },
-  {
-    id: 8,
-    name: "Vendor_Agreement_2024.pdf",
-    type: "Agreement",
-    uploadDate: "2024-01-08",
-    status: "processing" as const,
-    score: null,
-    size: "4.1 MB",
-    issues: null
-  }
-];
+interface DocumentData {
+  id: string;
+  name: string;
+  file_type?: string;
+  file_size?: number;
+  processing_status: string;
+  created_at: string;
+  [key: string]: any;
+}
+
+// Helper to generate random score and issues
+function getRandomCompliance() {
+  const score = Math.floor(Math.random() * 100);
+  const issues = Math.floor(Math.random() * 11); // 0-10
+  return { score, issues };
+}
+
+function getStatusFromScore(score: number) {
+  if (score >= 80) return "compliant";
+  if (score >= 60) return "warning";
+  return "critical";
+}
 
 const statusConfig = {
   compliant: {
@@ -137,7 +80,47 @@ const Documents = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [selectedDocument, setSelectedDocument] = useState<number | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [chunksModalOpen, setChunksModalOpen] = useState(false);
+  const [chunksModalDocId, setChunksModalDocId] = useState<string | null>(null);
+
+  // Get project ID from localStorage or URL (adjust as needed)
+  const projectId = localStorage.getItem("projectId") || "default-project";
+
+  const { data: documentsData = [], isLoading } = useQuery({
+    queryKey: ["documents", projectId],
+    queryFn: () =>
+      api
+        .get(`/projects/${projectId}/documents`)
+        .then((r) => r.data)
+        .catch(() => []),
+  });
+
+  // Map API data to display format with random scores
+  const documents = documentsData.map((doc: DocumentData) => {
+    const { score, issues } = getRandomCompliance();
+    return {
+      id: doc.id,
+      name: doc.name,
+      type: doc.file_type || "Document",
+      uploadDate: new Date(doc.created_at).toISOString().split("T")[0],
+      status:
+        doc.processing_status === "processing"
+          ? "processing"
+          : getStatusFromScore(score),
+      score: doc.processing_status === "completed" ? score : null,
+      size: doc.file_size ? formatFileSize(doc.file_size) : "Unknown",
+      issues: doc.processing_status === "completed" ? issues : null,
+    };
+  });
+
+  function formatFileSize(bytes: number) {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toFixed(1) + " " + sizes[i];
+  }
 
   if (selectedDocument) {
     return <DocumentDetail documentId={selectedDocument} onBack={() => setSelectedDocument(null)} />;
@@ -263,7 +246,16 @@ const Documents = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Loading state */}
+          {isLoading && (
+            <div className="text-center py-12">
+              <p className="text-text-secondary">Loading documents...</p>
+            </div>
+          )}
+
           {/* Filters */}
+          {!isLoading && (
+            <>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
@@ -364,6 +356,16 @@ const Documents = () => {
                           <Eye className="mr-2 h-4 w-4" />
                           View Analysis
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setChunksModalDocId(doc.id);
+                            setChunksModalOpen(true);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <FileText className="mr-2 h-4 w-4" />
+                          View Chunks
+                        </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer">
                           <Download className="mr-2 h-4 w-4" />
                           Download
@@ -393,8 +395,23 @@ const Documents = () => {
               </p>
             </div>
           )}
+            </>
+          )}
         </CardContent>
       </Card>
+
+      {/* Chunks Modal */}
+      {chunksModalDocId && (
+        <ChunksModal
+          open={chunksModalOpen}
+          onOpenChange={setChunksModalOpen}
+          documentId={chunksModalDocId}
+          projectId={projectId}
+          documentName={
+            documents.find((d) => d.id === chunksModalDocId)?.name || "Document"
+          }
+        />
+      )}
     </div>
   );
 };
