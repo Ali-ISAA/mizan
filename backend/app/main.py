@@ -8,7 +8,7 @@ from app.db.base import Base
 from app.db.session import engine
 import app.db.models  # noqa: F401 — registers all ORM models with Base.metadata
 
-from app.api.v1 import auth, projects, documents, analysis, search, ai_chat, reports, activity, superadmin, base_documents
+from app.api.v1 import auth, documents, analysis, search, ai_chat, reports, activity, superadmin, base_documents
 
 
 @asynccontextmanager
@@ -35,7 +35,6 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/api/v1")
-app.include_router(projects.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
 app.include_router(documents.global_router, prefix="/api/v1")
 app.include_router(analysis.router, prefix="/api/v1")
