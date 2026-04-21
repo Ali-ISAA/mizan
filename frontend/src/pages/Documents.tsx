@@ -84,14 +84,11 @@ const Documents = () => {
   const [chunksModalOpen, setChunksModalOpen] = useState(false);
   const [chunksModalDocId, setChunksModalDocId] = useState<string | null>(null);
 
-  // Get project ID from localStorage or URL (adjust as needed)
-  const projectId = localStorage.getItem("projectId") || "default-project";
-
   const { data: documentsData = [], isLoading } = useQuery({
-    queryKey: ["documents", projectId],
+    queryKey: ["documents"],
     queryFn: () =>
       api
-        .get(`/projects/${projectId}/documents`)
+        .get(`/documents`)
         .then((r) => r.data)
         .catch(() => []),
   });
@@ -406,7 +403,6 @@ const Documents = () => {
           open={chunksModalOpen}
           onOpenChange={setChunksModalOpen}
           documentId={chunksModalDocId}
-          projectId={projectId}
           documentName={
             documents.find((d) => d.id === chunksModalDocId)?.name || "Document"
           }

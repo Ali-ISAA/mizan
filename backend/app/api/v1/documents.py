@@ -23,9 +23,20 @@ router = APIRouter(prefix="/projects/{project_id}/documents", tags=["documents"]
 global_router = APIRouter(prefix="/documents", tags=["documents"])
 
 
+@global_router.get("", response_model=list[DocumentOut])
+async def list_all_documents(user: User = Depends(require_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(MizanDocument).where(
+            MizanDocument.tenant_id == user.tenant_id,
+            MizanDocument.deleted_at.is_(None),
+        )
+    )
+    docs = result.scalars().all()
+    return [DocumentOut(id=str(d.id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
+
+
 class DocumentOut(BaseModel):
     id: str
-    project_id: str
     role: str
     name: str
     file_type: str | None
@@ -51,12 +62,12 @@ async def list_documents(project_id: str, user: User = Depends(require_user), db
     await _get_project(project_id, user, db)
     result = await db.execute(
         select(MizanDocument).where(
-            MizanDocument.project_id == uuid.UUID(project_id),
+            MizanDocument.tenant_id == user.tenant_id,
             MizanDocument.deleted_at.is_(None),
         )
     )
     docs = result.scalars().all()
-    return [DocumentOut(id=str(d.id), project_id=str(d.project_id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
+    return [DocumentOut(id=str(d.id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
 
 
 @router.post("", response_model=DocumentOut, status_code=201)
@@ -103,7 +114,6 @@ async def upload_document(
 
     doc = MizanDocument(
         id=doc_id,
-        project_id=project.id,
         tenant_id=user.tenant_id,
         created_by=user.id,
         role=role,
@@ -126,7 +136,7 @@ async def upload_document(
     # Dispatch Celery task
     process_document_task.delay(str(doc.id), save_path, str(project.id))
 
-    return DocumentOut(id=str(doc.id), project_id=str(doc.project_id), role=doc.role, name=doc.name, file_type=doc.file_type, file_size=doc.file_size, processing_status=doc.processing_status, ai_summary=doc.ai_summary, page_count=doc.page_count, word_count=doc.word_count, created_at=doc.created_at)
+    return DocumentOut(id=str(doc.id), role=doc.role, name=doc.name, file_type=doc.file_type, file_size=doc.file_size, processing_status=doc.processing_status, ai_summary=doc.ai_summary, page_count=doc.page_count, word_count=doc.word_count, created_at=doc.created_at)
 
 
 # Global upload endpoint for user documents

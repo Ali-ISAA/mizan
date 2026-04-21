@@ -32,7 +32,7 @@ async def trigger_analysis(project_id: str, user: User = Depends(require_user), 
     # Verify both docs are processed
     result = await db.execute(
         select(MizanDocument).where(
-            MizanDocument.project_id == project.id,
+            MizanDocument.tenant_id == user.tenant_id,
             MizanDocument.deleted_at.is_(None),
         )
     )

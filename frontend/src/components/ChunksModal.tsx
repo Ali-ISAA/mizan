@@ -27,7 +27,6 @@ interface ChunksModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   documentId: string;
-  projectId: string;
   documentName: string;
 }
 
@@ -35,7 +34,6 @@ export function ChunksModal({
   open,
   onOpenChange,
   documentId,
-  projectId,
   documentName,
 }: ChunksModalProps) {
   const [activeTab, setActiveTab] = useState<"chunks" | "document">("chunks");
@@ -44,7 +42,7 @@ export function ChunksModal({
     queryKey: ["document-chunks", documentId],
     queryFn: () =>
       api
-        .get(`/projects/${projectId}/documents/${documentId}/chunks`)
+        .get(`/documents/${documentId}/chunks`)
         .then((r) => r.data)
         .catch(() => ({ chunks: [] })),
     enabled: open,
