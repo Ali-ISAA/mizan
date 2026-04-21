@@ -23,18 +23,6 @@ router = APIRouter(prefix="/projects/{project_id}/documents", tags=["documents"]
 global_router = APIRouter(prefix="/documents", tags=["documents"])
 
 
-@global_router.get("", response_model=list[DocumentOut])
-async def list_all_documents(user: User = Depends(require_user), db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(MizanDocument).where(
-            MizanDocument.tenant_id == user.tenant_id,
-            MizanDocument.deleted_at.is_(None),
-        )
-    )
-    docs = result.scalars().all()
-    return [DocumentOut(id=str(d.id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
-
-
 class DocumentOut(BaseModel):
     id: str
     role: str
@@ -55,6 +43,18 @@ async def _get_project(project_id: str, user: User, db: AsyncSession) -> Project
     if not project or project.tenant_id != user.tenant_id or project.deleted_at:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
+
+
+@global_router.get("", response_model=list[DocumentOut])
+async def list_all_documents(user: User = Depends(require_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(MizanDocument).where(
+            MizanDocument.tenant_id == user.tenant_id,
+            MizanDocument.deleted_at.is_(None),
+        )
+    )
+    docs = result.scalars().all()
+    return [DocumentOut(id=str(d.id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
 
 
 @router.get("", response_model=list[DocumentOut])

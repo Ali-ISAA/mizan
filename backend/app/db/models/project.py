@@ -34,9 +34,6 @@ class Project(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
-    documents: Mapped[list["MizanDocument"]] = relationship(  # type: ignore[name-defined]
-        "MizanDocument", back_populates="project", cascade="all, delete-orphan", passive_deletes=True
-    )
     analysis_result: Mapped["AnalysisResult | None"] = relationship(  # type: ignore[name-defined]
         "AnalysisResult", back_populates="project", uselist=False, cascade="all, delete-orphan", passive_deletes=True
     )
