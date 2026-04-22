@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2 } from "lucide-react";
-import { DocumentDetail } from "@/components/enhanced-document-detail";
-import { ChunksModal } from "@/components/ChunksModal";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,12 +76,10 @@ const statusConfig = {
 };
 
 const Documents = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
-  const [chunksModalOpen, setChunksModalOpen] = useState(false);
-  const [chunksModalDocId, setChunksModalDocId] = useState<string | null>(null);
 
   const { data: documentsData = [], isLoading } = useQuery({
     queryKey: ["documents"],
@@ -93,21 +90,33 @@ const Documents = () => {
         .catch(() => []),
   });
 
-  // Map API data to display format with random scores
+  // Map API data to display format
   const documents = documentsData.map((doc: DocumentData) => {
-    const { score, issues } = getRandomCompliance();
+    let status: string;
+    let score: number | null = null;
+    let issues: number | null = null;
+
+    if (doc.processing_status === "pending" || doc.processing_status === "processing") {
+      status = doc.processing_status;
+    } else if (doc.processing_status === "completed") {
+      const { score: randomScore, issues: randomIssues } = getRandomCompliance();
+      score = randomScore;
+      issues = randomIssues;
+      status = getStatusFromScore(score);
+    } else {
+      status = "failed";
+    }
+
     return {
       id: doc.id,
       name: doc.name,
       type: doc.file_type || "Document",
       uploadDate: new Date(doc.created_at).toISOString().split("T")[0],
-      status:
-        doc.processing_status === "processing"
-          ? "processing"
-          : getStatusFromScore(score),
-      score: doc.processing_status === "completed" ? score : null,
+      status: status,
+      pipelineStatus: doc.processing_status,
+      score: score,
       size: doc.file_size ? formatFileSize(doc.file_size) : "Unknown",
-      issues: doc.processing_status === "completed" ? issues : null,
+      issues: issues,
     };
   });
 
@@ -119,9 +128,6 @@ const Documents = () => {
     return (bytes / Math.pow(k, i)).toFixed(1) + " " + sizes[i];
   }
 
-  if (selectedDocument) {
-    return <DocumentDetail documentId={selectedDocument} onBack={() => setSelectedDocument(null)} />;
-  }
 
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -318,7 +324,20 @@ const Documents = () => {
                     <Badge variant="outline">{doc.type}</Badge>
                   </TableCell>
                   <TableCell className="text-text-secondary">{formatDate(doc.uploadDate)}</TableCell>
-                  <TableCell>{getStatusBadge(doc.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      {doc.pipelineStatus === "pending" && (
+                        <Badge variant="outline" className="text-xs">⏳ Pending</Badge>
+                      )}
+                      {doc.pipelineStatus === "processing" && (
+                        <Badge variant="outline" className="text-xs">🔄 Processing</Badge>
+                      )}
+                      {doc.pipelineStatus === "failed" && (
+                        <Badge variant="destructive" className="text-xs">❌ Failed</Badge>
+                      )}
+                      {doc.pipelineStatus === "completed" && getStatusBadge(doc.status)}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     {doc.score ? (
                       <span className={getScoreColor(doc.score)}>
@@ -347,21 +366,11 @@ const Documents = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-surface-elevated border-border">
                         <DropdownMenuItem
-                          onClick={() => setSelectedDocument(doc.id)}
+                          onClick={() => navigate(`/documents/${doc.id}`)}
                           className="cursor-pointer"
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           View Analysis
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setChunksModalDocId(doc.id);
-                            setChunksModalOpen(true);
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <FileText className="mr-2 h-4 w-4" />
-                          View Chunks
                         </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer">
                           <Download className="mr-2 h-4 w-4" />
@@ -397,17 +406,6 @@ const Documents = () => {
         </CardContent>
       </Card>
 
-      {/* Chunks Modal */}
-      {chunksModalDocId && (
-        <ChunksModal
-          open={chunksModalOpen}
-          onOpenChange={setChunksModalOpen}
-          documentId={chunksModalDocId}
-          documentName={
-            documents.find((d) => d.id === chunksModalDocId)?.name || "Document"
-          }
-        />
-      )}
     </div>
   );
 };

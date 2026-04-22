@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Upload as UploadIcon, FileText, CheckCircle, ChevronRight, Tag, BookOpen, FileUp } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ interface BaseDoc {
 type Step = 1 | 2 | 3;
 
 export default function Upload() {
+  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -45,7 +47,10 @@ export default function Upload() {
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
-    onSuccess: () => setUploadSuccess(true),
+    onSuccess: () => {
+      setUploadSuccess(true);
+      setTimeout(() => navigate("/documents"), 2000);
+    },
     onError: (e: any) => setUploadError(e.response?.data?.detail || "Upload failed"),
   });
 

@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import Index from './pages/Index';
 import Upload from './pages/Upload';
 import Documents from './pages/Documents';
+import DocumentDetail from './pages/DocumentDetail';
 import Rules from './pages/Rules';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
@@ -55,6 +56,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <Documents />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/documents/:documentId"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <DocumentDetail />
                   </AppLayout>
                 </ProtectedRoute>
               }
