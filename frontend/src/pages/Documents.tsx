@@ -35,6 +35,7 @@ interface DocumentData {
   file_type?: string;
   file_size?: number;
   processing_status: string;
+  noesia_chunk_count?: number;
   created_at: string;
   [key: string]: any;
 }
@@ -139,8 +140,8 @@ const Documents = () => {
     let issues: number | null = null;
     let pipelineStatus = doc.processing_status || "uploaded";
 
-    // Only generate compliance score for completed documents
-    if (pipelineStatus === "completed") {
+    // Only generate compliance score for completed documents WITH chunks extracted
+    if (pipelineStatus === "completed" && (doc.noesia_chunk_count || 0) > 0) {
       const { score: randomScore, issues: randomIssues } = getRandomCompliance();
       score = randomScore;
       issues = randomIssues;

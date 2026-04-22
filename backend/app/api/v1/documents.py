@@ -27,6 +27,7 @@ class DocumentOut(BaseModel):
     file_type: str | None
     file_size: int | None
     processing_status: str
+    noesia_chunk_count: int | None
     ai_summary: str | None
     page_count: int | None
     word_count: int | None
@@ -45,7 +46,7 @@ async def list_documents(user: User = Depends(require_user), db: AsyncSession = 
         )
     )
     docs = result.scalars().all()
-    return [DocumentOut(id=str(d.id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
+    return [DocumentOut(id=str(d.id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, noesia_chunk_count=d.noesia_chunk_count, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
 
 
 @router.post("/upload", status_code=201)
