@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2 } from "lucide-react";
+import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2, Upload, Loader } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,7 +52,41 @@ function getStatusFromScore(score: number) {
   return "critical";
 }
 
-const statusConfig = {
+const pipelineStatusConfig = {
+  uploaded: {
+    icon: Upload,
+    variant: "outline" as const,
+    label: "Uploaded",
+    color: "text-blue-500"
+  },
+  pending: {
+    icon: Clock,
+    variant: "secondary" as const,
+    label: "Pending",
+    color: "text-yellow-500"
+  },
+  processing: {
+    icon: Loader,
+    variant: "secondary" as const,
+    label: "Processing",
+    color: "text-blue-500",
+    animated: true
+  },
+  completed: {
+    icon: CheckCircle,
+    variant: "success" as const,
+    label: "Completed",
+    color: "text-green-500"
+  },
+  failed: {
+    icon: AlertTriangle,
+    variant: "destructive" as const,
+    label: "Failed",
+    color: "text-red-500"
+  }
+};
+
+const complianceStatusConfig = {
   compliant: {
     icon: CheckCircle,
     variant: "success" as const,
@@ -67,11 +101,6 @@ const statusConfig = {
     icon: AlertTriangle,
     variant: "critical" as const,
     label: "Critical Issues"
-  },
-  processing: {
-    icon: Clock,
-    variant: "processing" as const,
-    label: "Processing"
   }
 };
 
@@ -105,19 +134,17 @@ const Documents = () => {
 
   // Map API data to display format
   const documents = documentsData.map((doc: DocumentData) => {
-    let status: string;
+    let complianceStatus: string | null = null;
     let score: number | null = null;
     let issues: number | null = null;
+    let pipelineStatus = doc.processing_status || "uploaded";
 
-    if (doc.processing_status === "pending" || doc.processing_status === "processing") {
-      status = doc.processing_status;
-    } else if (doc.processing_status === "completed") {
+    // Only generate compliance score for completed documents
+    if (pipelineStatus === "completed") {
       const { score: randomScore, issues: randomIssues } = getRandomCompliance();
       score = randomScore;
       issues = randomIssues;
-      status = getStatusFromScore(score);
-    } else {
-      status = "failed";
+      complianceStatus = getStatusFromScore(score);
     }
 
     return {
@@ -125,8 +152,8 @@ const Documents = () => {
       name: doc.name,
       type: doc.file_type || "Document",
       uploadDate: new Date(doc.created_at).toISOString().split("T")[0],
-      status: status,
-      pipelineStatus: doc.processing_status,
+      complianceStatus: complianceStatus,
+      pipelineStatus: pipelineStatus,
       score: score,
       size: doc.file_size ? formatFileSize(doc.file_size) : "Unknown",
       issues: issues,
@@ -144,7 +171,7 @@ const Documents = () => {
 
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || doc.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || doc.pipelineStatus === statusFilter || doc.complianceStatus === statusFilter;
     const matchesType = typeFilter === "all" || doc.type === typeFilter;
     return matchesSearch && matchesStatus && matchesType;
   });
@@ -158,8 +185,20 @@ const Documents = () => {
     });
   };
 
-  const getStatusBadge = (status: keyof typeof statusConfig) => {
-    const config = statusConfig[status];
+  const getPipelineStatusBadge = (status: keyof typeof pipelineStatusConfig) => {
+    const config = pipelineStatusConfig[status];
+    const Icon = config.icon;
+
+    return (
+      <Badge variant={config.variant} className={`flex items-center gap-1 ${config.animated ? 'animate-pulse' : ''}`}>
+        <Icon className={`h-3 w-3 ${config.color}`} />
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getComplianceStatusBadge = (status: keyof typeof complianceStatusConfig) => {
+    const config = complianceStatusConfig[status];
     const Icon = config.icon;
 
     return (
@@ -211,9 +250,9 @@ const Documents = () => {
                 <CheckCircle className="h-5 w-5 text-success" />
               </div>
               <div>
-                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Compliant</p>
+                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Completed</p>
                 <p className="text-2xl font-bold text-success mt-1">
-                  {documents.filter(d => d.status === 'compliant').length}
+                  {documents.filter(d => d.pipelineStatus === 'completed').length}
                 </p>
               </div>
             </div>
@@ -224,12 +263,12 @@ const Documents = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/10 group-hover:bg-warning/20 transition-colors">
-                <AlertTriangle className="h-5 w-5 text-warning" />
+                <Clock className="h-5 w-5 text-warning" />
               </div>
               <div>
-                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Need Review</p>
+                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Processing</p>
                 <p className="text-2xl font-bold text-warning mt-1">
-                  {documents.filter(d => d.status === 'warning').length}
+                  {documents.filter(d => d.pipelineStatus === 'processing' || d.pipelineStatus === 'pending').length}
                 </p>
               </div>
             </div>
@@ -243,9 +282,9 @@ const Documents = () => {
                 <AlertTriangle className="h-5 w-5 text-critical" />
               </div>
               <div>
-                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Critical</p>
+                <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Failed</p>
                 <p className="text-2xl font-bold text-critical mt-1">
-                  {documents.filter(d => d.status === 'critical').length}
+                  {documents.filter(d => d.pipelineStatus === 'failed').length}
                 </p>
               </div>
             </div>
@@ -289,10 +328,14 @@ const Documents = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="uploaded">Uploaded</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="processing">Processing</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
                 <SelectItem value="compliant">Compliant</SelectItem>
                 <SelectItem value="warning">Needs Review</SelectItem>
                 <SelectItem value="critical">Critical Issues</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
               </SelectContent>
             </Select>
 
@@ -338,21 +381,17 @@ const Documents = () => {
                   </TableCell>
                   <TableCell className="text-text-secondary">{formatDate(doc.uploadDate)}</TableCell>
                   <TableCell>
-                    <div className="flex flex-col gap-1">
-                      {doc.pipelineStatus === "pending" && (
-                        <Badge variant="outline" className="text-xs">⏳ Pending</Badge>
+                    <div className="flex flex-col gap-2">
+                      {getPipelineStatusBadge(doc.pipelineStatus as keyof typeof pipelineStatusConfig)}
+                      {doc.pipelineStatus === "completed" && doc.complianceStatus && (
+                        <div>
+                          {getComplianceStatusBadge(doc.complianceStatus as keyof typeof complianceStatusConfig)}
+                        </div>
                       )}
-                      {doc.pipelineStatus === "processing" && (
-                        <Badge variant="outline" className="text-xs">🔄 Processing</Badge>
-                      )}
-                      {doc.pipelineStatus === "failed" && (
-                        <Badge variant="destructive" className="text-xs">❌ Failed</Badge>
-                      )}
-                      {doc.pipelineStatus === "completed" && getStatusBadge(doc.status)}
                     </div>
                   </TableCell>
                   <TableCell>
-                    {doc.score ? (
+                    {doc.pipelineStatus === "completed" && doc.score ? (
                       <span className={getScoreColor(doc.score)}>
                         {doc.score}%
                       </span>
@@ -361,7 +400,7 @@ const Documents = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    {doc.issues !== null ? (
+                    {doc.pipelineStatus === "completed" && doc.issues !== null ? (
                       <span className={doc.issues > 0 ? "text-warning font-medium" : "text-success font-medium"}>
                         {doc.issues}
                       </span>
