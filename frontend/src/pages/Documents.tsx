@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -77,6 +77,7 @@ const statusConfig = {
 
 const Documents = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -88,6 +89,18 @@ const Documents = () => {
         .get(`/documents`)
         .then((r) => r.data)
         .catch(() => []),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (documentId: string) =>
+      api.delete(`/documents/${documentId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.detail || "Failed to delete document";
+      alert(message);
+    },
   });
 
   // Map API data to display format
@@ -376,9 +389,17 @@ const Documents = () => {
                           <Download className="mr-2 h-4 w-4" />
                           Download
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-critical hover:bg-critical/10">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            if (confirm(`Delete "${doc.name}"? This cannot be undone.`)) {
+                              deleteMutation.mutate(doc.id);
+                            }
+                          }}
+                          className="cursor-pointer text-critical hover:bg-critical/10"
+                          disabled={deleteMutation.isPending}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          {deleteMutation.isPending ? "Deleting..." : "Delete"}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

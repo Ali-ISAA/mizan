@@ -149,3 +149,25 @@ async def get_document_chunks(
     ]
 
     return {"chunks": chunk_dicts, "total": len(chunk_dicts)}
+
+
+@router.delete("/{document_id}", status_code=204)
+async def delete_document(
+    document_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete a document (mark as deleted)."""
+    try:
+        doc_uuid = uuid.UUID(document_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    doc.deleted_at = datetime.utcnow()
+    await db.commit()
+
+    return None
