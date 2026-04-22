@@ -144,6 +144,8 @@ async def _process_document(doc_id: str, file_path: str, project_id: str) -> Non
                     logger.error("Failed to mark doc %s as failed: %s", doc_id, inner)
 
 
-@celery_app.task(name="tasks.process_document")
-def process_document_task(doc_id: str, file_path: str, project_id: str) -> None:
-    asyncio.run(_process_document(doc_id, file_path, project_id))
+# Disabled: this task was for project-scoped documents which no longer exist
+# User documents use process_user_document_task instead
+# @celery_app.task(name="tasks.process_document")
+# def process_document_task(doc_id: str, file_path: str, project_id: str) -> None:
+#     asyncio.run(_process_document(doc_id, file_path, project_id))
