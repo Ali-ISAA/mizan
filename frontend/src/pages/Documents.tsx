@@ -58,32 +58,32 @@ const pipelineStatusConfig = {
     icon: Upload,
     variant: "outline" as const,
     label: "Uploaded",
-    color: "text-blue-500"
+    color: "text-text-secondary"
   },
   pending: {
     icon: Clock,
     variant: "secondary" as const,
     label: "Pending",
-    color: "text-yellow-500"
+    color: "text-warning"
   },
   processing: {
     icon: Loader,
     variant: "secondary" as const,
     label: "Processing",
-    color: "text-blue-500",
+    color: "text-warning",
     animated: true
   },
   completed: {
     icon: CheckCircle,
     variant: "success" as const,
     label: "Completed",
-    color: "text-green-500"
+    color: "text-success"
   },
   failed: {
     icon: AlertTriangle,
-    variant: "destructive" as const,
+    variant: "critical" as const,
     label: "Failed",
-    color: "text-red-500"
+    color: "text-critical"
   }
 };
 

@@ -30,11 +30,11 @@ interface Chunk {
 }
 
 const pipelineStatusConfig = {
-  uploaded: { icon: "📤", label: "Uploaded", color: "text-blue-500", bg: "bg-blue-50" },
-  pending: { icon: "⏳", label: "Pending", color: "text-yellow-500", bg: "bg-yellow-50" },
-  processing: { icon: "🔄", label: "Processing", color: "text-blue-500", bg: "bg-blue-50" },
-  completed: { icon: "✅", label: "Completed", color: "text-green-500", bg: "bg-green-50" },
-  failed: { icon: "❌", label: "Failed", color: "text-red-500", bg: "bg-red-50" },
+  uploaded: { icon: "📤", label: "Uploaded", color: "text-text-secondary", bg: "bg-surface" },
+  pending: { icon: "⏳", label: "Pending", color: "text-warning", bg: "bg-warning/5" },
+  processing: { icon: "🔄", label: "Processing", color: "text-warning", bg: "bg-warning/5" },
+  completed: { icon: "✅", label: "Completed", color: "text-success", bg: "bg-success/5" },
+  failed: { icon: "❌", label: "Failed", color: "text-critical", bg: "bg-critical/5" },
 };
 
 export default function DocumentDetail() {
@@ -161,7 +161,7 @@ export default function DocumentDetail() {
           )}
 
           {/* Metadata Grid */}
-          <div className="grid grid-cols-4 gap-4 bg-card border border-border rounded-lg p-4">
+          <div className="grid grid-cols-4 gap-4 bg-card border border-border rounded-lg p-6">
             <div>
               <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Chunks</p>
               <p className="font-semibold text-foreground mt-1">
@@ -184,8 +184,8 @@ export default function DocumentDetail() {
 
           {/* Processing Notice */}
           {isProcessing && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 flex items-start gap-2">
-              <Loader className="h-4 w-4 mt-0.5 animate-spin" />
+            <div className="bg-card border border-border rounded-lg p-4 text-sm text-foreground flex items-start gap-2">
+              <Loader className="h-4 w-4 mt-0.5 animate-spin text-warning" />
               <span>Document is being processed. Chunks will appear here once complete. Page auto-refreshes.</span>
             </div>
           )}
