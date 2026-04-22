@@ -71,30 +71,37 @@ async def _process_document(document_id: str, file_path: str):
 
             doc.noesia_document_id = noesia_document_id
 
-            # Fetch chunks from job details
-            logger.info(f"Extracting chunks for {doc.name}")
-            job_docs = ingest_result.job_detail.get("documents") or []
-            job_doc_meta = next(
-                (d for d in job_docs if d.get("document_id") == noesia_document_id),
-                job_docs[0] if job_docs else None,
-            )
-
+            # Get collection_id and fetch chunks via Noesia chunks API
+            collection_id = ingest_result.collection_id
             chunks = []
-            if job_doc_meta:
-                # Extract chunks from job metadata
-                doc_chunks = job_doc_meta.get("extracted_chunks", [])
-                for idx, chunk_data in enumerate(doc_chunks):
+
+            if collection_id:
+                # Reconstruct filename as it was uploaded to Noesia (with UUID suffix)
+                stem, ext = os.path.splitext(doc.name)
+                noesia_filename = f"{stem}_{str(doc.id).replace('-', '')}{ext}"
+
+                logger.info(f"Fetching chunks for {doc.name} from collection {collection_id}")
+                chunks_response = await noesia_client.get_chunks(
+                    collection_id=collection_id,
+                    document_name=noesia_filename,
+                    limit=500,
+                )
+
+                # Save chunks to database
+                for idx, chunk_data in enumerate(chunks_response):
                     chunk_obj = MizanDocumentChunk(
                         mizan_document_id=doc.id,
                         chunk_index=idx,
                         text=chunk_data.get("text", ""),
                         section_header=chunk_data.get("metadata", {}).get("section_header"),
                         section_level=chunk_data.get("metadata", {}).get("section_level"),
-                        document_name=chunk_data.get("metadata", {}).get("document_name", doc.name),
+                        document_name=noesia_filename,
                         chunk_metadata=chunk_data.get("metadata", {}),
                     )
                     db.add(chunk_obj)
                     chunks.append(chunk_obj)
+            else:
+                logger.warning(f"No collection_id returned from ingest for doc {document_id}")
 
             doc.noesia_chunk_count = len(chunks)
             doc.processing_status = "completed"
