@@ -381,14 +381,13 @@ const Documents = () => {
                   </TableCell>
                   <TableCell className="text-text-secondary">{formatDate(doc.uploadDate)}</TableCell>
                   <TableCell>
-                    <div className="flex flex-col gap-2">
-                      {getPipelineStatusBadge(doc.pipelineStatus as keyof typeof pipelineStatusConfig)}
-                      {doc.pipelineStatus === "completed" && doc.complianceStatus && (
-                        <div>
-                          {getComplianceStatusBadge(doc.complianceStatus as keyof typeof complianceStatusConfig)}
-                        </div>
-                      )}
-                    </div>
+                    {doc.pipelineStatus === "failed" ? (
+                      getPipelineStatusBadge("failed")
+                    ) : doc.pipelineStatus === "completed" && doc.complianceStatus ? (
+                      getComplianceStatusBadge(doc.complianceStatus as keyof typeof complianceStatusConfig)
+                    ) : (
+                      getPipelineStatusBadge(doc.pipelineStatus as keyof typeof pipelineStatusConfig)
+                    )}
                   </TableCell>
                   <TableCell>
                     {doc.pipelineStatus === "completed" && doc.score ? (
