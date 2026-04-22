@@ -48,28 +48,53 @@ async def _process_document(document_id: str, file_path: str):
             content = await asyncio.to_thread(lambda: open(file_path, "rb").read())
             content_type = mimetypes.guess_type(doc.name)[0] or "application/octet-stream"
 
-            # Upload to Noesia
-            logger.info(f"Uploading {doc.name} to Noesia")
-            pairs = await noesia_client.upload_documents([
-                (doc.name, content, content_type, str(doc.id), doc.name)
-            ])
+            # Upload to Noesia (skip if already uploaded in a previous attempt)
+            noesia_document_id = None
+            if doc.noesia_document_id:
+                noesia_document_id = doc.noesia_document_id
+                logger.info(f"Skipping upload — already have noesia_document_id={noesia_document_id}")
+            else:
+                try:
+                    logger.info(f"Uploading {doc.name} to Noesia")
+                    pairs = await noesia_client.upload_documents([
+                        (doc.name, content, content_type, str(doc.id), doc.name)
+                    ])
 
-            if not pairs:
-                raise Exception("Failed to upload document to Noesia")
+                    if not pairs:
+                        raise Exception("Failed to upload document to Noesia")
 
-            noesia_document_id, _ = pairs[0]
+                    noesia_document_id, _ = pairs[0]
+                    doc.noesia_document_id = noesia_document_id
+                    await db.commit()
+                    logger.info(f"Uploaded {doc.name} → noesia_id={noesia_document_id}")
+                except NoesiaError as e:
+                    if e.status_code == 409:
+                        raise RuntimeError(
+                            f"File already exists in Noesia (409). Delete this document and re-upload: {e.detail}"
+                        ) from e
+                    raise
 
             # Create ingest job with unique collection name per document
             collection_name = f"user_doc_{uuid.uuid4().hex[:8]}"
             logger.info(f"Creating ingest job for {doc.name}")
             ingest_result = await noesia_client.ingest_documents(
-                document_pairs=pairs,
+                document_pairs=[(noesia_document_id, str(doc.id))],
                 collection_name=collection_name,
                 project_id=str(doc.base_document_id or uuid.uuid4()),
-                idempotency_key=uuid.uuid4().hex,
+                idempotency_key=f"user-{doc.id}",
             )
 
-            doc.noesia_document_id = noesia_document_id
+            # Wait for job to complete before fetching chunks
+            job_id = ingest_result.job_id
+            for attempt in range(120):
+                status = await noesia_client.get_job_status(job_id)
+                if status.get("status") == "completed":
+                    logger.info(f"Job {job_id} completed")
+                    break
+                if status.get("status") == "failed":
+                    raise RuntimeError(f"Noesia job failed: {status}")
+                logger.info(f"Job {job_id} status={status.get('status')}, waiting...")
+                await asyncio.sleep(5)
 
             # Get collection_id and fetch chunks via Noesia chunks API
             collection_id = ingest_result.collection_id
