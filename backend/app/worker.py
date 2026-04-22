@@ -5,7 +5,12 @@ celery_app = Celery(
     "mizan",
     broker=settings.redis_url,
     backend=settings.redis_url,
-    include=["app.tasks.processing", "app.tasks.analysis", "app.tasks.process_base_document"],
+    include=[
+        "app.tasks.processing",
+        "app.tasks.analysis",
+        "app.tasks.process_base_document",
+        "app.tasks.process_user_document",
+    ],
 )
 
 celery_app.conf.update(
