@@ -14,9 +14,6 @@ class AnalysisResult(Base):
     __tablename__ = "analysis_results"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), unique=True
-    )
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"))
     overall_score: Mapped[float | None] = mapped_column(Float)
     requirements_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -31,7 +28,6 @@ class AnalysisResult(Base):
     analyzed_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
-    project: Mapped["Project"] = relationship("Project", back_populates="analysis_result")  # type: ignore[name-defined]
     requirements: Mapped[list["RequirementItem"]] = relationship(
         "RequirementItem", back_populates="analysis_result", cascade="all, delete-orphan", passive_deletes=True
     )
