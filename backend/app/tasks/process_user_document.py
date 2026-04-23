@@ -48,26 +48,34 @@ async def _process_document(document_id: str, file_path: str):
             content = await asyncio.to_thread(lambda: open(file_path, "rb").read())
             content_type = mimetypes.guess_type(doc.name)[0] or "application/octet-stream"
 
-            # Upload to Noesia
-            logger.info(f"Uploading {doc.name} to Noesia")
-            try:
-                pairs = await noesia_client.upload_documents([
-                    (doc.name, content, content_type, str(doc.id), doc.name)
-                ])
+            # Upload to Noesia (skip if already uploaded)
+            if doc.noesia_document_id:
+                logger.info(f"Document {doc.name} already uploaded to Noesia (id={doc.noesia_document_id})")
+                noesia_document_id = doc.noesia_document_id
+            else:
+                logger.info(f"Uploading {doc.name} to Noesia")
+                try:
+                    pairs = await noesia_client.upload_documents([
+                        (doc.name, content, content_type, str(doc.id), doc.name)
+                    ])
 
-                if not pairs:
-                    raise Exception("Failed to upload document to Noesia")
+                    if not pairs:
+                        raise Exception("Failed to upload document to Noesia")
 
-                noesia_document_id, _ = pairs[0]
-                doc.noesia_document_id = noesia_document_id
-                await db.commit()
-                logger.info(f"Uploaded {doc.name} → noesia_id={noesia_document_id}")
-            except NoesiaError as e:
-                if e.status_code == 409:
-                    raise RuntimeError(
-                        f"File already exists in Noesia (409). Delete this document and re-upload: {e.detail}"
-                    ) from e
-                raise
+                    noesia_document_id, _ = pairs[0]
+                    doc.noesia_document_id = noesia_document_id
+                    await db.commit()
+                    logger.info(f"Uploaded {doc.name} → noesia_id={noesia_document_id}")
+                except NoesiaError as e:
+                    if e.status_code == 409:
+                        logger.error(f"Document {doc.id} filename conflicts in Noesia (409). This may indicate duplicate uploads.")
+                        doc.processing_status = "failed"
+                        await db.commit()
+                        raise RuntimeError(
+                            f"Upload conflict: File already exists in Noesia with same filename. "
+                            f"This document may have failed to process previously."
+                        ) from e
+                    raise
 
             # Create ingest job with unique collection name per document
             collection_name = f"user_doc_{uuid.uuid4().hex[:8]}"

@@ -41,7 +41,7 @@ class NoesiaClient:
         async def _upload_one(display_filename, content, content_type, doc_id, document_name):
             stem, ext = os.path.splitext(display_filename)
             unique_filename = f"{stem}_{doc_id.replace('-', '')}{ext}"
-            async with httpx.AsyncClient(timeout=120) as http:
+            async with httpx.AsyncClient(timeout=600) as http:
                 logger.info("upload: uploading %s as %s (%d bytes)", display_filename, unique_filename, len(content))
                 resp = await http.post(
                     f"{self.base_url}/api/v1/developer/documents/upload",
