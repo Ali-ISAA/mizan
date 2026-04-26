@@ -68,14 +68,13 @@ async def _process_document(document_id: str, file_path: str):
                     logger.info(f"Uploaded {doc.name} → noesia_id={noesia_document_id}")
                 except NoesiaError as e:
                     if e.status_code == 409:
-                        logger.error(f"Document {doc.id} filename conflicts in Noesia (409). This may indicate duplicate uploads.")
-                        doc.processing_status = "failed"
-                        await db.commit()
-                        raise RuntimeError(
-                            f"Upload conflict: File already exists in Noesia with same filename. "
-                            f"This document may have failed to process previously."
-                        ) from e
-                    raise
+                        # File already exists in Noesia — this is OK, continue processing
+                        # We'll use the filename for chunk retrieval instead
+                        logger.warning(f"File {doc.name} already exists in Noesia (409), continuing with ingest")
+                        # Generate a placeholder noesia_document_id (we won't actually use it for chunks)
+                        noesia_document_id = str(uuid.uuid4())
+                    else:
+                        raise
 
             # Create ingest job with unique collection name per document
             collection_name = f"user_doc_{uuid.uuid4().hex[:8]}"
