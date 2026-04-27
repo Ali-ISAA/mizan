@@ -16,6 +16,8 @@ from app.db.models.mizan_document_chunk import MizanDocumentChunk
 from app.db.models.user import User
 from app.db.session import get_db
 from app.tasks.process_user_document import process_user_document_task
+from app.services.comparison import ComparisonService
+from app.db.models.compliance_finding import ComplianceFinding
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -172,3 +174,116 @@ async def delete_document(
     await db.commit()
 
     return None
+
+
+@router.post("/{doc_id}/analyze", response_model=dict)
+async def start_comparison(
+    doc_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Trigger comparison of a document against its base document.
+
+    Returns: {"comparison_id": "...", "status": "pending"}
+    """
+    try:
+        doc_uuid = uuid.UUID(doc_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    # Verify document exists and belongs to user's tenant
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    try:
+        service = ComparisonService()
+        comparison = await service.start_comparison(
+            tenant_id=user.tenant_id,
+            mizan_doc_id=doc_uuid,
+            db=db
+        )
+        return {
+            "comparison_id": str(comparison.id),
+            "status": comparison.status,
+            "created_at": comparison.created_at.isoformat()
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to start comparison")
+
+
+@router.get("/comparisons/{comparison_id}/status", response_model=dict)
+async def get_comparison_status(
+    comparison_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Poll for comparison status."""
+    try:
+        comp_uuid = uuid.UUID(comparison_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid comparison_id")
+
+    try:
+        service = ComparisonService()
+        status = await service.get_comparison_status(comp_uuid, db)
+        return status
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to get comparison status")
+
+
+@router.get("/comparisons/{comparison_id}/report", response_model=dict)
+async def get_comparison_report(
+    comparison_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Fetch completed comparison report with findings."""
+    try:
+        comp_uuid = uuid.UUID(comparison_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid comparison_id")
+
+    try:
+        service = ComparisonService()
+        report = await service.get_comparison_report(comp_uuid, db)
+
+        # Get findings too
+        findings_stmt = select(ComplianceFinding).where(
+            ComplianceFinding.comparison_id == comp_uuid
+        )
+        findings_result = await db.execute(findings_stmt)
+        findings = findings_result.scalars().all()
+
+        return {
+            "report": {
+                "id": str(report.id),
+                "compliance_score": report.compliance_score,
+                "total_findings": report.total_findings,
+                "critical_count": report.critical_count,
+                "medium_count": report.medium_count,
+                "low_count": report.low_count,
+                "summary": report.summary
+            },
+            "findings": [
+                {
+                    "id": str(f.id),
+                    "doc_a_section": f.doc_a_section,
+                    "doc_b_section": f.doc_b_section,
+                    "status": f.status,
+                    "severity": f.severity,
+                    "issue": f.issue,
+                    "recommendation": f.recommendation
+                }
+                for f in findings
+            ]
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to get comparison report")
