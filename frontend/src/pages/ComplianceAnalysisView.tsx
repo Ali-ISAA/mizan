@@ -63,7 +63,7 @@ export default function ComplianceAnalysisView() {
     queryKey: ["compliance-report", comparisonId],
     queryFn: () =>
       comparisonId
-        ? api.get<ReportResponse>(`/comparisons/${comparisonId}/report`).then((r) => r.data)
+        ? api.get<ReportResponse>(`/documents/comparisons/${comparisonId}/report`).then((r) => r.data)
         : null,
     enabled: !!comparisonId,
   });
