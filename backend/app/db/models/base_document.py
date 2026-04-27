@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -27,3 +27,5 @@ class BaseDocument(Base):
     uploaded_by: Mapped[str] = mapped_column(String(100), default="superadmin")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+
+    comparisons: Mapped[list["ComplianceComparison"]] = relationship("ComplianceComparison", back_populates="base_document", cascade="all, delete-orphan")  # type: ignore[name-defined]

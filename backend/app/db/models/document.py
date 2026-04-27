@@ -40,3 +40,4 @@ class MizanDocument(Base):
 
     base_document_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("base_documents.id"))
     chunks: Mapped[list["MizanDocumentChunk"]] = relationship("MizanDocumentChunk", back_populates="mizan_document", cascade="all, delete-orphan")  # type: ignore[name-defined]
+    comparisons: Mapped[list["ComplianceComparison"]] = relationship("ComplianceComparison", back_populates="mizan_document", cascade="all, delete-orphan")  # type: ignore[name-defined]
