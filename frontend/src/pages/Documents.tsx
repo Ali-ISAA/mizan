@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2, Upload, Loader } from "lucide-react";
+import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2, Upload, Loader, Zap } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,6 +132,18 @@ const Documents = () => {
       alert(message);
     },
   });
+
+  const handleStartAnalysis = async (docId: string) => {
+    try {
+      const response = await api.post(`/documents/${docId}/analyze`);
+      const { comparison_id } = response.data;
+      // Store comparison_id and redirect to detail view with analysis tab
+      navigate(`/documents/${docId}?comparison_id=${comparison_id}&tab=analysis`);
+    } catch (error: any) {
+      const message = error.response?.data?.detail || "Failed to start analysis";
+      alert(message);
+    }
+  };
 
   // Map API data to display format
   const documents = documentsData.map((doc: DocumentData) => {
@@ -423,6 +435,13 @@ const Documents = () => {
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           View Analysis
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleStartAnalysis(doc.id)}
+                          className="cursor-pointer"
+                        >
+                          <Zap className="mr-2 h-4 w-4" />
+                          Analyze
                         </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer">
                           <Download className="mr-2 h-4 w-4" />

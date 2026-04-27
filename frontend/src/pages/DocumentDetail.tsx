@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Trash2, CheckCircle, Clock, AlertTriangle, Loader 
 import { api } from "@/lib/api";
 import { ChunksList } from "@/components/ChunksList";
 import { ExtractedContentView } from "@/components/ExtractedContentView";
+import { ComparisonResults } from "@/components/ComparisonResults";
 import { useState } from "react";
 
 interface DocumentData {
@@ -41,7 +42,7 @@ export default function DocumentDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { documentId } = useParams<{ documentId: string }>();
-  const [activeTab, setActiveTab] = useState<"chunks" | "document">("chunks");
+  const [activeTab, setActiveTab] = useState<"chunks" | "document" | "comparison">("chunks");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data: documentData, isLoading: docLoading } = useQuery({
@@ -214,12 +215,25 @@ export default function DocumentDetail() {
                 >
                   Document
                 </button>
+                <button
+                  onClick={() => setActiveTab("comparison")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                    activeTab === "comparison"
+                      ? "text-accent-600 border-accent-600"
+                      : "text-text-secondary border-transparent hover:text-foreground"
+                  }`}
+                >
+                  Compliance Analysis
+                </button>
               </div>
 
               {/* Tab Content */}
               <div className="flex-1 overflow-hidden">
                 {activeTab === "chunks" && <ChunksList chunks={chunks} isLoading={chunksLoading} />}
                 {activeTab === "document" && <ExtractedContentView chunks={chunks} isLoading={chunksLoading} />}
+                {activeTab === "comparison" && (
+                  <ComparisonResults comparisonId={new URLSearchParams(window.location.search).get("comparison_id")} />
+                )}
               </div>
             </>
           )}
