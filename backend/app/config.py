@@ -53,6 +53,11 @@ class Settings(BaseSettings):
     chat_api_key: str = ""
     chat_api_base: str = ""
 
+    # LLM Timeout and Comparison Settings
+    llm_timeout: int = 300
+    max_tokens_per_chunk: int = 400
+    comparison_timeout: int = 600
+
     # Superadmin
     superadmin_email: str = "admin@mizan.local"
     superadmin_password: SecretStr = SecretStr("admin123")
