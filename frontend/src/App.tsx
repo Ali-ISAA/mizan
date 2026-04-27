@@ -12,6 +12,7 @@ import Index from './pages/Index';
 import Upload from './pages/Upload';
 import Documents from './pages/Documents';
 import DocumentDetail from './pages/DocumentDetail';
+import ComplianceAnalysisView from './pages/ComplianceAnalysisView';
 import Rules from './pages/Rules';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
@@ -66,6 +67,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <DocumentDetail />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/documents/:documentId/analysis"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <ComplianceAnalysisView />
                   </AppLayout>
                 </ProtectedRoute>
               }

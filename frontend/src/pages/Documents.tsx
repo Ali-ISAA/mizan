@@ -138,7 +138,7 @@ const Documents = () => {
       const response = await api.post(`/documents/${docId}/analyze`);
       const { comparison_id } = response.data;
       // Store comparison_id and redirect to detail view with analysis tab
-      navigate(`/documents/${docId}?comparison_id=${comparison_id}&tab=analysis`);
+      navigate(`/documents/${docId}?comparison_id=${comparison_id}&tab=comparison`);
     } catch (error: any) {
       const message = error.response?.data?.detail || "Failed to start analysis";
       alert(message);
@@ -430,7 +430,7 @@ const Documents = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-surface-elevated border-border">
                         <DropdownMenuItem
-                          onClick={() => navigate(`/documents/${doc.id}`)}
+                          onClick={() => navigate(`/documents/${doc.id}/analysis`)}
                           className="cursor-pointer"
                         >
                           <Eye className="mr-2 h-4 w-4" />
@@ -442,6 +442,13 @@ const Documents = () => {
                         >
                           <Zap className="mr-2 h-4 w-4" />
                           Analyze
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/documents/${doc.id}?tab=chunks`)}
+                          className="cursor-pointer"
+                        >
+                          <FileText className="mr-2 h-4 w-4" />
+                          Document Details
                         </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer">
                           <Download className="mr-2 h-4 w-4" />
