@@ -101,9 +101,19 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
                 await db.commit()
                 return
 
+            # Calculate total chunks to process
+            total_chunks = len(doc_a_chunks) + len(doc_b_chunks)
+            comparison.total_chunks = total_chunks
+            comparison.current_chunk = 0
+            await db.commit()
+            logger.info(f"Starting comparison: total_chunks={total_chunks}")
+
             # Run comparison
             comparator = ComplianceComparator()
             report, findings = await comparator.compare(doc_a_chunks, doc_b_chunks)
+
+            # Update progress: mark as complete
+            comparison.current_chunk = total_chunks
 
             # Save report
             report.comparison_id = comparison_id
