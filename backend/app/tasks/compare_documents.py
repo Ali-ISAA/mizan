@@ -9,7 +9,7 @@ Flow:
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy.future import select
 
@@ -58,7 +58,7 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
                 return
 
             comparison.status = "processing"
-            comparison.started_at = datetime.now(timezone.utc)
+            comparison.started_at = datetime.utcnow()
             await db.commit()
 
             # Fetch MizanDocument (Doc B - compliance doc)
@@ -117,7 +117,7 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
 
             # Update comparison
             comparison.status = "completed"
-            comparison.completed_at = datetime.now(timezone.utc)
+            comparison.completed_at = datetime.utcnow()
             await db.commit()
 
             logger.info(f"Comparison {comparison_id} completed: Score={report.compliance_score}")
@@ -129,7 +129,7 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
                 if comparison:
                     comparison.status = "failed"
                     comparison.error_message = str(e)
-                    comparison.completed_at = datetime.now(timezone.utc)
+                    comparison.completed_at = datetime.utcnow()
                     await db.commit()
             except Exception as db_error:
                 logger.exception("Error updating comparison status: %s", str(db_error))
