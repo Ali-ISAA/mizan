@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Text, ForeignKey, func
+from sqlalchemy import String, Text, ForeignKey, func, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
@@ -23,6 +23,9 @@ class ComplianceComparison(Base):
     completed_at: Mapped[datetime | None] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+
+    current_chunk: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_chunks: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     # Relationships
     mizan_document: Mapped["MizanDocument"] = relationship(back_populates="comparisons")
