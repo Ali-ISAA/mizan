@@ -106,13 +106,13 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
             report, findings = await comparator.compare(doc_a_chunks, doc_b_chunks)
 
             # Save report
-            report.comparison_id = comparison_uuid
+            report.comparison_id = comparison_id
             db.add(report)
             await db.flush()
 
             # Save findings
             for finding in findings:
-                finding.comparison_id = comparison_uuid
+                finding.comparison_id = comparison_id
                 db.add(finding)
 
             # Update comparison
