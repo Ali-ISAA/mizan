@@ -31,6 +31,18 @@ export const ComparisonResults = ({ comparisonId }: ComparisonResultsProps) => {
     );
   }
 
+  if (status === "processing") {
+    return (
+      <div className="text-center py-12">
+        <Loader className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
+        <p className="text-text-secondary">Analysis in progress...</p>
+        <p className="text-xs text-text-secondary mt-2">
+          Checking compliance against requirements. This typically takes 5-10 minutes.
+        </p>
+      </div>
+    );
+  }
+
   if (status === "failed") {
     return (
       <div className="bg-critical/5 border border-critical/30 rounded-lg p-8">
