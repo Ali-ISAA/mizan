@@ -4,13 +4,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle, AlertTriangle, AlertCircle, Loader } from "lucide-react";
+import { ProgressIndicator } from "@/components/ProgressIndicator";
 
 interface ComparisonResultsProps {
   comparisonId: string | null;
 }
 
 export const ComparisonResults = ({ comparisonId }: ComparisonResultsProps) => {
-  const { status, report, findings, isLoading, error } = useComparison(comparisonId);
+  const {
+    status,
+    report,
+    findings,
+    isLoading,
+    error,
+    startedAt,
+    currentChunk,
+    totalChunks,
+    estimatedCompletion,
+  } = useComparison(comparisonId);
 
   if (!comparisonId) {
     return (
@@ -33,13 +44,12 @@ export const ComparisonResults = ({ comparisonId }: ComparisonResultsProps) => {
 
   if (status === "processing") {
     return (
-      <div className="text-center py-12">
-        <Loader className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
-        <p className="text-text-secondary">Analysis in progress...</p>
-        <p className="text-xs text-text-secondary mt-2">
-          Checking compliance against requirements. This typically takes 5-10 minutes.
-        </p>
-      </div>
+      <ProgressIndicator
+        currentChunk={currentChunk || 0}
+        totalChunks={totalChunks || 0}
+        startedAt={startedAt || new Date().toISOString()}
+        estimatedCompletion={estimatedCompletion || new Date(Date.now() + 600000).toISOString()}
+      />
     );
   }
 

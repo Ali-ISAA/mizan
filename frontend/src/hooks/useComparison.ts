@@ -7,8 +7,11 @@ const POLL_INTERVAL_MS = 2000; // Poll every 2 seconds while processing
 
 interface ComparisonStatus {
   status: "pending" | "processing" | "completed" | "failed";
+  current_chunk?: number;
+  total_chunks?: number;
   started_at?: string;
   completed_at?: string;
+  estimated_completion?: string;
   error_message?: string;
 }
 
@@ -82,6 +85,9 @@ export const useComparison = (comparisonId: string | null) => {
     isLoading: statusLoading || reportLoading,
     startedAt: statusData?.started_at,
     completedAt: statusData?.completed_at,
+    currentChunk: statusData?.current_chunk,
+    totalChunks: statusData?.total_chunks,
+    estimatedCompletion: statusData?.estimated_completion,
     error: statusData?.error_message,
   };
 };
