@@ -10,6 +10,7 @@ celery_app = Celery(
         "app.tasks.analysis",
         "app.tasks.process_base_document",
         "app.tasks.process_user_document",
+        "app.tasks.compare_documents",
     ],
 )
 

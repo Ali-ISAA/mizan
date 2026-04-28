@@ -1,11 +1,11 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, FileText, Trash2, CheckCircle, Clock, AlertTriangle, Loader } from "lucide-react";
 import { api } from "@/lib/api";
 import { ChunksList } from "@/components/ChunksList";
 import { ExtractedContentView } from "@/components/ExtractedContentView";
 import { ComparisonResults } from "@/components/ComparisonResults";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface DocumentData {
   id: string;
@@ -42,8 +42,17 @@ export default function DocumentDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { documentId } = useParams<{ documentId: string }>();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"chunks" | "document" | "comparison">("chunks");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Initialize activeTab from URL parameter
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "comparison" || tabParam === "document" || tabParam === "chunks") {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   const { data: documentData, isLoading: docLoading } = useQuery({
     queryKey: ["document", documentId],
@@ -232,7 +241,7 @@ export default function DocumentDetail() {
                 {activeTab === "chunks" && <ChunksList chunks={chunks} isLoading={chunksLoading} />}
                 {activeTab === "document" && <ExtractedContentView chunks={chunks} isLoading={chunksLoading} />}
                 {activeTab === "comparison" && (
-                  <ComparisonResults comparisonId={new URLSearchParams(window.location.search).get("comparison_id")} />
+                  <ComparisonResults comparisonId={searchParams.get("comparison_id")} />
                 )}
               </div>
             </>
