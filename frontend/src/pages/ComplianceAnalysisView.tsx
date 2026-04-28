@@ -73,7 +73,7 @@ export default function ComplianceAnalysisView() {
     queryFn: () =>
       comparisonId
         ? api
-            .get<ComparisonStatus>(`/comparisons/${comparisonId}/status`)
+            .get<ComparisonStatus>(`/documents/comparisons/${comparisonId}/status`)
             .then((r) => r.data)
             .catch(() => null)
         : null,
@@ -93,7 +93,7 @@ export default function ComplianceAnalysisView() {
     queryKey: ["compliance-report", comparisonId],
     queryFn: () =>
       comparisonId && statusData?.status === "completed"
-        ? api.get<ReportResponse>(`/comparisons/${comparisonId}/report`).then((r) => r.data)
+        ? api.get<ReportResponse>(`/documents/comparisons/${comparisonId}/report`).then((r) => r.data)
         : null,
     enabled: !!comparisonId && statusData?.status === "completed",
   });

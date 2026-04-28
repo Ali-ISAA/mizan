@@ -46,7 +46,7 @@ export const useComparison = (comparisonId: string | null) => {
     queryFn: () =>
       comparisonId
         ? api
-            .get<ComparisonStatus>(`/comparisons/${comparisonId}/status`)
+            .get<ComparisonStatus>(`/documents/comparisons/${comparisonId}/status`)
             .then((r) => r.data)
             .catch(() => null)
         : null,
@@ -67,7 +67,7 @@ export const useComparison = (comparisonId: string | null) => {
     queryFn: () =>
       comparisonId && statusData?.status === "completed"
         ? api
-            .get<ReportResponse>(`/comparisons/${comparisonId}/report`)
+            .get<ReportResponse>(`/documents/comparisons/${comparisonId}/report`)
             .then((r) => r.data)
             .catch(() => null)
         : null,
