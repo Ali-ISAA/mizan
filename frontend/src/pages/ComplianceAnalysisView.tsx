@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Download, MessageSquare, Loader, AlertCircle } from "lucide-react";
+import { ArrowLeft, Download, MessageSquare, Loader, Loader2, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,15 @@ interface ReportResponse {
   findings: ComplianceFinding[];
 }
 
+const POLL_INTERVAL_MS = 2000; // Poll every 2 seconds while processing
+
+interface ComparisonStatus {
+  status: "pending" | "processing" | "completed" | "failed";
+  started_at?: string;
+  completed_at?: string;
+  error_message?: string;
+}
+
 export default function ComplianceAnalysisView() {
   const navigate = useNavigate();
   const { documentId } = useParams<{ documentId: string }>();
@@ -58,15 +67,38 @@ export default function ComplianceAnalysisView() {
     enabled: !!documentId,
   });
 
-  // Fetch comparison report
+  // Poll for comparison status
+  const { data: statusData, isLoading: statusLoading } = useQuery<ComparisonStatus | null>({
+    queryKey: ["comparison-status", comparisonId],
+    queryFn: () =>
+      comparisonId
+        ? api
+            .get<ComparisonStatus>(`/documents/comparisons/${comparisonId}/status`)
+            .then((r) => r.data)
+            .catch(() => null)
+        : null,
+    enabled: !!comparisonId,
+    refetchInterval: (query) => {
+      const data = query.state.data as ComparisonStatus | null;
+      // Stop polling when completed or failed
+      if (data?.status === "completed" || data?.status === "failed") {
+        return false;
+      }
+      return POLL_INTERVAL_MS;
+    },
+  });
+
+  // Fetch comparison report once status is completed
   const { data: reportData, isLoading: reportLoading } = useQuery({
     queryKey: ["compliance-report", comparisonId],
     queryFn: () =>
-      comparisonId
+      comparisonId && statusData?.status === "completed"
         ? api.get<ReportResponse>(`/documents/comparisons/${comparisonId}/report`).then((r) => r.data)
         : null,
-    enabled: !!comparisonId,
+    enabled: !!comparisonId && statusData?.status === "completed",
   });
+
+  const comparisonStatus = (statusData?.status || "pending") as "pending" | "processing" | "completed" | "failed";
 
   if (!documentId) {
     return <div className="flex-1 p-8">Invalid document ID</div>;
@@ -104,7 +136,7 @@ export default function ComplianceAnalysisView() {
   }
 
   // Loading state
-  if (docLoading || reportLoading) {
+  if (docLoading || statusLoading) {
     return (
       <div className="flex-1 p-8 text-center">
         <Loader className="h-8 w-8 animate-spin text-accent-600 mx-auto mb-4" />
@@ -117,8 +149,69 @@ export default function ComplianceAnalysisView() {
     return <div className="flex-1 p-8 text-critical">Document not found</div>;
   }
 
-  if (!reportData) {
-    return <div className="flex-1 p-8 text-critical">Report not found</div>;
+  // Processing state
+  if (comparisonStatus === "processing") {
+    return (
+      <div className="flex-1 flex flex-col h-screen bg-background">
+        <div className="flex-1 overflow-hidden flex flex-col p-6 space-y-6">
+          <button
+            onClick={() => navigate("/documents")}
+            className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-foreground w-fit"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Documents
+          </button>
+
+          <Card className="border-0 bg-slate-900/50">
+            <CardContent className="pt-8 text-center">
+              <div className="flex justify-center mb-4">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              </div>
+              <p className="text-slate-400">Analysis in progress...</p>
+              <p className="text-xs text-slate-500 mt-2">
+                Checking compliance against requirements. This typically takes 5-10 minutes.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Failed state
+  if (comparisonStatus === "failed") {
+    return (
+      <div className="flex-1 flex flex-col h-screen bg-background">
+        <div className="flex-1 overflow-hidden flex flex-col p-6 space-y-6">
+          <button
+            onClick={() => navigate("/documents")}
+            className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-foreground w-fit"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Documents
+          </button>
+
+          <Card className="border-0 bg-red-900/10 border-red-500/50">
+            <CardContent className="pt-8 text-center">
+              <AlertCircle className="h-8 w-8 text-critical mx-auto mb-4" />
+              <p className="text-critical">Analysis Failed</p>
+              <p className="text-xs text-slate-500 mt-2">
+                {statusData?.error_message || "An error occurred while processing the analysis."}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!reportData || reportLoading) {
+    return (
+      <div className="flex-1 p-8 text-center">
+        <Loader className="h-8 w-8 animate-spin text-accent-600 mx-auto mb-4" />
+        <p className="text-text-secondary">Loading report...</p>
+      </div>
+    );
   }
 
   const { report, findings } = reportData;

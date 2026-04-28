@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useState } from "react";
 
+const POLL_INTERVAL_MS = 2000; // Poll every 2 seconds while processing
+
 interface ComparisonStatus {
   status: "pending" | "processing" | "completed" | "failed";
   started_at?: string;
@@ -37,7 +39,6 @@ interface ReportResponse {
 
 export const useComparison = (comparisonId: string | null) => {
   const queryClient = useQueryClient();
-  const [pollInterval] = useState(2000);
 
   // Poll for status
   const { data: statusData, isLoading: statusLoading } = useQuery<ComparisonStatus | null>({
@@ -45,7 +46,7 @@ export const useComparison = (comparisonId: string | null) => {
     queryFn: () =>
       comparisonId
         ? api
-            .get<ComparisonStatus>(`/comparisons/${comparisonId}/status`)
+            .get<ComparisonStatus>(`/documents/comparisons/${comparisonId}/status`)
             .then((r) => r.data)
             .catch(() => null)
         : null,
@@ -56,7 +57,7 @@ export const useComparison = (comparisonId: string | null) => {
       if (data?.status === "completed" || data?.status === "failed") {
         return false;
       }
-      return pollInterval;
+      return POLL_INTERVAL_MS;
     },
   });
 
@@ -66,7 +67,7 @@ export const useComparison = (comparisonId: string | null) => {
     queryFn: () =>
       comparisonId && statusData?.status === "completed"
         ? api
-            .get<ReportResponse>(`/comparisons/${comparisonId}/report`)
+            .get<ReportResponse>(`/documents/comparisons/${comparisonId}/report`)
             .then((r) => r.data)
             .catch(() => null)
         : null,
