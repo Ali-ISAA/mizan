@@ -221,7 +221,7 @@ async def get_comparison_status(
     user: User = Depends(require_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Poll for comparison status."""
+    """Poll for comparison status with progress details."""
     try:
         comp_uuid = uuid.UUID(comparison_id)
     except ValueError:

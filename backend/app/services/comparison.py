@@ -1,5 +1,6 @@
 import logging
 import uuid as uuid_module
+from datetime import datetime, timedelta
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -68,9 +69,9 @@ class ComparisonService:
 
     async def get_comparison_status(self, comparison_id: UUID, db: AsyncSession = None) -> dict:
         """
-        Get current status for polling.
+        Get current status for polling with progress details.
 
-        Returns: {"status": "pending|processing|completed|failed", "started_at": ..., "completed_at": ...}
+        Returns: {"status": "pending|processing|completed|failed", "started_at": ..., "completed_at": ..., "current_chunk": ..., "total_chunks": ..., "estimated_completion": ...}
         """
         try:
             stmt = select(ComplianceComparison).where(ComplianceComparison.id == comparison_id)
@@ -80,12 +81,27 @@ class ComparisonService:
             if not comparison:
                 raise ValueError(f"ComplianceComparison {comparison_id} not found")
 
-            return {
+            response = {
                 "status": comparison.status,
-                "started_at": comparison.started_at,
-                "completed_at": comparison.completed_at,
+                "current_chunk": comparison.current_chunk,
+                "total_chunks": comparison.total_chunks,
+                "started_at": comparison.started_at.isoformat() if comparison.started_at else None,
+                "completed_at": comparison.completed_at.isoformat() if comparison.completed_at else None,
                 "error_message": comparison.error_message
             }
+
+            # Calculate estimated completion if processing
+            if comparison.status == "processing" and comparison.total_chunks > 0 and comparison.started_at:
+                elapsed_seconds = (datetime.utcnow() - comparison.started_at).total_seconds()
+                if elapsed_seconds > 0:
+                    chunk_rate = comparison.current_chunk / elapsed_seconds
+                    if chunk_rate > 0:
+                        remaining_chunks = comparison.total_chunks - comparison.current_chunk
+                        estimated_remaining_seconds = remaining_chunks / chunk_rate
+                        estimated_completion = datetime.utcnow() + timedelta(seconds=estimated_remaining_seconds)
+                        response["estimated_completion"] = estimated_completion.isoformat()
+
+            return response
 
         except Exception as e:
             logger.error(f"Error in get_comparison_status: {e}")
