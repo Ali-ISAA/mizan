@@ -6,7 +6,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.auth import require_user
@@ -17,7 +17,10 @@ from app.db.models.user import User
 from app.db.session import get_db
 from app.tasks.process_user_document import process_user_document_task
 from app.services.comparison import ComparisonService
+from app.services.audit import log_event
 from app.db.models.compliance_finding import ComplianceFinding
+from app.db.models.compliance_comparison import ComplianceComparison
+from app.db.models.compliance_report import ComplianceReport
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -34,21 +37,77 @@ class DocumentOut(BaseModel):
     page_count: int | None
     word_count: int | None
     created_at: datetime
+    compliance_score: int | None = None
+    issues_found: int | None = None
+    latest_comparison_id: str | None = None
+    latest_comparison_status: str | None = None
 
     model_config = {"from_attributes": True}
 
 
 @router.get("", response_model=list[DocumentOut])
 async def list_documents(user: User = Depends(require_user), db: AsyncSession = Depends(get_db)):
-    """List all documents for the current user's tenant."""
-    result = await db.execute(
+    """List all documents with latest compliance data for the current user's tenant."""
+    docs_result = await db.execute(
         select(MizanDocument).where(
             MizanDocument.tenant_id == user.tenant_id,
             MizanDocument.deleted_at.is_(None),
         )
     )
-    docs = result.scalars().all()
-    return [DocumentOut(id=str(d.id), role=d.role, name=d.name, file_type=d.file_type, file_size=d.file_size, processing_status=d.processing_status, noesia_chunk_count=d.noesia_chunk_count, ai_summary=d.ai_summary, page_count=d.page_count, word_count=d.word_count, created_at=d.created_at) for d in docs]
+    docs = docs_result.scalars().all()
+
+    if not docs:
+        return []
+
+    doc_ids = [d.id for d in docs]
+
+    # Subquery: latest comparison (any status) per document by created_at
+    latest_subq = (
+        select(
+            ComplianceComparison.mizan_document_id.label("doc_id"),
+            func.max(ComplianceComparison.created_at).label("max_ts"),
+        )
+        .where(ComplianceComparison.mizan_document_id.in_(doc_ids))
+        .group_by(ComplianceComparison.mizan_document_id)
+        .subquery()
+    )
+
+    comp_rows = await db.execute(
+        select(ComplianceComparison, ComplianceReport)
+        .join(
+            latest_subq,
+            and_(
+                ComplianceComparison.mizan_document_id == latest_subq.c.doc_id,
+                ComplianceComparison.created_at == latest_subq.c.max_ts,
+            ),
+        )
+        .outerjoin(ComplianceReport, ComplianceReport.comparison_id == ComplianceComparison.id)
+    )
+
+    comp_map: dict = {}
+    for comparison, report in comp_rows:
+        comp_map[comparison.mizan_document_id] = (comparison, report)
+
+    return [
+        DocumentOut(
+            id=str(d.id),
+            role=d.role,
+            name=d.name,
+            file_type=d.file_type,
+            file_size=d.file_size,
+            processing_status=d.processing_status,
+            noesia_chunk_count=d.noesia_chunk_count,
+            ai_summary=d.ai_summary,
+            page_count=d.page_count,
+            word_count=d.word_count,
+            created_at=d.created_at,
+            compliance_score=(comp_map[d.id][1].compliance_score if d.id in comp_map and comp_map[d.id][1] else None),
+            issues_found=(comp_map[d.id][1].total_findings if d.id in comp_map and comp_map[d.id][1] else None),
+            latest_comparison_id=(str(comp_map[d.id][0].id) if d.id in comp_map else None),
+            latest_comparison_status=(comp_map[d.id][0].status if d.id in comp_map else None),
+        )
+        for d in docs
+    ]
 
 
 @router.post("/upload", status_code=201)
@@ -99,6 +158,18 @@ async def upload_document(
     db.add(doc)
     await db.commit()
     await db.refresh(doc)
+
+    await log_event(
+        tenant_id=user.tenant_id,
+        user_id=user.id,
+        action="document_uploaded",
+        severity="success",
+        title="Document uploaded",
+        description=f"{doc.name} was uploaded and queued for processing",
+        resource_type="document",
+        resource_id=str(doc.id),
+        actor_email=user.email,
+    )
 
     process_user_document_task.delay(str(doc.id), save_path)
 
@@ -203,6 +274,17 @@ async def start_comparison(
             tenant_id=user.tenant_id,
             mizan_doc_id=doc_uuid,
             db=db
+        )
+        await log_event(
+            tenant_id=user.tenant_id,
+            user_id=user.id,
+            action="analysis_started",
+            severity="info",
+            title="Compliance analysis started",
+            description=f"Analysis started for {doc.name}",
+            resource_type="comparison",
+            resource_id=str(comparison.id),
+            actor_email=user.email,
         )
         return {
             "comparison_id": str(comparison.id),
