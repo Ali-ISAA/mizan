@@ -17,7 +17,9 @@ def test_activity_log_has_audit_columns():
 
 
 def test_activity_log_audit_column_defaults():
-    """severity defaults to 'info' and title defaults to '' when omitted."""
-    log = ActivityLog(action="some_action")
-    assert log.severity == "info"
-    assert log.title == ""
+    """severity defaults to 'info' and title defaults to '' — verified via column metadata."""
+    from sqlalchemy import inspect
+    mapper = inspect(ActivityLog)
+    col_defaults = {col.key: col.columns[0].default.arg for col in mapper.column_attrs if col.columns[0].default is not None}
+    assert col_defaults.get("severity") == "info"
+    assert col_defaults.get("title") == ""

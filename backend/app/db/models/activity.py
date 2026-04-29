@@ -26,8 +26,3 @@ class ActivityLog(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     actor_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-
-    def __init__(self, **kwargs: object) -> None:
-        kwargs.setdefault("severity", "info")
-        kwargs.setdefault("title", "")
-        super().__init__(**kwargs)
