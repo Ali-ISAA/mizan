@@ -14,3 +14,10 @@ def test_activity_log_has_audit_columns():
     assert log.title == "User signed in"
     assert log.description == "ali@example.com signed in"
     assert log.actor_email == "ali@example.com"
+
+
+def test_activity_log_audit_column_defaults():
+    """severity defaults to 'info' and title defaults to '' when omitted."""
+    log = ActivityLog(action="some_action")
+    assert log.severity == "info"
+    assert log.title == ""
