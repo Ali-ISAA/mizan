@@ -16,6 +16,7 @@ import ComplianceAnalysisView from './pages/ComplianceAnalysisView';
 import Rules from './pages/Rules';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Activity from './pages/Activity';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -107,6 +108,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <Settings />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/activity"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Activity />
                   </AppLayout>
                 </ProtectedRoute>
               }
