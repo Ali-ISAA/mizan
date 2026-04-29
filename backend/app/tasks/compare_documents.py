@@ -20,6 +20,7 @@ from app.db.models.compliance_report import ComplianceReport
 from app.db.models.mizan_document_chunk import MizanDocumentChunk
 from app.db.models.base_document_chunk import BaseDocumentChunk
 from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
+from app.services.audit import log_event
 from app.services.compliance_comparator import ComplianceComparator
 from app.worker import celery_app
 
@@ -101,19 +102,28 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
                 await db.commit()
                 return
 
-            # Calculate total chunks to process
-            total_chunks = len(doc_a_chunks) + len(doc_b_chunks)
+            # Total chunks = only doc_a chunks (one LLM call per doc_a chunk)
+            total_chunks = len(doc_a_chunks)
             comparison.total_chunks = total_chunks
             comparison.current_chunk = 0
             await db.commit()
             logger.info(f"Starting comparison: total_chunks={total_chunks}")
 
-            # Run comparison
+            # Pre-format regulation once, then loop compliance doc chunks with live progress
             comparator = ComplianceComparator()
-            report, findings = await comparator.compare(doc_a_chunks, doc_b_chunks)
+            regulation_text = comparator.prepare_regulation(doc_b_chunks)
 
-            # Update progress: mark as complete
-            comparison.current_chunk = total_chunks
+            all_findings = []
+            for i, chunk_a in enumerate(doc_a_chunks):
+                chunk_index = i + 1
+                logger.info(f"Processing chunk {chunk_index}/{total_chunks}")
+                finding = await comparator.compare_chunk(chunk_a, chunk_index, regulation_text)
+                if finding:
+                    all_findings.append(finding)
+                comparison.current_chunk = chunk_index
+                await db.commit()  # Commit every chunk so frontend sees 1→2→3
+
+            report, findings = comparator._compile_report(all_findings)
 
             # Save report
             report.comparison_id = comparison_id
@@ -132,14 +142,38 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
 
             logger.info(f"Comparison {comparison_id} completed: Score={report.compliance_score}")
 
+            await log_event(
+                tenant_id=comparison.tenant_id,
+                action="analysis_completed",
+                severity="success" if report.compliance_score >= 80 else "warning",
+                title="Compliance analysis completed",
+                description=(
+                    f"Analysis finished with score {report.compliance_score}% "
+                    f"({report.total_findings} findings)"
+                ),
+                resource_type="comparison",
+                resource_id=str(comparison_id),
+            )
+
         except Exception as e:
             logger.exception("Error in comparison pipeline: %s", str(e))
             try:
+                await db.rollback()
                 comparison = await db.get(ComplianceComparison, comparison_id)
                 if comparison:
                     comparison.status = "failed"
-                    comparison.error_message = str(e)
+                    comparison.error_message = str(e)[:1000]
                     comparison.completed_at = datetime.utcnow()
                     await db.commit()
+
+                    await log_event(
+                        tenant_id=comparison.tenant_id,
+                        action="analysis_failed",
+                        severity="error",
+                        title="Compliance analysis failed",
+                        description=str(e)[:200],
+                        resource_type="comparison",
+                        resource_id=str(comparison_id),
+                    )
             except Exception as db_error:
                 logger.exception("Error updating comparison status: %s", str(db_error))
