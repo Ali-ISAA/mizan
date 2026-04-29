@@ -13,6 +13,7 @@ from app.config import settings
 from app.db.models.tenant import Tenant
 from app.db.models.user import User
 from app.db.session import get_db
+from app.services.audit import log_event
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -146,6 +147,16 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     user.refresh_token = refresh_token
     user.refresh_token_expires_at = (datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)).replace(tzinfo=None)
     await db.commit()
+
+    await log_event(
+        tenant_id=user.tenant_id,
+        user_id=user.id,
+        action="user_login",
+        severity="info",
+        title="User signed in",
+        description=f"{user.email} signed in",
+        actor_email=user.email,
+    )
 
     return TokenResponse(access_token=access_token, refresh_token=refresh_token, user_id=str(user.id), email=user.email, role=user.role, tenant_id=str(user.tenant_id))
 
