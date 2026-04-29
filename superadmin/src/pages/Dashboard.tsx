@@ -4,6 +4,31 @@ import { api } from "../lib/api";
 interface Stats { tenants: number; users: number; }
 interface Tenant { id: string; name: string; slug: string; plan: string; is_active: boolean; created_at: string; }
 interface BaseDocStats { total: number; by_type: Record<string, number>; by_status: Record<string, number>; }
+interface AuditEvent {
+  id: string;
+  tenant_name: string | null;
+  action: string;
+  severity: string;
+  title: string;
+  description: string | null;
+  actor_email: string | null;
+  created_at: string;
+}
+
+function timeAgo(isoString: string): string {
+  const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return new Date(isoString).toLocaleDateString();
+}
+
+const SEVERITY_BADGE: Record<string, string> = {
+  success: "bg-green-100 text-green-700",
+  warning: "bg-yellow-100 text-yellow-700",
+  error:   "bg-red-100 text-red-700",
+  info:    "bg-blue-100 text-blue-700",
+};
 
 const DOC_TYPES = ["GDPR", "SOX", "HIPAA", "ISO 27001", "CCPA", "PCI DSS", "Others"];
 const STATUS_COLORS: Record<string, string> = {
@@ -25,6 +50,18 @@ export default function Dashboard() {
   const { data: docStats } = useQuery<BaseDocStats>({
     queryKey: ["sa-base-doc-stats"],
     queryFn: () => api.get("/superadmin/base-documents/stats").then(r => r.data),
+  });
+
+  const { data: recentEvents = [] } = useQuery<AuditEvent[]>({
+    queryKey: ["sa-audit-recent"],
+    queryFn: () => api.get("/superadmin/audit?limit=5").then(r => r.data),
+    refetchInterval: 30_000,
+  });
+
+  const { data: auditEvents = [] } = useQuery<AuditEvent[]>({
+    queryKey: ["sa-audit-all"],
+    queryFn: () => api.get("/superadmin/audit?limit=10").then(r => r.data),
+    refetchInterval: 60_000,
   });
 
   return (
@@ -80,6 +117,76 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Recent Activity */}
+      <div className="bg-white border rounded-lg overflow-hidden">
+        <div className="px-4 py-3 border-b">
+          <h3 className="font-semibold text-gray-900">Recent Activity</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Last 5 events across all tenants</p>
+        </div>
+        <div className="divide-y">
+          {recentEvents.length === 0 && (
+            <p className="px-4 py-6 text-sm text-gray-400 text-center">No activity yet</p>
+          )}
+          {recentEvents.map(ev => (
+            <div key={ev.id} className="px-4 py-3 flex items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-gray-900 truncate">{ev.title}</p>
+                  <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${SEVERITY_BADGE[ev.severity] ?? SEVERITY_BADGE.info}`}>
+                    {ev.severity}
+                  </span>
+                </div>
+                {ev.description && (
+                  <p className="text-xs text-gray-500 mt-0.5 truncate">{ev.description}</p>
+                )}
+                <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                  <span>{timeAgo(ev.created_at)}</span>
+                  {ev.tenant_name && <span className="font-medium">{ev.tenant_name}</span>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Audit Logs */}
+      <div className="bg-white border rounded-lg overflow-hidden">
+        <div className="px-4 py-3 border-b">
+          <h3 className="font-semibold text-gray-900">Audit Logs</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Who did what, across all tenants</p>
+        </div>
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              {["Event", "Actor", "Tenant", "Severity", "When"].map(h => (
+                <th key={h} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {auditEvents.length === 0 && (
+              <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-400 text-sm">No events yet</td></tr>
+            )}
+            {auditEvents.map(ev => (
+              <tr key={ev.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2.5">
+                  <p className="font-medium text-gray-900">{ev.title}</p>
+                  {ev.description && <p className="text-xs text-gray-400 truncate max-w-xs">{ev.description}</p>}
+                </td>
+                <td className="px-4 py-2.5 text-xs text-gray-500 font-mono">{ev.actor_email || "—"}</td>
+                <td className="px-4 py-2.5 text-xs text-gray-600">{ev.tenant_name || "—"}</td>
+                <td className="px-4 py-2.5">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${SEVERITY_BADGE[ev.severity] ?? SEVERITY_BADGE.info}`}>
+                    {ev.severity}
+                  </span>
+                </td>
+                <td className="px-4 py-2.5 text-xs text-gray-400">{timeAgo(ev.created_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Tenants table */}
       <div className="bg-white border rounded-lg overflow-hidden">
