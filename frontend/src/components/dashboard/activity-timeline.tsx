@@ -39,7 +39,7 @@ function timeAgo(isoString: string): string {
 }
 
 export function ActivityTimeline() {
-  const { data: events = [], isLoading } = useQuery<ActivityEvent[]>({
+  const { data: events = [], isLoading, isError } = useQuery<ActivityEvent[]>({
     queryKey: ["activity-recent"],
     queryFn: () => api.get("/activity?limit=5").then(r => r.data),
     refetchInterval: 30_000,
@@ -59,6 +59,9 @@ export function ActivityTimeline() {
       <CardContent>
         {isLoading && (
           <p className="text-sm text-muted-foreground text-center py-4">Loading...</p>
+        )}
+        {isError && (
+          <p className="text-sm text-destructive text-center py-4">Failed to load activity</p>
         )}
         {!isLoading && events.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-4">No activity yet</p>

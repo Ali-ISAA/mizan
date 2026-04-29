@@ -177,8 +177,6 @@ async def list_audit_events(
     stmt = (
         select(ActivityLog, Tenant)
         .outerjoin(Tenant, ActivityLog.tenant_id == Tenant.id)
-        .order_by(ActivityLog.created_at.desc())
-        .limit(limit)
     )
     if tenant_id:
         try:
@@ -189,6 +187,7 @@ async def list_audit_events(
     if event_type:
         stmt = stmt.where(ActivityLog.action == event_type)
 
+    stmt = stmt.order_by(ActivityLog.created_at.desc()).limit(limit)
     result = await db.execute(stmt)
     return [
         AuditEventOut(

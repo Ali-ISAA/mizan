@@ -52,16 +52,10 @@ export default function Dashboard() {
     queryFn: () => api.get("/superadmin/base-documents/stats").then(r => r.data),
   });
 
-  const { data: recentEvents = [] } = useQuery<AuditEvent[]>({
-    queryKey: ["sa-audit-recent"],
-    queryFn: () => api.get("/superadmin/audit?limit=5").then(r => r.data),
-    refetchInterval: 30_000,
-  });
-
   const { data: auditEvents = [] } = useQuery<AuditEvent[]>({
     queryKey: ["sa-audit-all"],
     queryFn: () => api.get("/superadmin/audit?limit=10").then(r => r.data),
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
   });
 
   return (
@@ -125,10 +119,10 @@ export default function Dashboard() {
           <p className="text-xs text-gray-400 mt-0.5">Last 5 events across all tenants</p>
         </div>
         <div className="divide-y">
-          {recentEvents.length === 0 && (
+          {auditEvents.length === 0 && (
             <p className="px-4 py-6 text-sm text-gray-400 text-center">No activity yet</p>
           )}
-          {recentEvents.map(ev => (
+          {auditEvents.slice(0, 5).map(ev => (
             <div key={ev.id} className="px-4 py-3 flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
