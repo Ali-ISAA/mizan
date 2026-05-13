@@ -233,7 +233,20 @@ Response structure: same as superadmin endpoint above.
 
 Add a third **"Articles"** tab to the existing tab group in the base document detail view. This is alongside the existing "Chunks" and "Document" tabs — not a separate panel on the list page.
 
-The Articles tab piggybacks on the same 3-second polling call (`GET /superadmin/base-documents/{doc_id}`) already used for `processing_status`. No additional poll is needed — `articles_status` is included in `BaseDocOut`.
+The Articles tab uses the same `GET /superadmin/base-documents/{doc_id}` response already polled for `processing_status`. No additional HTTP request is needed — `articles_status` is included in `BaseDocOut`.
+
+**However**, the existing `refetchInterval` condition in `DocumentDetail.tsx` only polls while `processing_status` is `pending` or `processing`. Since article extraction runs after `processing_status` has already reached `"completed"`, the poll will have stopped by then. The refetch condition must be extended:
+
+```typescript
+refetchInterval: (query) => {
+  const data = query.state.data;
+  const docProcessing = data?.processing_status === "processing" || data?.processing_status === "pending";
+  const articlesProcessing = data?.articles_status === "pending" || data?.articles_status === "processing";
+  return docProcessing || articlesProcessing ? 3000 : false;
+},
+```
+
+Without this change, the Re-extract progress will not update live — the user must manually refresh.
 
 Tab contents:
 - Status badge derived from `articles_status`:
@@ -282,35 +295,52 @@ if base_doc.articles_status != "completed":
 
 ### Comparison Strategy
 
-For each base article, call the LLM once with:
-- The full base article text as "Document A requirement"
-- All user article texts concatenated as "Document B content"
+For each regulation article (from `base_document_articles`), call the LLM once with:
+- The regulation article text as the requirement to check
+- All compliance document articles concatenated as the content to search
 
-This mirrors the existing `ComplianceComparator` pattern (one LLM call per document-A unit). A new `compare_article` method is added to `ComplianceComparator` following the same structure as the existing `compare_chunk`.
+A new `compare_article` method is added to `ComplianceComparator`. The method uses **unambiguous parameter names** (`regulation_article_number`, `regulation_article_text`, `compliance_articles_text`) to avoid confusion with the existing `doc_a`/`doc_b` convention (where `doc_a` = MizanDocument/compliance, `doc_b` = BaseDocument/regulation in the existing codebase).
 
-#### Compliance Comparison LLM Prompt (new `compare_article` method)
+#### `compare_article` Method Signature
 
-**System prompt** (same as existing `_build_system_prompt`):
+```python
+async def compare_article(
+    self,
+    regulation_article_number: str,
+    regulation_article_text: str,
+    compliance_articles_text: str,  # pre-formatted, built once before the loop
+) -> dict | None:
+    system_prompt = self._build_system_prompt()  # reuse unchanged — "chunk" vs "article" is irrelevant to the LLM
+    user_prompt = self._build_article_prompt(
+        regulation_article_number, regulation_article_text, compliance_articles_text
+    )
+    try:
+        raw = await self._call_llm(system_prompt, user_prompt)
+        return self._parse_article_response(raw, regulation_article_number)
+    except Exception as e:
+        logger.error(f"Error processing regulation article {regulation_article_number}: {e}")
+        return None
 ```
-You are an expert compliance analyst. Assess the given compliance document article against the regulation document. Respond ONLY with valid JSON. No preamble, no markdown, no extra text.
-```
+
+#### Compliance Comparison LLM Prompt (`_build_article_prompt`)
 
 **User prompt template:**
+
 ```
-Assess Article {doc_a_article_number} of the Compliance Document against the Regulation.
+Assess whether the following REGULATION article is covered by the COMPLIANCE DOCUMENT.
 
-COMPLIANCE DOCUMENT — Article {doc_a_article_number}
+REGULATION — Article {regulation_article_number}
 ============================================================
-{doc_a_article_text}
+{regulation_article_text}
 
-REGULATION DOCUMENT
+COMPLIANCE DOCUMENT
 ============================================================
-{doc_b_full_text}
+{compliance_articles_text}
 
 Return ONLY this JSON (one object, not an array):
 
 {
-  "matched_article_number": "<article_number string from the regulation that best satisfies this requirement, or null if not covered>",
+  "matched_article_number": "<article_number string from the compliance document that best covers this regulation requirement, or null if not covered>",
   "status": "<compliant|gap|conflict|missing>",
   "severity": "<critical|medium|low>",
   "issue": "<one-line description of the compliance problem, or 'Fully compliant'>",
@@ -320,44 +350,53 @@ Return ONLY this JSON (one object, not an array):
 Rules:
 - status must be one of: compliant, gap, conflict, missing
 - severity must be one of: critical, medium, low
-- matched_article_number must be the exact article_number string from the regulation, or null
+- matched_article_number must be the exact article_number string from the COMPLIANCE DOCUMENT, or null
 - If fully compliant, set status=compliant, severity=low, issue='Fully compliant'
 ```
 
-`doc_b_full_text` is pre-formatted once before the loop (same pattern as `prepare_regulation` in the existing comparator):
+`compliance_articles_text` is pre-formatted once before the loop (same pattern as `prepare_regulation` in the existing comparator):
 
 ```python
-user_articles_text = "\n\n---\n\n".join(
-    f"[Regulation | Article {a.article_number}]\n{a.article_text}"
+compliance_articles_text = "\n\n---\n\n".join(
+    f"[Compliance | Article {a.article_number}]\n{a.article_text}"
     for a in user_articles
 )
 ```
 
 #### LLM Response Parsing (`_parse_article_response`)
 
-Follows the same JSON cleaning logic as `_parse_chunk_response`:
+Follows the same JSON cleaning logic as `_parse_chunk_response`. Full implementation:
 
 ```python
-def _parse_article_response(self, raw_text: str, article_number: str) -> dict | None:
-    # strip markdown fences, parse JSON
-    data = json.loads(clean)
-    return {
-        "matched_article_number": data.get("matched_article_number"),  # str or None
-        "status": data.get("status", "gap"),
-        "severity": data.get("severity", "low"),
-        "issue": data.get("issue", ""),
-        "recommendation": data.get("recommendation", ""),
-    }
+def _parse_article_response(self, raw_text: str, regulation_article_number: str) -> dict | None:
+    try:
+        clean = raw_text.strip()
+        if clean.startswith("```"):
+            clean = clean.split("```")[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+        clean = clean.strip()
+        data = json.loads(clean)
+        return {
+            "matched_article_number": data.get("matched_article_number"),  # str or None
+            "status": data.get("status", "gap"),
+            "severity": data.get("severity", "low"),
+            "issue": data.get("issue", ""),
+            "recommendation": data.get("recommendation", ""),
+        }
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.warning(f"Failed to parse article {regulation_article_number} response: {e}\nRaw: {raw_text[:200]}")
+        return None
 ```
 
 #### Comparison Loop Pseudocode
 
 ```python
-for i, base_article in enumerate(base_articles):
+for i, reg_article in enumerate(regulation_articles):
     result = await comparator.compare_article(
-        doc_a_article_number=base_article.article_number,
-        doc_a_article_text=base_article.article_text,
-        doc_b_full_text=user_articles_text,
+        regulation_article_number=reg_article.article_number,
+        regulation_article_text=reg_article.article_text,
+        compliance_articles_text=compliance_articles_text,
     )
     if result is None:
         continue  # skip on parse error, same as existing chunk loop
@@ -366,7 +405,7 @@ for i, base_article in enumerate(base_articles):
     finding = ComplianceFinding(
         id=uuid4(),
         comparison_id=comparison.id,
-        doc_a_section=f"Article {base_article.article_number}",
+        doc_a_section=f"Article {reg_article.article_number}",
         doc_b_section=f"Article {matched_num}" if matched_num else "",
         status=result["status"],
         severity=result["severity"],
@@ -376,13 +415,13 @@ for i, base_article in enumerate(base_articles):
     db.add(finding)
 
     comparison.current_chunk = i + 1
-    comparison.total_chunks = len(base_articles)
+    comparison.total_chunks = len(regulation_articles)
     await db.commit()
 ```
 
-`ComplianceFinding` field names (`status`, `severity`, `issue`, `recommendation`, `doc_a_section`, `doc_b_section`) match the actual SQLAlchemy model in `backend/app/db/models/compliance_finding.py`.
+Note: `doc_a_section` stores the regulation article reference and `doc_b_section` stores the matching compliance article reference. This is intentionally reversed from the existing chunk-based convention (where `doc_a_section` = compliance chunk). The `ComplianceFinding` model has no semantic constraint on these fields — they are plain text columns.
 
-The existing `current_chunk` / `total_chunks` columns on `ComplianceComparison` track article-level progress. The column names are internal — no schema change is needed, and the frontend progress bar continues to work unchanged.
+The existing `current_chunk` / `total_chunks` columns on `ComplianceComparison` track article-level progress. No schema change needed; the frontend progress bar works unchanged.
 
 ### Backward Compatibility
 
@@ -419,14 +458,23 @@ This revision applies the following DDL changes in order:
 
 No data migration needed — extraction is triggered on-demand.
 
+The `downgrade()` function must drop objects in reverse order (tables before columns, to satisfy FK constraints):
+
+1. `DROP TABLE IF EXISTS mizan_document_articles`
+2. `DROP TABLE IF EXISTS base_document_articles`
+3. `ALTER TABLE mizan_documents DROP COLUMN IF EXISTS articles_error`
+4. `ALTER TABLE mizan_documents DROP COLUMN IF EXISTS articles_status`
+5. `ALTER TABLE base_documents DROP COLUMN IF EXISTS articles_error`
+6. `ALTER TABLE base_documents DROP COLUMN IF EXISTS articles_status`
+
 ---
 
 ## Implementation Order
 
 1. **DB migration** — Alembic revision `006`
 2. **SQLAlchemy models** — `BaseDocumentArticle`, `MizanDocumentArticle`; add `articles_status`/`articles_error` to `BaseDocument` and `MizanDocument`
-3. **Celery task** — `extract_articles_task` in `app/tasks/extract_articles.py`
-4. **API endpoints** — superadmin articles endpoints + user-facing endpoint
+3. **Celery task** — `extract_articles_task` in `app/tasks/extract_articles.py`; use `@celery_app.task(name="tasks.extract_articles")` to match the naming convention of existing tasks (e.g., `process_base_document_task` uses `name="tasks.process_base_document"`)
+4. **API endpoints** — superadmin articles endpoints added to `app/api/v1/base_documents.py`; user-facing `GET /documents/{doc_id}/articles` added to `app/api/v1/documents.py` (existing router with `prefix="/documents"`)
 5. **Extend `BaseDocOut`** — add `articles_status`, `articles_error` fields
 6. **Auto-trigger** — hook `extract_articles_task.delay()` into `process_base_document_task` and `process_user_document_task` after successful completion
 7. **Comparison update** — new `compare_article` method on `ComplianceComparator`; update `compare_documents_task` to use articles
