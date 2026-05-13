@@ -27,5 +27,7 @@ class BaseDocument(Base):
     uploaded_by: Mapped[str] = mapped_column(String(100), default="superadmin")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+    articles_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    articles_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     comparisons: Mapped[list["ComplianceComparison"]] = relationship("ComplianceComparison", back_populates="base_document", cascade="all, delete-orphan")  # type: ignore[name-defined]
