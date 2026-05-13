@@ -377,14 +377,19 @@ def _parse_article_response(self, raw_text: str, regulation_article_number: str)
                 clean = clean[4:]
         clean = clean.strip()
         data = json.loads(clean)
-        return {
+        result = {
             "matched_article_number": data.get("matched_article_number"),  # str or None
             "status": data.get("status", "gap"),
             "severity": data.get("severity", "low"),
             "issue": data.get("issue", ""),
             "recommendation": data.get("recommendation", ""),
         }
-    except (json.JSONDecodeError, KeyError) as e:
+        if not result["issue"]:
+            # LLM returned empty or malformed content; treat as unparseable
+            logger.warning(f"Empty issue field for article {regulation_article_number}")
+            return None
+        return result
+    except json.JSONDecodeError as e:
         logger.warning(f"Failed to parse article {regulation_article_number} response: {e}\nRaw: {raw_text[:200]}")
         return None
 ```
@@ -419,7 +424,7 @@ for i, reg_article in enumerate(regulation_articles):
     await db.commit()
 ```
 
-Note: `doc_a_section` stores the regulation article reference and `doc_b_section` stores the matching compliance article reference. This is intentionally reversed from the existing chunk-based convention (where `doc_a_section` = compliance chunk). The `ComplianceFinding` model has no semantic constraint on these fields — they are plain text columns.
+Note: `doc_a_section` stores the regulation article reference and `doc_b_section` stores the matching compliance article reference. This is intentionally reversed from the existing chunk-based convention (where `doc_a_section` = compliance chunk). The `ComplianceFinding` model has no semantic constraint on these fields — they are plain text columns. The existing compliance results frontend (`ComplianceAnalysisView.tsx` / findings table) renders `doc_a_section` as a plain string with no fixed semantic label (e.g., "Regulation Article 5"), so the reversal is safe — the field value is self-describing.
 
 The existing `current_chunk` / `total_chunks` columns on `ComplianceComparison` track article-level progress. No schema change needed; the frontend progress bar works unchanged.
 
@@ -472,8 +477,8 @@ The `downgrade()` function must drop objects in reverse order (tables before col
 ## Implementation Order
 
 1. **DB migration** — Alembic revision `006`
-2. **SQLAlchemy models** — `BaseDocumentArticle`, `MizanDocumentArticle`; add `articles_status`/`articles_error` to `BaseDocument` and `MizanDocument`
-3. **Celery task** — `extract_articles_task` in `app/tasks/extract_articles.py`; use `@celery_app.task(name="tasks.extract_articles")` to match the naming convention of existing tasks (e.g., `process_base_document_task` uses `name="tasks.process_base_document"`)
+2. **SQLAlchemy models** — create `BaseDocumentArticle` in `app/db/models/base_document_article.py` and `MizanDocumentArticle` in `app/db/models/mizan_document_article.py`; add `articles_status`/`articles_error` mapped columns to `BaseDocument` and `MizanDocument`; import all four new/updated models in `backend/app/db/models/__init__.py` (same `# noqa: F401` pattern as existing imports) — without this, SQLAlchemy's `Base.metadata` will not see the new tables and Alembic autogenerate will not detect them
+3. **Celery task** — `extract_articles_task` in `app/tasks/extract_articles.py`; use `@celery_app.task(name="tasks.extract_articles")`. Also add `"app.tasks.extract_articles"` to the `include` list in `backend/app/worker.py` — without this the worker never discovers the task and `.delay()` calls are silently ignored
 4. **API endpoints** — superadmin articles endpoints added to `app/api/v1/base_documents.py`; user-facing `GET /documents/{doc_id}/articles` added to `app/api/v1/documents.py` (existing router with `prefix="/documents"`)
 5. **Extend `BaseDocOut`** — add `articles_status`, `articles_error` fields
 6. **Auto-trigger** — hook `extract_articles_task.delay()` into `process_base_document_task` and `process_user_document_task` after successful completion
