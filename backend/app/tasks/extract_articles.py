@@ -1,4 +1,4 @@
-"""Extract numbered articles from documents using LLM."""
+"""Extract numbered articles from documents using section_header metadata or LLM fallback."""
 import asyncio
 import json
 import logging
@@ -18,10 +18,11 @@ from app.worker import celery_app
 
 logger = logging.getLogger(__name__)
 
+# LLM fallback settings (used only when chunks lack section_header metadata)
 BATCH_SIZE = 15
 OVERLAP = 2
 
-SYSTEM_PROMPT = (
+LLM_SYSTEM_PROMPT = (
     "You are a legal document parser. Your task is to extract all numbered articles, "
     "sections, clauses, or provisions from the provided text.\n\n"
     "Rules:\n"
@@ -37,12 +38,42 @@ SYSTEM_PROMPT = (
 )
 
 
+def _extract_from_headers(chunks: list) -> list[dict]:
+    """
+    Primary extraction: use section_header metadata as the article number.
+    Groups multiple chunks sharing the same header (concatenates their text).
+    Preserves document order (chunk_index order).
+    Skips chunks without a section_header.
+    """
+    groups: dict[str, list[str]] = {}
+    order: list[str] = []
+
+    for chunk in chunks:
+        header = (chunk.section_header or "").strip()
+        if not header:
+            continue
+        if header not in groups:
+            groups[header] = []
+            order.append(header)
+        text = (chunk.text or "").strip()
+        if text:
+            groups[header].append(text)
+
+    articles = []
+    for header in order:
+        texts = groups[header]
+        article_text = "\n\n".join(texts)
+        if article_text:
+            articles.append({"article_number": header, "article_text": article_text})
+
+    return articles
+
+
 def _build_batches(chunks: list, batch_size: int = BATCH_SIZE, overlap: int = OVERLAP) -> list[list]:
     """Slide a window of batch_size chunks with overlap between batches."""
     if not chunks:
         return []
     batches = []
-    step = batch_size  # unique chunks added each iteration
     i = 0
     while i < len(chunks):
         batch = chunks[max(0, i - overlap) : i + batch_size] if i > 0 else chunks[i : i + batch_size]
@@ -82,15 +113,48 @@ def _parse_llm_extraction(raw_text: str) -> list[dict] | None:
         return None
 
 
+async def _extract_with_llm(chunks: list, document_id: str) -> list[dict]:
+    """Fallback: extract articles via LLM when section_header metadata is absent."""
+    batches = _build_batches(list(chunks), BATCH_SIZE, OVERLAP)
+    all_articles: list[dict] = []
+
+    for batch_idx, batch in enumerate(batches):
+        text = "\n\n---\n\n".join(c.text for c in batch)
+        user_prompt = (
+            "Extract all numbered articles, sections, clauses, and provisions "
+            "from the following document text:\n\n" + text
+        )
+        try:
+            raw = await llm_chat(
+                messages=[
+                    {"role": "system", "content": LLM_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+                max_tokens=4096,
+                temperature=0,
+            )
+            parsed = _parse_llm_extraction(raw)
+            if parsed:
+                all_articles.extend(parsed)
+            else:
+                logger.warning("Batch %d for doc %s returned no parseable articles", batch_idx, document_id)
+        except Exception as e:
+            logger.warning("Batch %d LLM call failed for doc %s: %s", batch_idx, document_id, e)
+
+    return _deduplicate_articles(all_articles)
+
+
 async def _extract_articles(document_id: str, document_type: str) -> None:
     """
     Core async extraction pipeline.
     document_type: "base" | "user"
+
+    Strategy: use section_header metadata when available (accurate, instant).
+    Falls back to LLM batching when headers are absent.
     """
     doc_uuid = UUID(document_id)
 
     async with AsyncSessionLocal() as db:
-        # Load document and set status to processing
         if document_type == "base":
             doc = await db.get(BaseDocument, doc_uuid)
         else:
@@ -122,46 +186,30 @@ async def _extract_articles(document_id: str, document_type: str) -> None:
             chunks = result.scalars().all()
 
             if not chunks:
-                logger.warning("No chunks found for document %s — cannot extract articles", document_id)
+                logger.warning("No chunks found for document %s", document_id)
                 doc.articles_status = "failed"
                 doc.articles_error = "No chunks available for extraction"
                 await db.commit()
                 return
 
-            # Build batches and extract
-            batches = _build_batches(list(chunks), BATCH_SIZE, OVERLAP)
-            all_articles: list[dict] = []
-
-            for batch_idx, batch in enumerate(batches):
-                text = "\n\n---\n\n".join(c.text for c in batch)
-                user_prompt = (
-                    "Extract all numbered articles, sections, clauses, and provisions "
-                    "from the following document text:\n\n" + text
+            # Choose extraction strategy
+            headers_present = sum(1 for c in chunks if (c.section_header or "").strip())
+            if headers_present > 0:
+                logger.info(
+                    "Doc %s: using section_header strategy (%d/%d chunks have headers)",
+                    document_id, headers_present, len(chunks),
                 )
-                try:
-                    raw = await llm_chat(
-                        messages=[
-                            {"role": "system", "content": SYSTEM_PROMPT},
-                            {"role": "user", "content": user_prompt},
-                        ],
-                        max_tokens=4096,
-                        temperature=0,
-                    )
-                    parsed = _parse_llm_extraction(raw)
-                    if parsed:
-                        all_articles.extend(parsed)
-                    else:
-                        logger.warning("Batch %d for doc %s returned no parseable articles", batch_idx, document_id)
-                except Exception as e:
-                    logger.warning("Batch %d LLM call failed for doc %s: %s", batch_idx, document_id, e)
+                articles = _extract_from_headers(chunks)
+            else:
+                logger.info("Doc %s: no section headers found, falling back to LLM", document_id)
+                articles = await _extract_with_llm(chunks, document_id)
 
-            # Deduplicate and assign indices
-            deduped = _deduplicate_articles(all_articles)
-
-            # Delete existing, bulk-insert new (idempotent)
+            # Delete existing rows, bulk-insert new ones (idempotent)
             if document_type == "base":
-                await db.execute(delete(BaseDocumentArticle).where(BaseDocumentArticle.base_document_id == doc_uuid))
-                for idx, item in enumerate(deduped):
+                await db.execute(
+                    delete(BaseDocumentArticle).where(BaseDocumentArticle.base_document_id == doc_uuid)
+                )
+                for idx, item in enumerate(articles):
                     db.add(BaseDocumentArticle(
                         base_document_id=doc_uuid,
                         article_index=idx,
@@ -169,8 +217,10 @@ async def _extract_articles(document_id: str, document_type: str) -> None:
                         article_text=item["article_text"],
                     ))
             else:
-                await db.execute(delete(MizanDocumentArticle).where(MizanDocumentArticle.mizan_document_id == doc_uuid))
-                for idx, item in enumerate(deduped):
+                await db.execute(
+                    delete(MizanDocumentArticle).where(MizanDocumentArticle.mizan_document_id == doc_uuid)
+                )
+                for idx, item in enumerate(articles):
                     db.add(MizanDocumentArticle(
                         mizan_document_id=doc_uuid,
                         article_index=idx,
@@ -180,11 +230,10 @@ async def _extract_articles(document_id: str, document_type: str) -> None:
 
             doc.articles_status = "completed"
             await db.commit()
-            logger.info("Article extraction complete for %s: %d articles", document_id, len(deduped))
+            logger.info("Article extraction complete for %s: %d articles", document_id, len(articles))
 
         except Exception as e:
             logger.exception("Article extraction failed for %s: %s", document_id, e)
-            # Must rollback before any further DB operations — session may be dirty
             await db.rollback()
             if document_type == "base":
                 doc = await db.get(BaseDocument, doc_uuid)

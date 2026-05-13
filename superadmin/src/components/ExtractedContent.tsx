@@ -32,52 +32,37 @@ export function ExtractedContent({ chunks = [], isLoading }: ExtractedContentPro
     );
   }
 
-  // Group chunks by section header
-  const sections: Array<{ header: string; chunks: Chunk[] }> = [];
-  let currentSection: string | null = null;
-  let currentChunks: Chunk[] = [];
+  // Group chunks by section header, preserving order, concatenating text within a section
+  const sections: Array<{ header: string; text: string }> = [];
+  const seen = new Map<string, number>(); // header → index in sections
 
   chunks.forEach(chunk => {
-    const header = chunk.metadata?.section_header || "Content";
+    const header = chunk.metadata?.section_header || chunk.section_header || "";
+    const text = (chunk.text || "").trim();
+    if (!text) return;
 
-    if (header !== currentSection) {
-      if (currentSection !== null) {
-        sections.push({
-          header: currentSection,
-          chunks: [...currentChunks],
-        });
-      }
-      currentSection = header;
-      currentChunks = [chunk];
+    if (header && seen.has(header)) {
+      const idx = seen.get(header)!;
+      sections[idx].text += "\n\n" + text;
     } else {
-      currentChunks.push(chunk);
+      const idx = sections.length;
+      sections.push({ header: header || "Content", text });
+      if (header) seen.set(header, idx);
     }
   });
 
-  // Add last section
-  if (currentSection !== null) {
-    sections.push({
-      header: currentSection,
-      chunks: currentChunks,
-    });
-  }
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {sections.map((section, idx) => (
-        <div key={idx} className="border-l-4 border-slate-300 pl-4 py-2">
-          <h3 className="text-base font-bold text-slate-900 mb-4 uppercase tracking-wide">
-            {section.header}
-          </h3>
-          <div className="space-y-4">
-            {section.chunks.map((chunk, chunkIdx) => (
-              <div key={chunk.id} className="bg-gray-50 rounded p-4 hover:bg-gray-100 transition-colors">
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {chunk.text}
-                </p>
-              </div>
-            ))}
-          </div>
+        <div key={idx} className="border-l-4 border-slate-200 pl-4 py-1">
+          {section.header && section.header !== "Content" && (
+            <h3 className="text-sm font-bold text-slate-800 mb-2 uppercase tracking-wide">
+              {section.header}
+            </h3>
+          )}
+          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+            {section.text}
+          </p>
         </div>
       ))}
     </div>
