@@ -33,7 +33,7 @@ Extract articles as a separate, explicit pipeline step. Store them in dedicated 
 
 ```sql
 CREATE TABLE base_document_articles (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     base_document_id UUID NOT NULL REFERENCES base_documents(id) ON DELETE CASCADE,
     article_index    INTEGER NOT NULL,      -- ordering (0-based)
     article_number   VARCHAR(50) NOT NULL,  -- "1", "2.3", "Article 5", "IV"
@@ -45,30 +45,67 @@ CREATE INDEX ON base_document_articles(base_document_id, article_index);
 
 ### New Table: `mizan_document_articles`
 
+The FK column is named `mizan_document_id` to match the existing `mizan_document_chunks.mizan_document_id` column naming convention (not `document_id`).
+
 ```sql
 CREATE TABLE mizan_document_articles (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    document_id UUID NOT NULL REFERENCES mizan_documents(id) ON DELETE CASCADE,
-    article_index    INTEGER NOT NULL,
-    article_number   VARCHAR(50) NOT NULL,
-    article_text     TEXT NOT NULL,
-    created_at       TIMESTAMPTZ DEFAULT now()
+    id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    mizan_document_id  UUID NOT NULL REFERENCES mizan_documents(id) ON DELETE CASCADE,
+    article_index      INTEGER NOT NULL,
+    article_number     VARCHAR(50) NOT NULL,
+    article_text       TEXT NOT NULL,
+    created_at         TIMESTAMPTZ DEFAULT now()
 );
-CREATE INDEX ON mizan_document_articles(document_id, article_index);
+CREATE INDEX ON mizan_document_articles(mizan_document_id, article_index);
 ```
 
-### New Column: `articles_status` on `base_documents`
+### New Columns: `articles_status` and `articles_error` on `base_documents`
 
 ```sql
-ALTER TABLE base_documents ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL;
--- Values: NULL (never started) | 'pending' | 'processing' | 'completed' | 'failed'
+ALTER TABLE base_documents
+    ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL,
+    ADD COLUMN articles_error  TEXT DEFAULT NULL;
+-- articles_status values: NULL (never started) | 'pending' | 'processing' | 'completed' | 'failed'
+-- articles_error: last error message from extraction; NULL when status is not 'failed'
 ```
 
-### New Column: `articles_status` on `mizan_documents`
+### New Columns: `articles_status` and `articles_error` on `mizan_documents`
 
 ```sql
-ALTER TABLE mizan_documents ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL;
+ALTER TABLE mizan_documents
+    ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL,
+    ADD COLUMN articles_error  TEXT DEFAULT NULL;
 ```
+
+### Pydantic Model Changes: `BaseDocOut`
+
+Add two fields to `BaseDocOut` in `backend/app/api/v1/base_documents.py`:
+
+```python
+articles_status: str | None = None
+articles_error: str | None = None
+```
+
+Also update the `_to_out()` helper function to include both fields:
+
+```python
+def _to_out(d: BaseDocument) -> BaseDocOut:
+    return BaseDocOut(
+        ...existing fields...,
+        articles_status=d.articles_status,
+        articles_error=d.articles_error,
+    )
+```
+
+Without updating `_to_out()`, the fields will always be `None` regardless of DB state.
+
+### `articles_status` Added to Existing API Responses
+
+`articles_status` and `articles_error` are added to:
+- `BaseDocOut` Pydantic model (returned by `GET /superadmin/base-documents/{id}` and list endpoints)
+- The existing `GET /superadmin/base-documents/{id}` poll already used by the superadmin UI
+
+This means the Articles tab can piggyback on the existing 3-second poll for `processing_status` — no second HTTP request is needed. The tab shows `articles_status` from the same response.
 
 ---
 
@@ -77,7 +114,9 @@ ALTER TABLE mizan_documents ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL;
 ### Trigger
 
 - **Base documents**: Superadmin triggers extraction manually via UI (Re-extract button) OR automatically after `processing_status` transitions to `'completed'` in `process_base_document_task`.
-- **User documents**: Extraction is triggered automatically after `process_user_document_task` completes ingestion (Noesia ingest job finishes successfully).
+- **User documents**: Extraction is triggered automatically after `process_user_document_task` completes ingestion (Noesia ingest job finishes successfully). If extraction fails (`articles_status = 'failed'`), recovery requires re-uploading the document — there is no separate re-trigger endpoint for user documents.
+
+**Important:** The extraction task reads chunk text from the `base_document_chunks` or `mizan_document_chunks` tables (already in the DB at trigger time). The file path is not passed to the task and is not needed — `process_base_document_task` deletes the uploaded file in its `finally` block after ingestion completes.
 
 ### Celery Task: `extract_articles_task(document_id: str, document_type: str)`
 
@@ -86,19 +125,28 @@ ALTER TABLE mizan_documents ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL;
 **Algorithm:**
 
 ```
-1. Load document record; set articles_status = 'processing'
-2. Fetch all chunks from DB (base_document_chunks or mizan_document_chunks), ordered by chunk_index
+1. Load document record; set articles_status = 'processing', articles_error = NULL; commit
+2. Fetch all chunks from DB (base_document_chunks or mizan_document_chunks),
+   ordered by chunk_index
+   - base: WHERE base_document_id = document_id
+   - user: WHERE mizan_document_id = document_id
 3. Batch chunks into groups of 15 (overlap: last 2 chunks of previous batch prepended to next)
 4. For each batch:
    a. Concatenate chunk texts with separator "\n\n---\n\n"
    b. Call LLM with extraction prompt (see below)
    c. Parse JSON response → list of {article_number, article_text}
-   d. Accumulate results
-5. Deduplicate by article_number (keep first occurrence; later batches may re-emit boundary articles)
+   d. Accumulate results; if LLM returns malformed JSON, log warning and skip batch
+5. Deduplicate by article_number (exact string match, case-sensitive): keep first occurrence;
+   later batches re-emit boundary articles due to overlap — these duplicates are discarded.
+   NOTE: If a document uses numbering restarts (e.g., two appendices both numbered 1, 2, 3),
+   this deduplication will incorrectly merge them. Accepted limitation for this implementation.
 6. Assign article_index (0-based, in order of first appearance)
-7. Bulk insert into base_document_articles or mizan_document_articles
-   - Delete existing rows for this document_id first (idempotent re-extraction)
-8. Set articles_status = 'completed' (or 'failed' on exception)
+7. Within a DB transaction:
+   a. DELETE existing rows for this document (idempotent re-extraction)
+   b. Bulk INSERT new rows into base_document_articles or mizan_document_articles
+   c. Set articles_status = 'completed'; commit
+8. On any unhandled exception: set articles_status = 'failed',
+   articles_error = str(exception); commit
 ```
 
 ### LLM Extraction Prompt
@@ -129,20 +177,19 @@ Extract all numbered articles, sections, clauses, and provisions from the follow
 {concatenated_chunk_text}
 ```
 
-### Error Handling
-
-- If LLM returns malformed JSON: log warning, skip batch, continue with remaining batches
-- If all batches fail: set `articles_status = 'failed'`, store error in a `detail` JSONB field (optional, for debugging)
-- Re-extraction is always safe (delete-then-insert pattern)
-
 ---
 
 ## API Endpoints
 
 ### Superadmin
 
-**GET `/superadmin/base-documents/{doc_id}/articles`**  
-Returns paginated list of extracted articles.
+**GET `/superadmin/base-documents/{doc_id}/articles?limit=50&offset=0`**  
+Returns paginated list of extracted articles.  
+Auth: `require_superadmin` dependency.
+
+Query parameters:
+- `limit: int = 50` — max articles per page
+- `offset: int = 0` — pagination offset
 
 Response:
 ```json
@@ -151,23 +198,32 @@ Response:
     {"id": "uuid", "article_index": 0, "article_number": "1", "article_text": "..."}
   ],
   "total": 42,
-  "articles_status": "completed"
+  "articles_status": "completed",
+  "articles_error": null
 }
 ```
 
+Returns HTTP 404 if `doc_id` not found.
+
 **POST `/superadmin/base-documents/{doc_id}/extract-articles`**  
 Triggers (or re-triggers) article extraction for a base document.  
-Requires `processing_status == 'completed'` (chunks must exist).
+Auth: `require_superadmin` dependency.  
+Requires `processing_status == 'completed'` (chunks must exist).  
+Returns HTTP 400 if `processing_status != 'completed'`.
 
-Response:
+Response (200):
 ```json
 {"articles_status": "pending", "message": "Extraction queued"}
 ```
 
 ### User-facing
 
-**GET `/documents/{doc_id}/articles`**  
-Returns articles for the user's document (same structure as above, scoped by tenant).
+**GET `/documents/{doc_id}/articles?limit=50&offset=0`**  
+Returns articles for the user's document.  
+Auth: `require_user` JWT dependency. Verifies `doc.tenant_id == user.tenant_id`.  
+Returns HTTP 404 if not found or belongs to another tenant (do not distinguish — always 404).
+
+Response structure: same as superadmin endpoint above.
 
 ---
 
@@ -175,13 +231,20 @@ Returns articles for the user's document (same structure as above, scoped by ten
 
 ### Base Document Detail → Articles Tab
 
-Add a new **"Articles"** tab alongside existing tabs (Chunks, etc.) in the base document detail view (or in the base documents list page, as a panel).
+Add a third **"Articles"** tab to the existing tab group in the base document detail view. This is alongside the existing "Chunks" and "Document" tabs — not a separate panel on the list page.
+
+The Articles tab piggybacks on the same 3-second polling call (`GET /superadmin/base-documents/{doc_id}`) already used for `processing_status`. No additional poll is needed — `articles_status` is included in `BaseDocOut`.
 
 Tab contents:
-- Status badge: `articles_status` (null=Never Extracted, pending=Queued, processing=Extracting…, completed=Completed, failed=Failed)
-- **Re-extract** button (always visible; queues a new extraction)
-- Auto-refresh: poll every 3s while `articles_status ∈ {pending, processing}`
-- Table: Article # | Article Text (truncated to 200 chars with expand)
+- Status badge derived from `articles_status`:
+  - `null` → "Never Extracted" (gray)
+  - `pending` → "Queued" (yellow)
+  - `processing` → "Extracting…" (blue, spinner)
+  - `completed` → "Completed" (green)
+  - `failed` → "Failed" (red) + show `articles_error` message below badge
+- **Re-extract** button (always visible; calls `POST /superadmin/base-documents/{id}/extract-articles`; disabled while `articles_status` is `pending` or `processing`)
+- Auto-refresh: the existing 3-second poll already covers this (no new polling logic needed)
+- Table: columns = Article # | Article Text (truncated to 200 chars; click to expand full text)
 - Empty state: "No articles extracted yet. Click Re-extract to begin."
 
 ---
@@ -190,49 +253,140 @@ Tab contents:
 
 ### Pre-flight Check
 
-In `compare_documents_task` (or the comparison service), before starting analysis:
+In `compare_documents_task`, before starting analysis:
 
 ```python
 if base_doc.articles_status != "completed":
-    raise ValueError("Base document articles not extracted yet")
+    comparison.status = "failed"
+    comparison.error_message = "Base document articles not extracted. Run article extraction first."
+    await db.commit()
+    return
+
 if user_doc.articles_status != "completed":
-    raise ValueError("User document articles not extracted yet")
+    comparison.status = "failed"
+    comparison.error_message = "User document articles not extracted. Please wait for processing to complete."
+    await db.commit()
+    return
 ```
 
-Return a clear error to the frontend if articles are not ready.
+The `compare_documents_task` already uses a `ComplianceComparison` record with a `status` and `error_message` field; use that same pattern rather than raising an exception that would mark the Celery task as failed.
 
-### Comparison Loop
-
-Replace chunk iteration with article iteration:
+The `POST /documents/{doc_id}/analyze` endpoint should also check `articles_status` synchronously before queuing the task and return HTTP 400 (matching the existing pattern for similar pre-flight checks in `documents.py`) with a clear message. Example:
 
 ```python
-base_articles = await db.execute(
-    select(BaseDocumentArticle)
-    .where(BaseDocumentArticle.base_document_id == base_doc_id)
-    .order_by(BaseDocumentArticle.article_index)
-)
-
-user_articles = await db.execute(
-    select(MizanDocumentArticle)
-    .where(MizanDocumentArticle.document_id == user_doc_id)
-    .order_by(MizanDocumentArticle.article_index)
-)
-
-for base_article in base_articles:
-    # Search user articles for coverage of this base article
-    # (semantic match — use existing vector search or LLM comparison)
-    finding = ComplianceFinding(
-        doc_a_section=f"Article {base_article.article_number}",
-        doc_b_section=f"Article {matched_user_article.article_number}" if match else None,
-        ...
-    )
+if user_doc.articles_status != "completed":
+    raise HTTPException(status_code=400, detail="Document articles not ready yet. Please wait for processing to complete.")
+if base_doc.articles_status != "completed":
+    raise HTTPException(status_code=400, detail="Base document articles not extracted. Contact an administrator.")
 ```
 
-The `doc_a_section` field stores `"Article {number}"` — human-readable, not `"Chunk 12"`.
+### Comparison Strategy
+
+For each base article, call the LLM once with:
+- The full base article text as "Document A requirement"
+- All user article texts concatenated as "Document B content"
+
+This mirrors the existing `ComplianceComparator` pattern (one LLM call per document-A unit). A new `compare_article` method is added to `ComplianceComparator` following the same structure as the existing `compare_chunk`.
+
+#### Compliance Comparison LLM Prompt (new `compare_article` method)
+
+**System prompt** (same as existing `_build_system_prompt`):
+```
+You are an expert compliance analyst. Assess the given compliance document article against the regulation document. Respond ONLY with valid JSON. No preamble, no markdown, no extra text.
+```
+
+**User prompt template:**
+```
+Assess Article {doc_a_article_number} of the Compliance Document against the Regulation.
+
+COMPLIANCE DOCUMENT — Article {doc_a_article_number}
+============================================================
+{doc_a_article_text}
+
+REGULATION DOCUMENT
+============================================================
+{doc_b_full_text}
+
+Return ONLY this JSON (one object, not an array):
+
+{
+  "matched_article_number": "<article_number string from the regulation that best satisfies this requirement, or null if not covered>",
+  "status": "<compliant|gap|conflict|missing>",
+  "severity": "<critical|medium|low>",
+  "issue": "<one-line description of the compliance problem, or 'Fully compliant'>",
+  "recommendation": "<one-line fix, or 'No action required'>"
+}
+
+Rules:
+- status must be one of: compliant, gap, conflict, missing
+- severity must be one of: critical, medium, low
+- matched_article_number must be the exact article_number string from the regulation, or null
+- If fully compliant, set status=compliant, severity=low, issue='Fully compliant'
+```
+
+`doc_b_full_text` is pre-formatted once before the loop (same pattern as `prepare_regulation` in the existing comparator):
+
+```python
+user_articles_text = "\n\n---\n\n".join(
+    f"[Regulation | Article {a.article_number}]\n{a.article_text}"
+    for a in user_articles
+)
+```
+
+#### LLM Response Parsing (`_parse_article_response`)
+
+Follows the same JSON cleaning logic as `_parse_chunk_response`:
+
+```python
+def _parse_article_response(self, raw_text: str, article_number: str) -> dict | None:
+    # strip markdown fences, parse JSON
+    data = json.loads(clean)
+    return {
+        "matched_article_number": data.get("matched_article_number"),  # str or None
+        "status": data.get("status", "gap"),
+        "severity": data.get("severity", "low"),
+        "issue": data.get("issue", ""),
+        "recommendation": data.get("recommendation", ""),
+    }
+```
+
+#### Comparison Loop Pseudocode
+
+```python
+for i, base_article in enumerate(base_articles):
+    result = await comparator.compare_article(
+        doc_a_article_number=base_article.article_number,
+        doc_a_article_text=base_article.article_text,
+        doc_b_full_text=user_articles_text,
+    )
+    if result is None:
+        continue  # skip on parse error, same as existing chunk loop
+
+    matched_num = result["matched_article_number"]
+    finding = ComplianceFinding(
+        id=uuid4(),
+        comparison_id=comparison.id,
+        doc_a_section=f"Article {base_article.article_number}",
+        doc_b_section=f"Article {matched_num}" if matched_num else "",
+        status=result["status"],
+        severity=result["severity"],
+        issue=result["issue"],
+        recommendation=result["recommendation"],
+    )
+    db.add(finding)
+
+    comparison.current_chunk = i + 1
+    comparison.total_chunks = len(base_articles)
+    await db.commit()
+```
+
+`ComplianceFinding` field names (`status`, `severity`, `issue`, `recommendation`, `doc_a_section`, `doc_b_section`) match the actual SQLAlchemy model in `backend/app/db/models/compliance_finding.py`.
+
+The existing `current_chunk` / `total_chunks` columns on `ComplianceComparison` track article-level progress. The column names are internal — no schema change is needed, and the frontend progress bar continues to work unchanged.
 
 ### Backward Compatibility
 
-Documents that were analyzed before this feature (no articles extracted) continue to show their existing chunk-based findings. New analyses require article extraction.
+Documents analyzed before this feature was deployed (no articles extracted) retain their existing chunk-based findings. New analyses require article extraction on both documents.
 
 ---
 
@@ -242,33 +396,42 @@ Documents that were analyzed before this feature (no articles extracted) continu
 
 The compliance results UI already reads `doc_a_section` from the API. Since `doc_a_section` now contains `"Article 5"` instead of `"Chunk 12"`, the display automatically improves with no code change.
 
-### Analyze Button Guard
+### Analyze Button Guard (HTTP 400 from backend)
 
-The `POST /documents/{doc_id}/analyze` endpoint should check `articles_status` and return HTTP 422 with a clear message if articles are not yet extracted, so the frontend can display a user-friendly error.
+When `POST /documents/{doc_id}/analyze` returns HTTP 400 due to articles not ready, the existing error-handling in the frontend displays the `detail` message. No frontend code change is needed beyond confirming the message is surfaced.
 
-Optional: show an "Articles not ready" inline warning on the document card if `articles_status != 'completed'`.
+Optional (low priority): show an inline "Articles not ready" badge on the document card when `articles_status != 'completed'`, so users know before clicking Analyze.
 
 ---
 
 ## Migration
 
-1. Add `articles_status` column to `base_documents` and `mizan_documents` (nullable, defaults to NULL)
-2. Create `base_document_articles` table
-3. Create `mizan_document_articles` table
-4. No data migration needed — extraction is triggered on-demand
+Create a single Alembic revision file `006_add_article_extraction_tables.py` with `revision = "006"` and `down_revision = "005"`.
+
+This revision applies the following DDL changes in order:
+
+1. `ALTER TABLE base_documents ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL`
+2. `ALTER TABLE base_documents ADD COLUMN articles_error TEXT DEFAULT NULL`
+3. `ALTER TABLE mizan_documents ADD COLUMN articles_status VARCHAR(20) DEFAULT NULL`
+4. `ALTER TABLE mizan_documents ADD COLUMN articles_error TEXT DEFAULT NULL`
+5. `CREATE TABLE base_document_articles (...)` as specified above
+6. `CREATE TABLE mizan_document_articles (...)` as specified above
+
+No data migration needed — extraction is triggered on-demand.
 
 ---
 
 ## Implementation Order
 
-1. **DB migration** — new tables + columns
-2. **SQLAlchemy models** — `BaseDocumentArticle`, `MizanDocumentArticle`; add `articles_status` to existing models
-3. **Celery task** — `extract_articles_task`
-4. **API endpoints** — superadmin + user-facing
-5. **Auto-trigger** — hook into `process_base_document_task` and `process_user_document_task`
-6. **Comparison update** — `compare_documents_task` uses articles
-7. **Superadmin UI** — Articles tab + Re-extract button
-8. **Frontend guard** — `articles_status` check on analyze
+1. **DB migration** — Alembic revision `006`
+2. **SQLAlchemy models** — `BaseDocumentArticle`, `MizanDocumentArticle`; add `articles_status`/`articles_error` to `BaseDocument` and `MizanDocument`
+3. **Celery task** — `extract_articles_task` in `app/tasks/extract_articles.py`
+4. **API endpoints** — superadmin articles endpoints + user-facing endpoint
+5. **Extend `BaseDocOut`** — add `articles_status`, `articles_error` fields
+6. **Auto-trigger** — hook `extract_articles_task.delay()` into `process_base_document_task` and `process_user_document_task` after successful completion
+7. **Comparison update** — new `compare_article` method on `ComplianceComparator`; update `compare_documents_task` to use articles
+8. **Superadmin UI** — Articles tab in base document detail view
+9. **Frontend guard** — verify HTTP 400 error message is surfaced on analyze
 
 ---
 
@@ -278,14 +441,16 @@ Optional: show an "Articles not ready" inline warning on the document card if `a
 - [ ] Compliance findings reference `"Article 5"` not `"Chunk 12"`
 - [ ] Re-extraction is idempotent (safe to run multiple times)
 - [ ] `articles_status` reflects real pipeline state with no stale values
-- [ ] Superadmin can see extraction status and trigger re-extraction from UI
-- [ ] Analysis blocked with clear error if articles not ready
+- [ ] Superadmin can see extraction status and trigger re-extraction from the Articles tab
+- [ ] Analysis returns HTTP 400 with clear message if articles not ready
+- [ ] Progress bar continues to work during article-level comparison
 
 ---
 
 ## Out of Scope
 
-- Semantic deduplication across batches (string match on `article_number` is sufficient)
+- Semantic deduplication across batches (string match on `article_number` is sufficient; numbering-restart edge case accepted)
 - Article hierarchy visualization in UI
 - Per-article confidence scores
 - Comparison of documents without Noesia chunks (PDF-direct path)
+- Dedicated `articles_status` polling endpoint (piggybacks on existing document record poll)
