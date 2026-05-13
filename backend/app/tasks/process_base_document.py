@@ -9,6 +9,7 @@ from app.db.models.base_document import BaseDocument
 from app.db.models.base_document_chunk import BaseDocumentChunk
 from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
 from app.services.noesia import NoesiaError, noesia_client
+from app.tasks.extract_articles import extract_articles_task
 from app.worker import celery_app
 
 logger = logging.getLogger(__name__)
@@ -116,6 +117,15 @@ async def _process_base_document(doc_id: str, file_path: str) -> None:
             doc.chunk_count = chunk_count
             await db.commit()
             logger.info("Completed processing for %s: %d chunks", doc_id, chunk_count)
+
+            # Queue article extraction now that chunks are in DB — non-fatal if this fails
+            try:
+                doc.articles_status = "pending"
+                await db.commit()
+                extract_articles_task.delay(str(doc.id), "base")
+                logger.info("Queued article extraction for %s", doc_id)
+            except Exception as trigger_err:
+                logger.warning("Failed to queue article extraction for %s: %s", doc_id, trigger_err)
 
         except Exception as e:
             logger.exception("Failed to process base document %s: %s", doc_id, e)
