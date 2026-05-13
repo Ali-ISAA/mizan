@@ -108,9 +108,13 @@ export default function DocumentDetail() {
   });
 
   const { data: articlesData, isLoading: articlesLoading } = useQuery<ArticlesResponse>({
-    queryKey: ["base-doc-articles", id],
+    queryKey: ["base-doc-articles", id, doc?.articles_status],
     queryFn: () => api.get(`/superadmin/base-documents/${id}/articles`).then(r => r.data),
     enabled: doc?.processing_status === "completed",
+    refetchInterval: (query) => {
+      const status = query.state.data?.articles_status;
+      return status === "pending" || status === "processing" ? 3000 : false;
+    },
   });
 
   const deleteMutation = useMutation({
@@ -125,7 +129,7 @@ export default function DocumentDetail() {
     mutationFn: () => api.post(`/superadmin/base-documents/${id}/extract-articles`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["base-doc", id] });
-      qc.invalidateQueries({ queryKey: ["base-doc-articles", id] });
+      qc.invalidateQueries({ queryKey: ["base-doc-articles"] });
     },
   });
 
