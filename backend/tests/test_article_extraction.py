@@ -98,3 +98,13 @@ def test_parse_llm_response_invalid_returns_none():
 
     result = _parse_llm_extraction("not valid json at all")
     assert result is None
+
+
+def test_base_doc_out_has_articles_fields():
+    from app.api.v1.base_documents import BaseDocOut
+    fields = BaseDocOut.model_fields
+    assert "articles_status" in fields
+    assert "articles_error" in fields
+    # Both should be nullable with None default
+    assert fields["articles_status"].default is None
+    assert fields["articles_error"].default is None

@@ -5,14 +5,17 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.auth import require_user
 from app.api.v1.superadmin import require_superadmin
 from app.db.models.base_document import DOC_TYPES, BaseDocument
+from app.db.models.base_document_article import BaseDocumentArticle
 from app.db.models.base_document_chunk import BaseDocumentChunk
+from app.db.models.document import MizanDocument
 from app.db.session import get_db
+from app.tasks.extract_articles import extract_articles_task
 from app.tasks.process_base_document import process_base_document_task
 
 router = APIRouter(tags=["base-documents"])
@@ -29,6 +32,8 @@ class BaseDocOut(BaseModel):
     file_size: int | None
     uploaded_by: str
     created_at: datetime
+    articles_status: str | None = None
+    articles_error: str | None = None
 
 
 class BaseDocStats(BaseModel):
@@ -177,8 +182,81 @@ async def delete_base_doc(doc_id: str, _=Depends(require_superadmin), db: AsyncS
                 "Could not delete Noesia doc %s: %s", doc.noesia_document_id, e
             )
 
+    # Null out FK on any user documents referencing this base doc
+    await db.execute(
+        update(MizanDocument)
+        .where(MizanDocument.base_document_id == doc.id)
+        .values(base_document_id=None)
+    )
+
     await db.delete(doc)
     await db.commit()
+
+
+@router.get("/superadmin/base-documents/{doc_id}/articles")
+async def get_base_doc_articles(
+    doc_id: str,
+    limit: int = 50,
+    offset: int = 0,
+    _=Depends(require_superadmin),
+    db: AsyncSession = Depends(get_db),
+):
+    doc = await db.get(BaseDocument, uuid.UUID(doc_id))
+    if not doc:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    stmt = (
+        select(BaseDocumentArticle)
+        .where(BaseDocumentArticle.base_document_id == doc.id)
+        .order_by(BaseDocumentArticle.article_index)
+        .offset(offset)
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    articles = result.scalars().all()
+
+    total = await db.scalar(
+        select(func.count(BaseDocumentArticle.id)).where(BaseDocumentArticle.base_document_id == doc.id)
+    )
+
+    return {
+        "articles": [
+            {
+                "id": str(a.id),
+                "article_index": a.article_index,
+                "article_number": a.article_number,
+                "article_text": a.article_text,
+            }
+            for a in articles
+        ],
+        "total": total,
+        "articles_status": doc.articles_status,
+        "articles_error": doc.articles_error,
+    }
+
+
+@router.post("/superadmin/base-documents/{doc_id}/extract-articles")
+async def trigger_article_extraction(
+    doc_id: str,
+    _=Depends(require_superadmin),
+    db: AsyncSession = Depends(get_db),
+):
+    doc = await db.get(BaseDocument, uuid.UUID(doc_id))
+    if not doc:
+        raise HTTPException(status_code=404, detail="Not found")
+    if doc.processing_status != "completed":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Document not ready yet (status: {doc.processing_status}). Chunks must be ingested first.",
+        )
+
+    doc.articles_status = "pending"
+    doc.articles_error = None
+    await db.commit()
+
+    extract_articles_task.delay(str(doc.id), "base")
+
+    return {"articles_status": "pending", "message": "Extraction queued"}
 
 
 # ── User-facing endpoint ──────────────────────────────────────────────────────
@@ -209,4 +287,6 @@ def _to_out(d: BaseDocument) -> BaseDocOut:
         file_size=d.file_size,
         uploaded_by=d.uploaded_by,
         created_at=d.created_at,
+        articles_status=d.articles_status,
+        articles_error=d.articles_error,
     )
