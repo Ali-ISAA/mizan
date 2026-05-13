@@ -1,0 +1,201 @@
+"""Extract numbered articles from documents using LLM."""
+import asyncio
+import json
+import logging
+from uuid import UUID
+
+from sqlalchemy import delete, select
+
+from app.db.models.base_document import BaseDocument
+from app.db.models.base_document_article import BaseDocumentArticle
+from app.db.models.base_document_chunk import BaseDocumentChunk
+from app.db.models.document import MizanDocument
+from app.db.models.mizan_document_article import MizanDocumentArticle
+from app.db.models.mizan_document_chunk import MizanDocumentChunk
+from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
+from app.services.llm import chat as llm_chat
+from app.worker import celery_app
+
+logger = logging.getLogger(__name__)
+
+BATCH_SIZE = 15
+OVERLAP = 2
+
+SYSTEM_PROMPT = (
+    "You are a legal document parser. Your task is to extract all numbered articles, "
+    "sections, clauses, or provisions from the provided text.\n\n"
+    "Rules:\n"
+    "- Extract items numbered with Arabic numerals (1, 2, 3...), alphabetic (a, b, c...), "
+    "Roman numerals (I, II, III...), hierarchical (1.1, 2.3.4...), or named sections "
+    "(Article 5, Section III, Clause 7).\n"
+    "- For each item, capture the FULL text of that article/section including all sub-items "
+    "that belong to it.\n"
+    "- Do NOT split an article from its sub-clauses.\n"
+    "- Do NOT invent article numbers. Only extract what is explicitly numbered in the text.\n"
+    "- Return ONLY a JSON array. No explanation, no markdown, no preamble.\n\n"
+    'Output format:\n[{"article_number": "1", "article_text": "Full text..."}]'
+)
+
+
+def _build_batches(chunks: list, batch_size: int = BATCH_SIZE, overlap: int = OVERLAP) -> list[list]:
+    """Slide a window of batch_size chunks with overlap between batches."""
+    if not chunks:
+        return []
+    batches = []
+    step = batch_size  # unique chunks added each iteration
+    i = 0
+    while i < len(chunks):
+        batch = chunks[max(0, i - overlap) : i + batch_size] if i > 0 else chunks[i : i + batch_size]
+        batches.append(batch)
+        i += batch_size
+    return batches
+
+
+def _deduplicate_articles(articles: list[dict]) -> list[dict]:
+    """Keep first occurrence of each article_number (exact string match, case-sensitive)."""
+    seen: set[str] = set()
+    result = []
+    for a in articles:
+        num = a.get("article_number", "")
+        if num and num not in seen:
+            seen.add(num)
+            result.append(a)
+    return result
+
+
+def _parse_llm_extraction(raw_text: str) -> list[dict] | None:
+    """Strip markdown fences and parse JSON array from LLM response."""
+    try:
+        clean = raw_text.strip()
+        if clean.startswith("```"):
+            parts = clean.split("```")
+            clean = parts[1] if len(parts) > 1 else clean
+            if clean.startswith("json"):
+                clean = clean[4:]
+        clean = clean.strip()
+        data = json.loads(clean)
+        if not isinstance(data, list):
+            return None
+        return [item for item in data if "article_number" in item and "article_text" in item]
+    except json.JSONDecodeError as e:
+        logger.warning("Failed to parse LLM extraction response: %s", e)
+        return None
+
+
+async def _extract_articles(document_id: str, document_type: str) -> None:
+    """
+    Core async extraction pipeline.
+    document_type: "base" | "user"
+    """
+    doc_uuid = UUID(document_id)
+
+    async with AsyncSessionLocal() as db:
+        # Load document and set status to processing
+        if document_type == "base":
+            doc = await db.get(BaseDocument, doc_uuid)
+        else:
+            doc = await db.get(MizanDocument, doc_uuid)
+
+        if not doc:
+            logger.error("Document %s not found (type=%s)", document_id, document_type)
+            return
+
+        doc.articles_status = "processing"
+        doc.articles_error = None
+        await db.commit()
+
+        try:
+            # Fetch chunks ordered by chunk_index
+            if document_type == "base":
+                stmt = (
+                    select(BaseDocumentChunk)
+                    .where(BaseDocumentChunk.base_document_id == doc_uuid)
+                    .order_by(BaseDocumentChunk.chunk_index)
+                )
+            else:
+                stmt = (
+                    select(MizanDocumentChunk)
+                    .where(MizanDocumentChunk.mizan_document_id == doc_uuid)
+                    .order_by(MizanDocumentChunk.chunk_index)
+                )
+            result = await db.execute(stmt)
+            chunks = result.scalars().all()
+
+            if not chunks:
+                logger.warning("No chunks found for document %s — cannot extract articles", document_id)
+                doc.articles_status = "failed"
+                doc.articles_error = "No chunks available for extraction"
+                await db.commit()
+                return
+
+            # Build batches and extract
+            batches = _build_batches(list(chunks), BATCH_SIZE, OVERLAP)
+            all_articles: list[dict] = []
+
+            for batch_idx, batch in enumerate(batches):
+                text = "\n\n---\n\n".join(c.text for c in batch)
+                user_prompt = (
+                    "Extract all numbered articles, sections, clauses, and provisions "
+                    "from the following document text:\n\n" + text
+                )
+                try:
+                    raw = await llm_chat(
+                        messages=[
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        max_tokens=4096,
+                        temperature=0,
+                    )
+                    parsed = _parse_llm_extraction(raw)
+                    if parsed:
+                        all_articles.extend(parsed)
+                    else:
+                        logger.warning("Batch %d for doc %s returned no parseable articles", batch_idx, document_id)
+                except Exception as e:
+                    logger.warning("Batch %d LLM call failed for doc %s: %s", batch_idx, document_id, e)
+
+            # Deduplicate and assign indices
+            deduped = _deduplicate_articles(all_articles)
+
+            # Delete existing, bulk-insert new (idempotent)
+            if document_type == "base":
+                await db.execute(delete(BaseDocumentArticle).where(BaseDocumentArticle.base_document_id == doc_uuid))
+                for idx, item in enumerate(deduped):
+                    db.add(BaseDocumentArticle(
+                        base_document_id=doc_uuid,
+                        article_index=idx,
+                        article_number=item["article_number"],
+                        article_text=item["article_text"],
+                    ))
+            else:
+                await db.execute(delete(MizanDocumentArticle).where(MizanDocumentArticle.mizan_document_id == doc_uuid))
+                for idx, item in enumerate(deduped):
+                    db.add(MizanDocumentArticle(
+                        mizan_document_id=doc_uuid,
+                        article_index=idx,
+                        article_number=item["article_number"],
+                        article_text=item["article_text"],
+                    ))
+
+            doc.articles_status = "completed"
+            await db.commit()
+            logger.info("Article extraction complete for %s: %d articles", document_id, len(deduped))
+
+        except Exception as e:
+            logger.exception("Article extraction failed for %s: %s", document_id, e)
+            # Must rollback before any further DB operations — session may be dirty
+            await db.rollback()
+            if document_type == "base":
+                doc = await db.get(BaseDocument, doc_uuid)
+            else:
+                doc = await db.get(MizanDocument, doc_uuid)
+            if doc:
+                doc.articles_status = "failed"
+                doc.articles_error = str(e)[:500]
+                await db.commit()
+
+
+@celery_app.task(name="tasks.extract_articles")
+def extract_articles_task(document_id: str, document_type: str) -> None:
+    asyncio.run(_extract_articles(document_id, document_type))
