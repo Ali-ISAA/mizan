@@ -2,6 +2,7 @@
 import asyncio
 import json
 import logging
+import re
 from uuid import UUID
 
 from sqlalchemy import delete, select
@@ -38,6 +39,22 @@ LLM_SYSTEM_PROMPT = (
 )
 
 
+# Lines that are pure PDF extraction artifacts — strip them from all article text
+_NOISE_LINE = re.compile(
+    r"^\s*(?:line chart|logo|<!--\s*image\s*-->|<!--\s*figure\s*-->|<!--.*?-->)\s*$",
+    re.IGNORECASE,
+)
+
+
+def _clean_text(text: str) -> str:
+    """Remove PDF image/chart placeholder lines; collapse excess blank lines."""
+    lines = text.splitlines()
+    cleaned = [ln for ln in lines if not _NOISE_LINE.match(ln)]
+    result = "\n".join(cleaned)
+    result = re.sub(r"\n{3,}", "\n\n", result)
+    return result.strip()
+
+
 def _extract_from_headers(chunks: list) -> list[dict]:
     """
     Primary extraction: use section_header metadata as the article number.
@@ -55,7 +72,7 @@ def _extract_from_headers(chunks: list) -> list[dict]:
         if header not in groups:
             groups[header] = []
             order.append(header)
-        text = (chunk.text or "").strip()
+        text = _clean_text(chunk.text or "")
         if text:
             groups[header].append(text)
 

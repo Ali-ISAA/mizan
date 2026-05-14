@@ -3,10 +3,11 @@ interface Chunk {
   text?: string;
   metadata?: {
     section_header?: string;
-    section_level?: number;
     chunk_index?: number;
     [key: string]: any;
   };
+  section_header?: string;
+  chunk_index?: number;
   [key: string]: any;
 }
 
@@ -15,56 +16,46 @@ interface ExtractedContentProps {
   isLoading?: boolean;
 }
 
+const NOISE_LINE = /^\s*(line chart|logo|<!--.*?-->)\s*$/i;
+
+function cleanText(raw: string): string {
+  const lines = raw.split("\n").filter(ln => !NOISE_LINE.test(ln));
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
 export function ExtractedContent({ chunks = [], isLoading }: ExtractedContentProps) {
   if (isLoading) {
-    return (
-      <div className="text-center text-gray-400 text-sm py-8">
-        <p>Loading content...</p>
-      </div>
-    );
+    return <div className="text-center text-gray-400 text-sm py-8">Loading content...</div>;
   }
 
   if (!chunks || chunks.length === 0) {
-    return (
-      <div className="text-center text-gray-400 text-sm py-8">
-        <p>No extracted content available</p>
-      </div>
-    );
+    return <div className="text-center text-gray-400 text-sm py-8">No extracted content available</div>;
   }
 
-  // Group chunks by section header, preserving order, concatenating text within a section
-  const sections: Array<{ header: string; text: string }> = [];
-  const seen = new Map<string, number>(); // header → index in sections
-
-  chunks.forEach(chunk => {
-    const header = chunk.metadata?.section_header || chunk.section_header || "";
-    const text = (chunk.text || "").trim();
-    if (!text) return;
-
-    if (header && seen.has(header)) {
-      const idx = seen.get(header)!;
-      sections[idx].text += "\n\n" + text;
-    } else {
-      const idx = sections.length;
-      sections.push({ header: header || "Content", text });
-      if (header) seen.set(header, idx);
-    }
+  // Sort by chunk_index to ensure document order
+  const sorted = [...chunks].sort((a, b) => {
+    const ai = a.metadata?.chunk_index ?? a.chunk_index ?? 0;
+    const bi = b.metadata?.chunk_index ?? b.chunk_index ?? 0;
+    return ai - bi;
   });
 
   return (
-    <div className="space-y-6">
-      {sections.map((section, idx) => (
-        <div key={idx} className="border-l-4 border-slate-200 pl-4 py-1">
-          {section.header && section.header !== "Content" && (
-            <h3 className="text-sm font-bold text-slate-800 mb-2 uppercase tracking-wide">
-              {section.header}
-            </h3>
-          )}
-          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {section.text}
-          </p>
-        </div>
-      ))}
+    <div className="space-y-4 font-sans text-sm leading-relaxed text-gray-800">
+      {sorted.map((chunk, idx) => {
+        const header = chunk.metadata?.section_header || chunk.section_header || "";
+        const text = cleanText(chunk.text || "");
+        if (!header && !text) return null;
+        return (
+          <div key={chunk.id ?? idx}>
+            {header && (
+              <p className="font-bold text-slate-900 mt-4 mb-1">{header}</p>
+            )}
+            {text && (
+              <p className="whitespace-pre-wrap">{text}</p>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
