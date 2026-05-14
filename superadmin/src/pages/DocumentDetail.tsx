@@ -65,10 +65,10 @@ const STATUS_COLORS: Record<string, string> = {
 
 function ArticleTextCell({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
-  const isLong = text.length > 200;
+  const isLong = text.length > 400;
   return (
     <div>
-      <span>{expanded || !isLong ? text : text.slice(0, 200) + "…"}</span>
+      <span>{expanded || !isLong ? text : text.slice(0, 400) + "…"}</span>
       {isLong && (
         <button
           onClick={() => setExpanded(!expanded)}
@@ -109,7 +109,7 @@ export default function DocumentDetail() {
 
   const { data: articlesData, isLoading: articlesLoading } = useQuery<ArticlesResponse>({
     queryKey: ["base-doc-articles", id, doc?.articles_status],
-    queryFn: () => api.get(`/superadmin/base-documents/${id}/articles`).then(r => r.data),
+    queryFn: () => api.get(`/superadmin/base-documents/${id}/articles?limit=2000`).then(r => r.data),
     enabled: doc?.processing_status === "completed",
     refetchInterval: (query) => {
       const status = query.state.data?.articles_status;
@@ -351,7 +351,7 @@ export default function DocumentDetail() {
                       <tbody className="divide-y divide-gray-100">
                         {articlesData.articles.map(article => (
                           <tr key={article.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 font-mono text-xs font-medium text-slate-700 align-top">
+                            <td className="px-4 py-2 text-xs font-semibold text-slate-700 align-top whitespace-nowrap w-28">
                               {article.article_number}
                             </td>
                             <td className="px-4 py-2 text-gray-700 align-top">
