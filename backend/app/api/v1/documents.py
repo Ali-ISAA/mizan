@@ -13,9 +13,11 @@ from app.api.v1.auth import require_user
 from app.config import settings
 from app.db.models.document import MizanDocument
 from app.db.models.mizan_document_chunk import MizanDocumentChunk
+from app.db.models.mizan_document_article import MizanDocumentArticle
 from app.db.models.user import User
 from app.db.session import get_db
 from app.tasks.process_user_document import process_user_document_task
+from app.tasks.extract_articles import extract_articles_task
 from app.services.comparison import ComparisonService
 from app.services.audit import log_event
 from app.db.models.compliance_finding import ComplianceFinding
@@ -41,6 +43,8 @@ class DocumentOut(BaseModel):
     issues_found: int | None = None
     latest_comparison_id: str | None = None
     latest_comparison_status: str | None = None
+    articles_status: str | None = None
+    articles_error: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -105,9 +109,44 @@ async def list_documents(user: User = Depends(require_user), db: AsyncSession = 
             issues_found=(comp_map[d.id][1].total_findings if d.id in comp_map and comp_map[d.id][1] else None),
             latest_comparison_id=(str(comp_map[d.id][0].id) if d.id in comp_map else None),
             latest_comparison_status=(comp_map[d.id][0].status if d.id in comp_map else None),
+            articles_status=d.articles_status,
+            articles_error=d.articles_error,
         )
         for d in docs
     ]
+
+
+@router.get("/{document_id}", response_model=DocumentOut)
+async def get_document(
+    document_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Fetch a single document by ID."""
+    try:
+        doc_uuid = uuid.UUID(document_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id or doc.deleted_at:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    return DocumentOut(
+        id=str(doc.id),
+        role=doc.role,
+        name=doc.name,
+        file_type=doc.file_type,
+        file_size=doc.file_size,
+        processing_status=doc.processing_status,
+        noesia_chunk_count=doc.noesia_chunk_count,
+        ai_summary=doc.ai_summary,
+        page_count=doc.page_count,
+        word_count=doc.word_count,
+        created_at=doc.created_at,
+        articles_status=doc.articles_status,
+        articles_error=doc.articles_error,
+    )
 
 
 @router.post("/upload", status_code=201)
@@ -268,6 +307,21 @@ async def start_comparison(
     if not doc or doc.tenant_id != user.tenant_id:
         raise HTTPException(status_code=404, detail="Document not found")
 
+    # Guard: both documents must have articles extracted
+    if doc.articles_status != "completed":
+        raise HTTPException(
+            status_code=400,
+            detail="Your document's articles have not been extracted yet. Please wait for article extraction to complete before running analysis.",
+        )
+
+    from app.db.models.base_document import BaseDocument
+    base_doc = await db.get(BaseDocument, doc.base_document_id)
+    if not base_doc or base_doc.articles_status != "completed":
+        raise HTTPException(
+            status_code=400,
+            detail="The regulation document's articles have not been extracted yet. Please contact your administrator.",
+        )
+
     try:
         service = ComparisonService()
         comparison = await service.start_comparison(
@@ -295,6 +349,140 @@ async def start_comparison(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to start comparison")
+
+
+@router.post("/{doc_id}/retry", response_model=dict)
+async def retry_document_processing(
+    doc_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Re-queue a failed document for processing."""
+    try:
+        doc_uuid = uuid.UUID(doc_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    if doc.processing_status != "failed":
+        raise HTTPException(status_code=400, detail=f"Document is not in failed state (status: {doc.processing_status})")
+
+    if not doc.file_url or not os.path.exists(doc.file_url):
+        raise HTTPException(status_code=400, detail="Original file no longer available — please delete and re-upload")
+
+    doc.processing_status = "pending"
+    doc.noesia_document_id = None
+    doc.noesia_chunk_count = 0
+    await db.commit()
+
+    process_user_document_task.delay(str(doc.id), doc.file_url)
+
+    return {"id": str(doc.id), "status": "pending"}
+
+
+@router.get("/{document_id}/content")
+async def get_document_content(
+    document_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the complete document markdown from Noesia."""
+    from app.services.noesia import noesia_client, NoesiaError
+
+    try:
+        doc_uuid = uuid.UUID(document_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id or doc.deleted_at:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if not doc.noesia_document_id:
+        raise HTTPException(status_code=404, detail="Document not yet ingested into Noesia")
+
+    try:
+        content = await noesia_client.get_document_content(doc.noesia_document_id)
+        return {"content": content}
+    except NoesiaError as e:
+        raise HTTPException(status_code=502, detail=f"Noesia error {e.status_code}: {e.detail[:200]}")
+
+
+@router.get("/{document_id}/articles")
+async def get_document_articles(
+    document_id: str,
+    limit: int = 2000,
+    offset: int = 0,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return extracted articles for a document."""
+    try:
+        doc_uuid = uuid.UUID(document_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id or doc.deleted_at:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    stmt = (
+        select(MizanDocumentArticle)
+        .where(MizanDocumentArticle.mizan_document_id == doc_uuid)
+        .order_by(MizanDocumentArticle.article_index)
+        .offset(offset)
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    articles = result.scalars().all()
+
+    total = await db.scalar(
+        select(func.count(MizanDocumentArticle.id)).where(MizanDocumentArticle.mizan_document_id == doc_uuid)
+    )
+
+    return {
+        "articles": [
+            {
+                "id": str(a.id),
+                "article_index": a.article_index,
+                "article_number": a.article_number,
+                "article_text": a.article_text,
+            }
+            for a in articles
+        ],
+        "total": total,
+        "articles_status": doc.articles_status,
+        "articles_error": doc.articles_error,
+    }
+
+
+@router.post("/{document_id}/extract-articles")
+async def trigger_article_extraction(
+    document_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Manually trigger article extraction for a document."""
+    try:
+        doc_uuid = uuid.UUID(document_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document_id")
+
+    doc = await db.get(MizanDocument, doc_uuid)
+    if not doc or doc.tenant_id != user.tenant_id or doc.deleted_at:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if doc.processing_status != "completed":
+        raise HTTPException(status_code=400, detail="Document must finish processing before article extraction")
+
+    doc.articles_status = "pending"
+    doc.articles_error = None
+    await db.commit()
+
+    extract_articles_task.delay(str(doc.id), "user")
+
+    return {"articles_status": "pending", "message": "Extraction queued"}
 
 
 @router.get("/comparisons/{comparison_id}/status", response_model=dict)
@@ -369,3 +557,61 @@ async def get_comparison_report(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to get comparison report")
+
+
+@router.get("/comparisons/{comparison_id}/narrative", response_model=dict)
+async def get_comparison_narrative(
+    comparison_id: str,
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate an AI executive summary and risk assessment for a completed comparison."""
+    try:
+        comp_uuid = uuid.UUID(comparison_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid comparison_id")
+
+    comparison = await db.get(ComplianceComparison, comp_uuid)
+    if not comparison or comparison.tenant_id != user.tenant_id:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+    if comparison.status != "completed":
+        raise HTTPException(status_code=400, detail="Comparison not yet completed")
+
+    report_result = await db.execute(
+        select(ComplianceReport).where(ComplianceReport.comparison_id == comp_uuid)
+    )
+    report = report_result.scalar_one_or_none()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    findings_result = await db.execute(
+        select(ComplianceFinding).where(ComplianceFinding.comparison_id == comp_uuid)
+    )
+    findings = findings_result.scalars().all()
+
+    # Resolve doc and regulation names
+    doc = await db.get(MizanDocument, comparison.mizan_document_id)
+    from app.db.models.base_document import BaseDocument
+    base_doc = await db.get(BaseDocument, comparison.base_document_id)
+
+    from app.services.compliance_comparator import ComplianceComparator
+    comparator = ComplianceComparator()
+    narrative = await comparator.generate_report_narrative(
+        doc_name=doc.name if doc else "Compliance Document",
+        regulation_name=base_doc.filename if base_doc else "Regulation",
+        score=report.compliance_score,
+        critical_count=report.critical_count,
+        medium_count=report.medium_count,
+        low_count=report.low_count,
+        findings=[
+            {
+                "status": f.status,
+                "doc_a_section": f.doc_a_section,
+                "issue": f.issue,
+                "recommendation": f.recommendation,
+            }
+            for f in findings
+        ],
+    )
+
+    return narrative

@@ -121,7 +121,7 @@ export default function Upload() {
 
           {/* Step 1: Select Type */}
           {step === 1 && (
-            <Card>
+            <Card className="card-elevated">
               <CardHeader>
                 <CardTitle>Select Document Type</CardTitle>
                 <CardDescription>What type of compliance standard does your document relate to?</CardDescription>
@@ -132,8 +132,8 @@ export default function Upload() {
                     <button
                       key={type}
                       onClick={() => { setSelectedType(type); setStep(2); }}
-                      className={`p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
-                        selectedType === type ? "border-accent-600 bg-accent-600/5" : "border-border"
+                      className={`p-4 text-left card-interactive ${
+                        selectedType === type ? "!border-accent-600 bg-accent-600/5" : ""
                       }`}
                     >
                       <p className="font-semibold text-sm">{type}</p>
@@ -146,7 +146,7 @@ export default function Upload() {
 
           {/* Step 2: Choose Base Document */}
           {step === 2 && (
-            <Card>
+            <Card className="card-elevated">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -172,8 +172,8 @@ export default function Upload() {
                     <button
                       key={doc.id}
                       onClick={() => { setSelectedBaseDoc(doc); setStep(3); }}
-                      className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-all hover:border-accent-600 hover:bg-accent-600/5 ${
-                        selectedBaseDoc?.id === doc.id ? "border-accent-600 bg-accent-600/5" : "border-border"
+                      className={`w-full flex items-center gap-3 p-4 text-left card-interactive ${
+                        selectedBaseDoc?.id === doc.id ? "!border-accent-600 bg-accent-600/5" : ""
                       }`}
                     >
                       <FileText className="h-5 w-5 text-text-muted flex-shrink-0" />
@@ -191,7 +191,7 @@ export default function Upload() {
 
           {/* Step 3: Upload user file */}
           {step === 3 && (
-            <Card>
+            <Card className="card-elevated">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -251,7 +251,7 @@ export default function Upload() {
 
         {/* Sidebar: Quick Tips */}
         <div>
-          <Card className="sticky top-8">
+          <Card className="card-elevated sticky top-8">
             <CardHeader>
               <CardTitle>Quick Tips</CardTitle>
             </CardHeader>

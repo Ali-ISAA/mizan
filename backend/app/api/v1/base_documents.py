@@ -164,6 +164,45 @@ async def get_chunks(
     return {"chunks": chunk_dicts, "total": len(chunk_dicts)}
 
 
+@router.delete("/superadmin/base-documents", status_code=204)
+async def delete_all_base_docs(
+    doc_type: str | None = None,
+    status: str | None = None,
+    _=Depends(require_superadmin),
+    db: AsyncSession = Depends(get_db),
+):
+    q = select(BaseDocument)
+    if doc_type:
+        q = q.where(BaseDocument.doc_type == doc_type)
+    if status:
+        q = q.where(BaseDocument.processing_status == status)
+    result = await db.execute(q)
+    docs = result.scalars().all()
+
+    noesia_ids = [d.noesia_document_id for d in docs if d.noesia_document_id]
+    doc_ids = [d.id for d in docs]
+
+    if doc_ids:
+        from sqlalchemy import delete as sa_delete
+        await db.execute(
+            update(MizanDocument)
+            .where(MizanDocument.base_document_id.in_(doc_ids))
+            .values(base_document_id=None)
+        )
+        await db.execute(sa_delete(BaseDocument).where(BaseDocument.id.in_(doc_ids)))
+        await db.commit()
+
+    if noesia_ids:
+        from app.services.noesia import noesia_client, NoesiaError
+        import logging
+        log = logging.getLogger(__name__)
+        for nid in noesia_ids:
+            try:
+                await noesia_client.delete_document(nid)
+            except NoesiaError as e:
+                log.warning("Could not delete Noesia doc %s: %s", nid, e)
+
+
 @router.delete("/superadmin/base-documents/{doc_id}", status_code=204)
 async def delete_base_doc(doc_id: str, _=Depends(require_superadmin), db: AsyncSession = Depends(get_db)):
     doc = await db.get(BaseDocument, uuid.UUID(doc_id))
@@ -233,6 +272,27 @@ async def get_base_doc_articles(
         "articles_status": doc.articles_status,
         "articles_error": doc.articles_error,
     }
+
+
+@router.get("/superadmin/base-documents/{doc_id}/content")
+async def get_base_doc_content(
+    doc_id: str,
+    _=Depends(require_superadmin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the complete document content (markdown) from Noesia."""
+    from app.services.noesia import noesia_client, NoesiaError
+
+    doc = await db.get(BaseDocument, uuid.UUID(doc_id))
+    if not doc:
+        raise HTTPException(status_code=404, detail="Not found")
+    if not doc.noesia_document_id:
+        raise HTTPException(status_code=404, detail="No Noesia document ID stored for this document")
+    try:
+        content = await noesia_client.get_document_content(doc.noesia_document_id)
+        return {"content": content}
+    except NoesiaError as e:
+        raise HTTPException(status_code=502, detail=f"Noesia error {e.status_code}: {e.detail[:200]}")
 
 
 @router.post("/superadmin/base-documents/{doc_id}/extract-articles")

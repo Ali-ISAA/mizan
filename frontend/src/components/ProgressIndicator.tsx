@@ -5,7 +5,7 @@ interface ProgressIndicatorProps {
   currentChunk: number;
   totalChunks: number;
   startedAt: string;
-  estimatedCompletion: string;
+  estimatedCompletion: string | null;
 }
 
 export function ProgressIndicator({
@@ -14,15 +14,24 @@ export function ProgressIndicator({
   startedAt,
   estimatedCompletion,
 }: ProgressIndicatorProps) {
-  const percentage = Math.round((currentChunk / totalChunks) * 100);
+  const percentage = totalChunks > 0 ? Math.round((currentChunk / totalChunks) * 100) : 0;
   const elapsedMs = Date.now() - new Date(startedAt).getTime();
-  const remainingMs = new Date(estimatedCompletion).getTime() - Date.now();
 
   const formatTime = (ms: number) => {
     const seconds = Math.round(ms / 1000);
     if (seconds < 60) return `${seconds}s`;
     const minutes = Math.round(seconds / 60);
-    return `${minutes}m`;
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
+  const remainingText = () => {
+    if (!estimatedCompletion || currentChunk === 0) return 'Calculating...';
+    const remainingMs = new Date(estimatedCompletion).getTime() - Date.now();
+    if (remainingMs <= 0) return 'Almost done...';
+    return formatTime(remainingMs);
   };
 
   return (
@@ -36,7 +45,7 @@ export function ProgressIndicator({
           </div>
           <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 transition-all duration-500"
+              className="h-full bg-blue-500 transition-all duration-1000"
               style={{ width: `${percentage}%` }}
             />
           </div>
@@ -47,9 +56,11 @@ export function ProgressIndicator({
           <div className="flex justify-center mb-4">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
-          <p className="text-slate-300">Chunk {currentChunk} of {totalChunks}</p>
+          <p className="text-slate-300 font-medium">
+            {currentChunk === 0 ? 'Initializing...' : `Article ${currentChunk} of ${totalChunks}`}
+          </p>
           <p className="text-xs text-slate-500">
-            Elapsed: {formatTime(elapsedMs)} • Est. remaining: {formatTime(Math.max(0, remainingMs))}
+            Elapsed: {formatTime(elapsedMs)} &bull; Est. remaining: {remainingText()}
           </p>
         </div>
       </CardContent>

@@ -1,272 +1,199 @@
-import { useState } from "react";
-import { BarChart3, Download, Filter, Calendar, TrendingUp, AlertTriangle, CheckCircle, PieChart } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { BarChart3, Download, TrendingUp, AlertTriangle, CheckCircle, FileText, ShieldAlert } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart as RechartsPieChart, Cell, Area, AreaChart, Pie } from 'recharts';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, PieChart as RechartsPieChart, Cell, AreaChart, Area, Pie,
+} from "recharts";
+import { api } from "@/lib/api";
 
-const complianceData = [
-  { month: 'Jan', score: 75, documents: 45, issues: 12 },
-  { month: 'Feb', score: 78, documents: 52, issues: 10 },
-  { month: 'Mar', score: 82, documents: 48, issues: 8 },
-  { month: 'Apr', score: 85, documents: 61, issues: 6 },
-  { month: 'May', score: 88, documents: 58, issues: 4 },
-  { month: 'Jun', score: 87, documents: 63, issues: 5 },
-];
-
-const riskDistribution = [
-  { name: 'Low Risk', value: 65, color: '#10b981' },
-  { name: 'Medium Risk', value: 25, color: '#f59e0b' },
-  { name: 'High Risk', value: 8, color: '#ef4444' },
-  { name: 'Critical Risk', value: 2, color: '#dc2626' }
-];
-
-const frameworkCompliance = [
-  { framework: 'GDPR', compliance: 92, documents: 28, issues: 2 },
-  { framework: 'SOX', compliance: 88, documents: 15, issues: 3 },
-  { framework: 'CCPA', compliance: 85, documents: 12, issues: 2 },
-  { framework: 'HIPAA', compliance: 78, documents: 8, issues: 4 },
-  { framework: 'PCI DSS', compliance: 95, documents: 6, issues: 1 }
-];
-
-const topIssues = [
-  { issue: 'Missing data retention clauses', count: 15, severity: 'high' },
-  { issue: 'Vague consent language', count: 12, severity: 'medium' },
-  { issue: 'Insufficient data sharing disclosure', count: 10, severity: 'critical' },
-  { issue: 'Missing termination procedures', count: 8, severity: 'medium' },
-  { issue: 'Unclear data subject rights', count: 6, severity: 'high' }
-];
-
-const Reports = () => {
-  const [dateRange, setDateRange] = useState({
-    from: new Date(2024, 0, 1),
-    to: new Date()
-  });
-  const [framework, setFramework] = useState("all");
-  const [documentType, setDocumentType] = useState("all");
-
-  const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#dc2626'];
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'badge-critical';
-      case 'high': return 'badge-warning';
-      case 'medium': return 'bg-secondary text-secondary-foreground';
-      default: return 'badge-compliant';
-    }
+interface AnalyticsData {
+  overview: {
+    avg_score: number;
+    total_documents: number;
+    total_comparisons: number;
+    active_issues: number;
+    critical_issues: number;
+    medium_issues: number;
   };
+  compliance_trend: { month: string; score: number; comparisons: number }[];
+  risk_distribution: { name: string; value: number; color: string }[];
+  severity_distribution: { name: string; value: number; color: string }[];
+  top_issues: { issue: string; severity: string; count: number }[];
+  documents: {
+    name: string; score: number; issues: number; critical: number;
+    medium: number; regulation: string; completed_at: string | null;
+  }[];
+  regulation_breakdown: {
+    regulation: string; avg_score: number; doc_count: number;
+    total_issues: number; critical_total: number;
+  }[];
+}
+
+function scoreColor(score: number) {
+  if (score >= 80) return "text-success";
+  if (score >= 60) return "text-warning";
+  return "text-critical";
+}
+
+function severityBadge(severity: string) {
+  switch (severity) {
+    case "critical": return "bg-critical/10 text-critical border-0";
+    case "medium":   return "bg-warning/10 text-warning border-0";
+    default:         return "bg-success/10 text-success border-0";
+  }
+}
+
+const tooltipStyle = {
+  backgroundColor: "hsl(var(--card))",
+  border: "1px solid hsl(var(--border))",
+  borderRadius: "8px",
+  color: "hsl(var(--foreground))",
+};
+
+export default function Reports() {
+  const { data, isLoading, error } = useQuery<AnalyticsData>({
+    queryKey: ["analytics"],
+    queryFn: () => api.get<AnalyticsData>("/analytics").then((r) => r.data),
+    staleTime: 60_000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 p-8 flex items-center justify-center">
+        <p className="text-text-secondary">Loading analytics…</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="flex-1 p-8 flex items-center justify-center">
+        <p className="text-critical">Failed to load analytics data.</p>
+      </div>
+    );
+  }
+
+  const { overview, compliance_trend, risk_distribution, severity_distribution, top_issues, documents, regulation_breakdown } = data;
 
   return (
-    <div className="flex-1 space-y-8 p-8 animate-fade-in">
+    <div className="flex-1 space-y-6 p-8">
       {/* Header */}
-      <div className="border-b border-border pb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Reports & Analytics</h1>
-            <p className="text-text-secondary mt-2 text-base">
-              Comprehensive compliance insights and analytics for your organization.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export Report
-            </Button>
-            <Button>
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Generate Report
-            </Button>
-          </div>
+      <div className="border-b border-border pb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Reports & Analytics</h1>
+          <p className="text-text-secondary mt-1">Comprehensive compliance insights for your organization.</p>
         </div>
+        <Button variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Export Report
+        </Button>
       </div>
-
-      {/* Filters */}
-      <Card className="card-elevated">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Report Filters
-          </CardTitle>
-          <CardDescription>
-            Customize your analytics view with filters and date ranges
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="text-sm font-medium mb-2 block">Date Range</label>
-              <div className="text-sm text-muted-foreground">Jan 1, 2024 - Present</div>
-            </div>
-            <div className="min-w-[200px]">
-              <label className="text-sm font-medium mb-2 block">Framework</label>
-              <Select value={framework} onValueChange={setFramework}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Frameworks" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Frameworks</SelectItem>
-                  <SelectItem value="gdpr">GDPR</SelectItem>
-                  <SelectItem value="sox">SOX</SelectItem>
-                  <SelectItem value="ccpa">CCPA</SelectItem>
-                  <SelectItem value="hipaa">HIPAA</SelectItem>
-                  <SelectItem value="pci">PCI DSS</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="min-w-[200px]">
-              <label className="text-sm font-medium mb-2 block">Document Type</label>
-              <Select value={documentType} onValueChange={setDocumentType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Documents" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Documents</SelectItem>
-                  <SelectItem value="contract">Contracts</SelectItem>
-                  <SelectItem value="policy">Policies</SelectItem>
-                  <SelectItem value="agreement">Agreements</SelectItem>
-                  <SelectItem value="legal">Legal Documents</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="compliance">Compliance Trends</TabsTrigger>
           <TabsTrigger value="risks">Risk Analysis</TabsTrigger>
-          <TabsTrigger value="frameworks">Framework Breakdown</TabsTrigger>
-          <TabsTrigger value="executive">Executive Summary</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="regulations">Regulation Breakdown</TabsTrigger>
         </TabsList>
 
+        {/* ── Overview ─────────────────────────────────────────────────────── */}
         <TabsContent value="overview" className="space-y-6">
-          {/* Key Metrics */}
+          {/* KPI cards */}
           <div className="grid gap-4 md:grid-cols-4">
             <Card className="card-elevated">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <div className="ml-2">
-                    <p className="text-sm font-medium text-muted">Overall Compliance</p>
-                    <p className="text-2xl font-bold text-success">87%</p>
-                    <p className="text-xs text-muted-foreground">+3% from last month</p>
-                  </div>
+              <CardContent className="p-6 flex items-center gap-3">
+                <CheckCircle className="h-8 w-8 text-success shrink-0" />
+                <div>
+                  <p className="text-xs text-text-secondary">Avg Compliance Score</p>
+                  <p className={`text-2xl font-bold ${scoreColor(overview.avg_score)}`}>{overview.avg_score}%</p>
+                  <p className="text-xs text-text-secondary">{overview.total_comparisons} analyses run</p>
                 </div>
               </CardContent>
             </Card>
-            
             <Card className="card-elevated">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <BarChart3 className="h-4 w-4 text-primary" />
-                  <div className="ml-2">
-                    <p className="text-sm font-medium text-muted">Documents Analyzed</p>
-                    <p className="text-2xl font-bold">1,248</p>
-                    <p className="text-xs text-muted-foreground">+45 this month</p>
-                  </div>
+              <CardContent className="p-6 flex items-center gap-3">
+                <FileText className="h-8 w-8 text-accent-600 shrink-0" />
+                <div>
+                  <p className="text-xs text-text-secondary">Documents Analyzed</p>
+                  <p className="text-2xl font-bold text-foreground">{overview.total_documents}</p>
+                  <p className="text-xs text-text-secondary">{overview.total_comparisons} total comparisons</p>
                 </div>
               </CardContent>
             </Card>
-            
             <Card className="card-elevated">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <AlertTriangle className="h-4 w-4 text-warning" />
-                  <div className="ml-2">
-                    <p className="text-sm font-medium text-muted">Active Issues</p>
-                    <p className="text-2xl font-bold text-warning">23</p>
-                    <p className="text-xs text-muted-foreground">-8 from last month</p>
-                  </div>
+              <CardContent className="p-6 flex items-center gap-3">
+                <AlertTriangle className="h-8 w-8 text-warning shrink-0" />
+                <div>
+                  <p className="text-xs text-text-secondary">Active Issues</p>
+                  <p className="text-2xl font-bold text-warning">{overview.active_issues}</p>
+                  <p className="text-xs text-text-secondary">{overview.medium_issues} medium</p>
                 </div>
               </CardContent>
             </Card>
-            
             <Card className="card-elevated">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <TrendingUp className="h-4 w-4 text-success" />
-                  <div className="ml-2">
-                    <p className="text-sm font-medium text-muted">Improvement Rate</p>
-                    <p className="text-2xl font-bold text-success">+12%</p>
-                    <p className="text-xs text-muted-foreground">Quarter over quarter</p>
-                  </div>
+              <CardContent className="p-6 flex items-center gap-3">
+                <ShieldAlert className="h-8 w-8 text-critical shrink-0" />
+                <div>
+                  <p className="text-xs text-text-secondary">Critical Issues</p>
+                  <p className="text-2xl font-bold text-critical">{overview.critical_issues}</p>
+                  <p className="text-xs text-text-secondary">Require immediate action</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Charts Grid */}
+          {/* Charts */}
           <div className="grid gap-6 lg:grid-cols-2">
-            {/* Compliance Trend */}
             <Card className="card-elevated">
-              <CardHeader>
-                <CardTitle>Compliance Score Trend</CardTitle>
-                <CardDescription>Monthly compliance score progression</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Compliance Score Trend</CardTitle>
+                <CardDescription>Average score by month</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={complianceData}>
-                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="score" 
-                      stroke="hsl(var(--primary))" 
-                      fill="hsl(var(--primary))" 
-                      fillOpacity={0.2}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {compliance_trend.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={260}>
+                    <AreaChart data={compliance_trend}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                      <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                      <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+                      <Tooltip contentStyle={tooltipStyle} />
+                      <Area type="monotone" dataKey="score" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} name="Avg Score" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-sm text-text-secondary py-8 text-center">No trend data yet.</p>
+                )}
               </CardContent>
             </Card>
 
-            {/* Risk Distribution */}
             <Card className="card-elevated">
-              <CardHeader>
-                <CardTitle>Risk Distribution</CardTitle>
-                <CardDescription>Current risk level breakdown</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Risk Distribution</CardTitle>
+                <CardDescription>Findings breakdown by status</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={200}>
                   <RechartsPieChart>
-                    <Pie
-                      data={riskDistribution}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {riskDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Pie data={risk_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={4} dataKey="value">
+                      {risk_distribution.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={tooltipStyle} />
                   </RechartsPieChart>
                 </ResponsiveContainer>
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  {riskDistribution.map((item) => (
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  {risk_distribution.map((item) => (
                     <div key={item.name} className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span className="text-sm">{item.name}: {item.value}%</span>
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                      <span className="text-xs text-foreground">{item.name}: {item.value}</span>
                     </div>
                   ))}
                 </div>
@@ -276,124 +203,127 @@ const Reports = () => {
 
           {/* Top Issues */}
           <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Top Compliance Issues</CardTitle>
-              <CardDescription>Most frequent issues found across documents</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Top Compliance Issues</CardTitle>
+              <CardDescription>Most frequent issues across all analyzed documents</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {topIssues.map((issue, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-surface">
-                    <div className="flex-1">
-                      <div className="font-medium">{issue.issue}</div>
-                      <div className="text-sm text-muted-foreground">Found in {issue.count} documents</div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge className={getSeverityColor(issue.severity)}>
-                        {issue.severity}
-                      </Badge>
-                      <div className="text-lg font-bold">{issue.count}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="compliance" className="space-y-6">
-          <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Compliance Trends Analysis</CardTitle>
-              <CardDescription>Detailed trend analysis across time periods</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={complianceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" name="Score" />
-                  <Line type="monotone" dataKey="documents" stroke="hsl(var(--success))" name="Documents" />
-                  <Line type="monotone" dataKey="issues" stroke="hsl(var(--destructive))" name="Issues" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="risks" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="card-elevated">
-              <CardHeader>
-                <CardTitle>Risk Heatmap</CardTitle>
-                <CardDescription>Risk distribution by category</CardDescription>
-              </CardHeader>
-              <CardContent>
+              {top_issues.length === 0 ? (
+                <p className="text-sm text-text-secondary text-center py-4">No issues found.</p>
+              ) : (
                 <div className="space-y-3">
-                  {['Data Privacy', 'Financial Compliance', 'Healthcare', 'Payment Security'].map((category, index) => (
-                    <div key={category} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>{category}</span>
-                        <span className="font-medium">{85 - index * 5}%</span>
+                  {top_issues.map((issue, i) => (
+                    <div key={i} className="flex items-start justify-between gap-4 p-3 rounded-lg bg-surface">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground leading-snug">{issue.issue}</p>
                       </div>
-                      <Progress value={85 - index * 5} className="h-2" />
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge className={severityBadge(issue.severity)}>{issue.severity}</Badge>
+                        <span className="text-sm font-bold text-foreground w-5 text-right">{issue.count}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Compliance Trends ────────────────────────────────────────────── */}
+        <TabsContent value="compliance" className="space-y-6">
+          <Card className="card-elevated">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Compliance Score Over Time</CardTitle>
+              <CardDescription>Average score and number of comparisons per month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {compliance_trend.length > 0 ? (
+                <ResponsiveContainer width="100%" height={380}>
+                  <LineChart data={compliance_trend}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis yAxisId="left" domain={[0, 100]} tick={{ fontSize: 12 }} />
+                    <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Line yAxisId="left" type="monotone" dataKey="score" stroke="#3b82f6" name="Avg Score (%)" strokeWidth={2} dot />
+                    <Line yAxisId="right" type="monotone" dataKey="comparisons" stroke="#10b981" name="Comparisons" strokeWidth={2} dot />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-sm text-text-secondary text-center py-16">Run analyses to see trend data.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Risk Analysis ─────────────────────────────────────────────────── */}
+        <TabsContent value="risks" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="card-elevated">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Severity Breakdown</CardTitle>
+                <CardDescription>Issues by severity across all analyses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={severity_distribution} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis type="number" tick={{ fontSize: 12 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={60} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="value" radius={4} name="Findings">
+                      {severity_distribution.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
 
             <Card className="card-elevated">
-              <CardHeader>
-                <CardTitle>Risk Mitigation Progress</CardTitle>
-                <CardDescription>Progress on addressing identified risks</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Finding Status Breakdown</CardTitle>
+                <CardDescription>Status distribution across all findings</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {[
-                    { risk: 'High Risk Issues', resolved: 15, total: 18 },
-                    { risk: 'Medium Risk Issues', resolved: 32, total: 45 },
-                    { risk: 'Low Risk Issues', resolved: 28, total: 30 }
-                  ].map((item) => (
-                    <div key={item.risk} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>{item.risk}</span>
-                        <span className="font-medium">{item.resolved}/{item.total}</span>
+                <div className="space-y-3 pt-2">
+                  {risk_distribution.map((item) => {
+                    const total = risk_distribution.reduce((s, r) => s + r.value, 0) || 1;
+                    return (
+                      <div key={item.name} className="space-y-1.5">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-foreground">{item.name}</span>
+                          <span className="font-medium text-foreground">{item.value} <span className="text-text-secondary font-normal">({Math.round(item.value / total * 100)}%)</span></span>
+                        </div>
+                        <div className="h-2 bg-surface rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${Math.round(item.value / total * 100)}%`, backgroundColor: item.color }} />
+                        </div>
                       </div>
-                      <Progress value={(item.resolved / item.total) * 100} className="h-2" />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
 
-        <TabsContent value="frameworks" className="space-y-6">
           <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Framework Compliance Breakdown</CardTitle>
-              <CardDescription>Compliance status by regulatory framework</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Top Issues Requiring Action</CardTitle>
+              <CardDescription>Recurring compliance gaps sorted by frequency</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {frameworkCompliance.map((framework) => (
-                  <div key={framework.framework} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">{framework.framework}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {framework.documents} documents • {framework.issues} issues
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold">{framework.compliance}%</div>
-                        <div className="text-sm text-muted-foreground">Compliance</div>
-                      </div>
+              <div className="space-y-3">
+                {top_issues.slice(0, 5).map((issue, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-surface">
+                    <span className="text-xs font-bold text-text-secondary mt-0.5 w-4 shrink-0">#{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground leading-snug">{issue.issue}</p>
                     </div>
-                    <Progress value={framework.compliance} className="h-3" />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge className={severityBadge(issue.severity)}>{issue.severity}</Badge>
+                      <span className="text-xs text-text-secondary">×{issue.count}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -401,52 +331,100 @@ const Reports = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="executive" className="space-y-6">
+        {/* ── Documents ─────────────────────────────────────────────────────── */}
+        <TabsContent value="documents" className="space-y-6">
           <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle>Executive Summary</CardTitle>
-              <CardDescription>High-level overview for leadership</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Document Compliance Scores</CardTitle>
+              <CardDescription>Latest analysis result per document</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="text-center p-4 bg-success/10 rounded-lg">
-                  <div className="text-3xl font-bold text-success">87%</div>
-                  <div className="text-sm text-muted-foreground">Overall Compliance</div>
+            <CardContent>
+              {documents.length === 0 ? (
+                <p className="text-sm text-text-secondary text-center py-8">No documents analyzed yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {documents.map((doc, i) => (
+                    <div key={i} className="space-y-2 pb-4 border-b border-border last:border-b-0 last:pb-0">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm text-foreground truncate">{doc.name}</p>
+                          <p className="text-xs text-text-secondary mt-0.5">{doc.regulation} · {doc.issues} issues ({doc.critical} critical)</p>
+                        </div>
+                        <span className={`text-2xl font-bold shrink-0 ${scoreColor(doc.score)}`}>{doc.score}%</span>
+                      </div>
+                      <div className="h-2 bg-surface rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${doc.score}%`,
+                            backgroundColor: doc.score >= 80 ? "#10b981" : doc.score >= 60 ? "#f59e0b" : "#ef4444",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="text-center p-4 bg-warning/10 rounded-lg">
-                  <div className="text-3xl font-bold text-warning">23</div>
-                  <div className="text-sm text-muted-foreground">Active Issues</div>
-                </div>
-                <div className="text-center p-4 bg-primary/10 rounded-lg">
-                  <div className="text-3xl font-bold text-primary">+12%</div>
-                  <div className="text-sm text-muted-foreground">QoQ Improvement</div>
-                </div>
-              </div>
+              )}
+            </CardContent>
+          </Card>
 
-              <div className="prose max-w-none">
-                <h3 className="text-lg font-semibold mb-3">Key Insights</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>• Overall compliance has improved by 12% this quarter, reaching 87%</li>
-                  <li>• GDPR compliance leads at 92%, while HIPAA requires attention at 78%</li>
-                  <li>• Data retention clauses are the most common compliance gap (15 instances)</li>
-                  <li>• Document processing efficiency has increased by 23% with automation</li>
-                  <li>• Critical risk issues have been reduced from 6 to 2 this month</li>
-                </ul>
+          {documents.length > 0 && (
+            <Card className="card-elevated">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Score Comparison</CardTitle>
+                <CardDescription>Side-by-side compliance score per document</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={Math.max(200, documents.length * 48)}>
+                  <BarChart data={documents} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={180} />
+                    <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v}%`, "Score"]} />
+                    <Bar dataKey="score" radius={4} name="Score">
+                      {documents.map((doc, i) => (
+                        <Cell key={i} fill={doc.score >= 80 ? "#10b981" : doc.score >= 60 ? "#f59e0b" : "#ef4444"} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
-                <h3 className="text-lg font-semibold mb-3 mt-6">Recommendations</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>• Prioritize HIPAA compliance improvements in Q2</li>
-                  <li>• Standardize data retention language across all document types</li>
-                  <li>• Implement quarterly compliance training for legal team</li>
-                  <li>• Expand automated scanning to include SOX requirements</li>
-                </ul>
-              </div>
+        {/* ── Regulation Breakdown ─────────────────────────────────────────── */}
+        <TabsContent value="regulations" className="space-y-6">
+          <Card className="card-elevated">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Compliance by Regulation</CardTitle>
+              <CardDescription>How your documents score against each regulation</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {regulation_breakdown.length === 0 ? (
+                <p className="text-sm text-text-secondary text-center py-8">No regulation data yet.</p>
+              ) : (
+                <div className="space-y-6">
+                  {regulation_breakdown.map((reg, i) => (
+                    <div key={i} className="space-y-2">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="font-medium text-sm text-foreground">{reg.regulation}</p>
+                          <p className="text-xs text-text-secondary">
+                            {reg.doc_count} document{reg.doc_count !== 1 ? "s" : ""} · {reg.total_issues} issues · {reg.critical_total} critical
+                          </p>
+                        </div>
+                        <span className={`text-2xl font-bold shrink-0 ${scoreColor(reg.avg_score)}`}>{reg.avg_score}%</span>
+                      </div>
+                      <Progress value={reg.avg_score} className="h-2" />
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
-};
-
-export default Reports;
+}

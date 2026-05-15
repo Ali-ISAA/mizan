@@ -281,7 +281,7 @@ export default function DocumentDetail() {
           )}
 
           {activeTab === "documents" && (
-            <DocumentsTab doc={doc} chunks={chunksData?.chunks} isLoading={chunksLoading} />
+            <DocumentsTab doc={doc} />
           )}
 
           {activeTab === "articles" && (

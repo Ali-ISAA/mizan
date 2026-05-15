@@ -1,6 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft, AlertCircle, Loader, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, AlertCircle, AlertTriangle, Loader, RotateCcw } from "lucide-react";
 import { api } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -87,11 +88,16 @@ export default function ComplianceAnalysisView() {
 
   const comparisonStatus = statusData?.status || "pending";
 
+  const [reanalyzeError, setReanalyzeError] = useState<string | null>(null);
+
   const { mutate: reanalyze, isPending: isReanalyzing } = useMutation({
     mutationFn: () =>
       api.post(`/documents/${documentId}/analyze`).then((r) => r.data as { comparison_id: string }),
     onSuccess: (data) => {
       navigate(`/documents/${documentId}/analysis?comparison_id=${data.comparison_id}`);
+    },
+    onError: (error: any) => {
+      setReanalyzeError(error.response?.data?.detail || "Failed to start analysis");
     },
   });
 
@@ -105,6 +111,20 @@ export default function ComplianceAnalysisView() {
             .catch(() => null)
         : null,
     enabled: !!comparisonId && comparisonStatus === "completed",
+  });
+
+  interface NarrativeData { executive_summary: string; risk_assessment: string }
+  const { data: narrativeData, isLoading: narrativeLoading } = useQuery<NarrativeData | null>({
+    queryKey: ["compliance-narrative", comparisonId],
+    queryFn: () =>
+      comparisonId
+        ? api
+            .get<NarrativeData>(`/documents/comparisons/${comparisonId}/narrative`)
+            .then((r) => r.data)
+            .catch(() => null)
+        : null,
+    enabled: !!comparisonId && comparisonStatus === "completed" && !!reportData,
+    staleTime: Infinity, // cache forever — it's expensive to regenerate
   });
 
   if (!documentId) {
@@ -227,8 +247,8 @@ export default function ComplianceAnalysisView() {
     },
     overview: {
       compliance_score: report.compliance_score,
-      total_clauses: findings.length,
-      issues_found: findings.filter((f) => f.status !== "compliant").length,
+      total_clauses: findings.filter((f) => f.status !== "not_applicable").length,
+      issues_found: findings.filter((f) => f.status !== "compliant" && f.status !== "not_applicable").length,
       compliant_clauses: findings.filter((f) => f.status === "compliant").length,
       needs_review: findings.filter((f) => f.status === "gap").length,
       critical_issues: report.critical_count,
@@ -247,10 +267,35 @@ export default function ComplianceAnalysisView() {
   };
 
   return (
-    <ComplianceAnalysisResults
-      data={analysisData}
-      onReanalyze={() => reanalyze()}
-      isReanalyzing={isReanalyzing}
-    />
+    <>
+      <ComplianceAnalysisResults
+        data={analysisData}
+        narrative={narrativeData ?? null}
+        narrativeLoading={narrativeLoading}
+        onReanalyze={() => reanalyze()}
+        isReanalyzing={isReanalyzing}
+      />
+      {reanalyzeError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-card border border-border rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-warning mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-foreground">Cannot Start Analysis</h3>
+                <p className="text-sm text-text-secondary mt-1">{reanalyzeError}</p>
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setReanalyzeError(null)}
+                className="px-3 py-1.5 text-sm border border-border rounded-lg text-foreground hover:bg-surface"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

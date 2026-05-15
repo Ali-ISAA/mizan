@@ -209,7 +209,7 @@
 
   .card-interactive:hover {
     transform: translateY(-2px) scale(1.01);
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-xl), var(--glow-blue);
     border-color: hsl(var(--accent-600));
   }
 

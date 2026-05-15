@@ -14,7 +14,7 @@ class ComplianceFinding(Base):
     comparison_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("compliance_comparisons.id", ondelete="CASCADE"))
 
     doc_a_section: Mapped[str] = mapped_column(String(500))
-    doc_b_section: Mapped[str] = mapped_column(String(500))
+    doc_b_section: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(30))
     severity: Mapped[str] = mapped_column(String(30))
     issue: Mapped[str] = mapped_column(Text)

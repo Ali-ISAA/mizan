@@ -85,21 +85,22 @@ class ComparisonService:
                 "status": comparison.status,
                 "current_chunk": comparison.current_chunk,
                 "total_chunks": comparison.total_chunks,
-                "started_at": comparison.started_at.isoformat() if comparison.started_at else None,
-                "completed_at": comparison.completed_at.isoformat() if comparison.completed_at else None,
-                "error_message": comparison.error_message
+                # Append Z so JavaScript treats these as UTC, not local time
+                "started_at": comparison.started_at.isoformat() + "Z" if comparison.started_at else None,
+                "completed_at": comparison.completed_at.isoformat() + "Z" if comparison.completed_at else None,
+                "error_message": comparison.error_message,
+                "estimated_completion": None,
             }
 
             # Calculate estimated completion if processing
             if comparison.status == "processing" and comparison.total_chunks > 0 and comparison.started_at:
                 elapsed_seconds = (datetime.utcnow() - comparison.started_at).total_seconds()
-                if elapsed_seconds > 0:
+                if elapsed_seconds > 0 and comparison.current_chunk > 0:
                     chunk_rate = comparison.current_chunk / elapsed_seconds
-                    if chunk_rate > 0:
-                        remaining_chunks = comparison.total_chunks - comparison.current_chunk
-                        estimated_remaining_seconds = remaining_chunks / chunk_rate
-                        estimated_completion = datetime.utcnow() + timedelta(seconds=estimated_remaining_seconds)
-                        response["estimated_completion"] = estimated_completion.isoformat()
+                    remaining_chunks = comparison.total_chunks - comparison.current_chunk
+                    estimated_remaining_seconds = remaining_chunks / chunk_rate
+                    estimated_completion = datetime.utcnow() + timedelta(seconds=estimated_remaining_seconds)
+                    response["estimated_completion"] = estimated_completion.isoformat() + "Z"
 
             return response
 

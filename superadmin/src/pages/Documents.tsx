@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
-import { Upload, FileText, Eye } from "lucide-react";
+import { Upload, FileText, Eye, Trash2 } from "lucide-react";
 
 interface BaseDoc {
   id: string; filename: string; doc_type: string;
@@ -26,6 +26,7 @@ export default function Documents() {
   const [typeFilter, setTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showUpload, setShowUpload] = useState(false);
+  const [showDeleteAll, setShowDeleteAll] = useState(false);
   const [uploadType, setUploadType] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState("");
@@ -39,6 +40,20 @@ export default function Documents() {
       return api.get(`/superadmin/base-documents?${params}`).then(r => r.data);
     },
     refetchInterval: 5000,
+  });
+
+  const deleteAllMutation = useMutation({
+    mutationFn: () => {
+      const params = new URLSearchParams();
+      if (typeFilter) params.set("doc_type", typeFilter);
+      if (statusFilter) params.set("status", statusFilter);
+      return api.delete(`/superadmin/base-documents?${params}`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["base-docs"] });
+      qc.invalidateQueries({ queryKey: ["sa-base-doc-stats"] });
+      setShowDeleteAll(false);
+    },
   });
 
   const uploadMutation = useMutation({
@@ -77,14 +92,50 @@ export default function Documents() {
           <h2 className="text-xl font-bold text-gray-900">Base Documents</h2>
           <p className="text-sm text-gray-500 mt-0.5">Compliance reference documents for user comparison</p>
         </div>
-        <button
-          onClick={() => setShowUpload(true)}
-          className="flex items-center gap-2 bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-slate-800 transition-colors"
-        >
-          <Upload className="h-4 w-4" />
-          Upload Document
-        </button>
+        <div className="flex items-center gap-2">
+          {docs.length > 0 && (
+            <button
+              onClick={() => setShowDeleteAll(true)}
+              className="flex items-center gap-2 text-red-600 border border-red-200 text-sm font-medium px-4 py-2 rounded-md hover:bg-red-50 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete All
+            </button>
+          )}
+          <button
+            onClick={() => setShowUpload(true)}
+            className="flex items-center gap-2 bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-slate-800 transition-colors"
+          >
+            <Upload className="h-4 w-4" />
+            Upload Document
+          </button>
+        </div>
       </div>
+
+      {/* Delete All confirmation */}
+      {showDeleteAll && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-sm text-red-800 font-medium">
+            Delete {typeFilter || statusFilter ? "filtered" : "all"} {docs.length} document{docs.length !== 1 ? "s" : ""}?
+          </p>
+          <p className="text-xs text-red-600 mt-1">This cannot be undone. All associated chunks and articles will be removed.</p>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => deleteAllMutation.mutate()}
+              disabled={deleteAllMutation.isPending}
+              className="bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md hover:bg-red-700 disabled:opacity-50"
+            >
+              {deleteAllMutation.isPending ? "Deleting…" : `Yes, Delete ${docs.length}`}
+            </button>
+            <button
+              onClick={() => setShowDeleteAll(false)}
+              className="text-sm text-gray-600 px-3 py-1.5 rounded-md border hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Upload form */}
       {showUpload && (

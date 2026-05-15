@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2, Upload, Loader, Zap } from "lucide-react";
+import { FileText, Search, Filter, Eye, Download, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Trash2, Upload, Loader, Zap, RotateCcw } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,14 +37,10 @@ interface DocumentData {
   processing_status: string;
   noesia_chunk_count?: number;
   created_at: string;
-  [key: string]: any;
-}
-
-// Helper to generate random score and issues
-function getRandomCompliance() {
-  const score = Math.floor(Math.random() * 100);
-  const issues = Math.floor(Math.random() * 11); // 0-10
-  return { score, issues };
+  compliance_score?: number | null;
+  issues_found?: number | null;
+  latest_comparison_id?: string | null;
+  latest_comparison_status?: string | null;
 }
 
 function getStatusFromScore(score: number) {
@@ -111,6 +107,7 @@ const Documents = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
 
   const { data: documentsData = [], isLoading } = useQuery({
     queryKey: ["documents"],
@@ -137,39 +134,43 @@ const Documents = () => {
     try {
       const response = await api.post(`/documents/${docId}/analyze`);
       const { comparison_id } = response.data;
-      // Store comparison_id and redirect to detail view with analysis tab
-      navigate(`/documents/${docId}?comparison_id=${comparison_id}&tab=comparison`);
+      navigate(`/documents/${docId}/analysis?comparison_id=${comparison_id}`);
     } catch (error: any) {
       const message = error.response?.data?.detail || "Failed to start analysis";
+      setAnalyzeError(message);
+    }
+  };
+
+  const handleRetryProcessing = async (docId: string) => {
+    try {
+      await api.post(`/documents/${docId}/retry`);
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    } catch (error: any) {
+      const message = error.response?.data?.detail || "Failed to retry processing";
       alert(message);
     }
   };
 
   // Map API data to display format
   const documents = documentsData.map((doc: DocumentData) => {
-    let complianceStatus: string | null = null;
-    let score: number | null = null;
-    let issues: number | null = null;
-    let pipelineStatus = doc.processing_status || "uploaded";
-
-    // Only generate compliance score for completed documents WITH chunks extracted
-    if (pipelineStatus === "completed" && (doc.noesia_chunk_count || 0) > 0) {
-      const { score: randomScore, issues: randomIssues } = getRandomCompliance();
-      score = randomScore;
-      issues = randomIssues;
-      complianceStatus = getStatusFromScore(score);
-    }
+    const pipelineStatus = doc.processing_status || "uploaded";
+    const hasCompletedAnalysis = doc.latest_comparison_status === "completed";
+    const score = hasCompletedAnalysis && doc.compliance_score != null ? doc.compliance_score : null;
+    const issues = hasCompletedAnalysis && doc.issues_found != null ? doc.issues_found : null;
+    const complianceStatus = score != null ? getStatusFromScore(score) : null;
 
     return {
       id: doc.id,
       name: doc.name,
       type: doc.file_type || "Document",
       uploadDate: new Date(doc.created_at).toISOString().split("T")[0],
-      complianceStatus: complianceStatus,
-      pipelineStatus: pipelineStatus,
-      score: score,
+      complianceStatus,
+      pipelineStatus,
+      score,
+      issues,
       size: doc.file_size ? formatFileSize(doc.file_size) : "Unknown",
-      issues: issues,
+      latestComparisonId: doc.latest_comparison_id ?? null,
+      latestComparisonStatus: doc.latest_comparison_status ?? null,
     };
   });
 
@@ -230,6 +231,26 @@ const Documents = () => {
 
   return (
     <div className="flex-1 space-y-8 p-8 animate-fade-in">
+      {/* Article extraction not ready modal */}
+      {analyzeError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-card border border-border rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-warning mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-foreground">Cannot Start Analysis</h3>
+                <p className="text-sm text-text-secondary mt-1">{analyzeError}</p>
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button size="sm" variant="outline" onClick={() => setAnalyzeError(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="border-b border-border pb-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
@@ -242,7 +263,7 @@ const Documents = () => {
 
       {/* Stats Overview */}
       <div className="grid gap-6 md:grid-cols-4">
-        <Card className="card-elevated group hover:shadow-xl transition-shadow duration-200">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-600/10 group-hover:bg-accent-600/20 transition-colors">
@@ -256,7 +277,7 @@ const Documents = () => {
           </CardContent>
         </Card>
 
-        <Card className="card-elevated group hover:shadow-xl transition-shadow duration-200">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 group-hover:bg-success/20 transition-colors">
@@ -272,7 +293,7 @@ const Documents = () => {
           </CardContent>
         </Card>
 
-        <Card className="card-elevated group hover:shadow-xl transition-shadow duration-200">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/10 group-hover:bg-warning/20 transition-colors">
@@ -288,7 +309,7 @@ const Documents = () => {
           </CardContent>
         </Card>
 
-        <Card className="card-elevated group hover:shadow-xl transition-shadow duration-200">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-critical/10 group-hover:bg-critical/20 transition-colors">
@@ -306,7 +327,7 @@ const Documents = () => {
       </div>
 
       {/* Filters and Table Card */}
-      <Card className="border-border shadow-sm">
+      <Card className="card-elevated">
         <CardHeader>
           <CardTitle className="text-foreground">Documents</CardTitle>
           <CardDescription className="text-text-secondary">
@@ -394,12 +415,19 @@ const Documents = () => {
                   </TableCell>
                   <TableCell className="text-text-secondary">{formatDate(doc.uploadDate)}</TableCell>
                   <TableCell>
-                    {doc.pipelineStatus === "failed" ? (
-                      getPipelineStatusBadge("failed")
-                    ) : doc.pipelineStatus === "completed" && doc.complianceStatus ? (
-                      getComplianceStatusBadge(doc.complianceStatus as keyof typeof complianceStatusConfig)
-                    ) : (
+                    {doc.pipelineStatus !== "completed" ? (
                       getPipelineStatusBadge(doc.pipelineStatus as keyof typeof pipelineStatusConfig)
+                    ) : doc.latestComparisonStatus === "completed" && doc.complianceStatus ? (
+                      getComplianceStatusBadge(doc.complianceStatus as keyof typeof complianceStatusConfig)
+                    ) : doc.latestComparisonStatus === "processing" || doc.latestComparisonStatus === "pending" ? (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Loader className="h-3 w-3 text-warning animate-spin" />
+                        Analyzing...
+                      </Badge>
+                    ) : doc.latestComparisonStatus === "failed" ? (
+                      getPipelineStatusBadge("failed")
+                    ) : (
+                      getPipelineStatusBadge("completed")
                     )}
                   </TableCell>
                   <TableCell>
@@ -429,20 +457,39 @@ const Documents = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-surface-elevated border-border">
-                        <DropdownMenuItem
-                          onClick={() => navigate(`/documents/${doc.id}/analysis`)}
-                          className="cursor-pointer"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Analysis
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleStartAnalysis(doc.id)}
-                          className="cursor-pointer"
-                        >
-                          <Zap className="mr-2 h-4 w-4" />
-                          Analyze
-                        </DropdownMenuItem>
+                        {doc.latestComparisonStatus === "completed" ? (
+                          <DropdownMenuItem
+                            onClick={() => navigate(`/documents/${doc.id}/analysis?comparison_id=${doc.latestComparisonId}`)}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Analysis
+                          </DropdownMenuItem>
+                        ) : doc.latestComparisonStatus === "processing" || doc.latestComparisonStatus === "pending" ? (
+                          <DropdownMenuItem
+                            onClick={() => navigate(`/documents/${doc.id}/analysis?comparison_id=${doc.latestComparisonId}`)}
+                            className="cursor-pointer"
+                          >
+                            <Loader className="mr-2 h-4 w-4 animate-spin" />
+                            View Progress
+                          </DropdownMenuItem>
+                        ) : doc.pipelineStatus === "completed" ? (
+                          <DropdownMenuItem
+                            onClick={() => handleStartAnalysis(doc.id)}
+                            className="cursor-pointer"
+                          >
+                            <Zap className="mr-2 h-4 w-4" />
+                            Analyze
+                          </DropdownMenuItem>
+                        ) : doc.pipelineStatus === "failed" ? (
+                          <DropdownMenuItem
+                            onClick={() => handleRetryProcessing(doc.id)}
+                            className="cursor-pointer"
+                          >
+                            <RotateCcw className="mr-2 h-4 w-4" />
+                            Retry Processing
+                          </DropdownMenuItem>
+                        ) : null}
                         <DropdownMenuItem
                           onClick={() => navigate(`/documents/${doc.id}?tab=chunks`)}
                           className="cursor-pointer"

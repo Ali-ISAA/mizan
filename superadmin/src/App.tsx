@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Documents from "./pages/Documents";
 import DocumentDetail from "./pages/DocumentDetail";
+import Users from "./pages/Users";
+import Tenants from "./pages/Tenants";
 import Layout from "./components/Layout";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,22 @@ export default function App() {
             element={
               <RequireAuth>
                 <Layout><DocumentDetail /></Layout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/tenants"
+            element={
+              <RequireAuth>
+                <Layout><Tenants /></Layout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <RequireAuth>
+                <Layout><Users /></Layout>
               </RequireAuth>
             }
           />

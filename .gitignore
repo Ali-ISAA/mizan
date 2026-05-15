@@ -46,3 +46,11 @@ docker-compose.override.yml
 # Uploads
 /tmp/
 uploads/
+
+# Yarn PnP (project uses npm)
+.pnp.cjs
+.pnp.loader.mjs
+yarn.lock
+
+# TypeScript build cache
+tsconfig.tsbuildinfo

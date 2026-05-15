@@ -132,8 +132,12 @@ async def _process_document(document_id: str, file_path: str):
 
             doc.noesia_chunk_count = len(chunks)
             doc.processing_status = "completed"
+            doc.articles_status = "pending"
             await db.commit()
             logger.info(f"Successfully processed {document_id} with {len(chunks)} chunks")
+
+            from app.tasks.extract_articles import extract_articles_task
+            extract_articles_task.delay(document_id, "user")
 
         except NoesiaError as e:
             logger.error(f"Noesia API error processing {document_id}: {e}")

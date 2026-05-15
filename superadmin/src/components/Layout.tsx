@@ -1,8 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Building2, LogOut } from "lucide-react";
 
 const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Dashboard",      url: "/",          icon: LayoutDashboard },
+  { title: "Tenants",        url: "/tenants",   icon: Building2 },
+  { title: "Users",          url: "/users",     icon: Users },
   { title: "Base Documents", url: "/documents", icon: FileText },
 ];
 
@@ -19,8 +21,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-56 bg-slate-900 flex flex-col">
         <div className="px-4 py-5 border-b border-slate-700">
-          <h1 className="text-white font-bold text-base">Mizan Superadmin</h1>
-          <p className="text-slate-400 text-xs mt-0.5">System administration</p>
+          <div className="flex items-center gap-2.5">
+            <img src="/mizan-logo.png" alt="Mizan" className="h-8 w-8 rounded-lg object-contain" />
+            <div>
+              <h1 className="text-white font-bold text-base leading-tight">Mizan</h1>
+              <p className="text-slate-400 text-xs">Superadmin</p>
+            </div>
+          </div>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">

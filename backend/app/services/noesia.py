@@ -143,6 +143,21 @@ class NoesiaClient:
                 raise NoesiaError(resp.status_code, resp.text)
             return resp.json()
 
+    async def get_document_content(self, document_id: str) -> str:
+        """Fetch the complete processed document content (markdown) from Noesia."""
+        async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
+            resp = await client.get(
+                f"{self.base_url}/api/v1/developer/documents/{document_id}/content",
+                headers=self._headers(),
+            )
+            if not resp.is_success:
+                raise NoesiaError(resp.status_code, resp.text)
+            content_type = resp.headers.get("content-type", "")
+            if "application/json" in content_type:
+                data = resp.json()
+                return data.get("content") or data.get("markdown") or data.get("text") or str(data)
+            return resp.text
+
     async def get_chunks(self, collection_id: str, document_name: str | None = None, limit: int = 200) -> list[dict]:
         params: dict = {"limit": limit}
         if document_name:

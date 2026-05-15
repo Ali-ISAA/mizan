@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
   ArrowLeft, Download, MessageSquare,
   ChevronDown, ChevronUp,
-  CheckCircle2, AlertTriangle, XCircle, FileText, RotateCcw,
+  CheckCircle2, AlertTriangle, XCircle, Minus, FileText, RotateCcw, Loader2, ShieldAlert, FileText as FileTextIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -13,8 +13,8 @@ interface Clause {
   id: string;
   name: string;
   doc_b_section?: string;
-  status: 'compliant' | 'gap' | 'conflict' | 'missing';
-  severity?: 'critical' | 'medium' | 'low';
+  status: 'compliant' | 'gap' | 'conflict' | 'missing' | 'not_applicable';
+  severity?: 'critical' | 'medium' | 'low' | 'none';
   confidence: number;
   summary?: string;
   recommendation?: string;
@@ -38,17 +38,25 @@ interface AnalysisData {
   clauses: Clause[];
 }
 
+interface Narrative {
+  executive_summary: string;
+  risk_assessment: string;
+}
+
 interface ComplianceAnalysisResultsProps {
   data: AnalysisData;
+  narrative?: Narrative | null;
+  narrativeLoading?: boolean;
   onReanalyze?: () => void;
   isReanalyzing?: boolean;
 }
 
 const STATUS_CONFIG = {
-  compliant: { Icon: CheckCircle2, color: 'text-success', bg: 'bg-success/10', label: 'Compliant' },
-  gap:       { Icon: AlertTriangle, color: 'text-warning', bg: 'bg-warning/10', label: 'Gap' },
-  conflict:  { Icon: XCircle,       color: 'text-critical', bg: 'bg-critical/10', label: 'Conflict' },
-  missing:   { Icon: XCircle,       color: 'text-critical', bg: 'bg-critical/10', label: 'Missing' },
+  compliant:       { Icon: CheckCircle2, color: 'text-success',        bg: 'bg-success/10',        label: 'Compliant' },
+  gap:             { Icon: AlertTriangle, color: 'text-warning',        bg: 'bg-warning/10',        label: 'Gap' },
+  conflict:        { Icon: XCircle,       color: 'text-critical',       bg: 'bg-critical/10',       label: 'Conflict' },
+  missing:         { Icon: XCircle,       color: 'text-critical',       bg: 'bg-critical/10',       label: 'Missing' },
+  not_applicable:  { Icon: Minus,         color: 'text-text-secondary', bg: 'bg-surface',           label: 'N/A' },
 } as const;
 
 function truncate(text: string, max = 80) {
@@ -127,7 +135,7 @@ function ClauseCard({ clause }: { clause: Clause }) {
   );
 }
 
-export function ComplianceAnalysisResults({ data, onReanalyze, isReanalyzing }: ComplianceAnalysisResultsProps) {
+export function ComplianceAnalysisResults({ data, narrative, narrativeLoading, onReanalyze, isReanalyzing }: ComplianceAnalysisResultsProps) {
   const navigate = useNavigate();
 
   const scoreColor =
@@ -142,7 +150,9 @@ export function ComplianceAnalysisResults({ data, onReanalyze, isReanalyzing }: 
 
   const pct = (n: number) => `${Math.round((n / total) * 100)}%`;
 
-  const nonCompliantWithRecs = data.clauses.filter(c => c.status !== 'compliant' && c.recommendation);
+  // Exclude not_applicable from the displayed list — they're informational noise
+  const displayedClauses = data.clauses.filter(c => c.status !== 'not_applicable');
+  const nonCompliantWithRecs = displayedClauses.filter(c => c.status !== 'compliant' && c.recommendation);
 
   return (
     <div className="p-6 space-y-6">
@@ -233,6 +243,41 @@ export function ComplianceAnalysisResults({ data, onReanalyze, isReanalyzing }: 
             </CardContent>
           </Card>
 
+          {/* AI Narrative Report */}
+          <Card className="border-border bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Compliance Report</CardTitle>
+              <p className="text-sm text-text-secondary">AI-generated executive summary and risk assessment</p>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {narrativeLoading ? (
+                <div className="flex items-center gap-3 py-4 text-text-secondary">
+                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                  <p className="text-sm">Generating report narrative…</p>
+                </div>
+              ) : narrative ? (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <FileTextIcon className="h-4 w-4 text-accent-600 shrink-0" />
+                      <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Executive Summary</h4>
+                    </div>
+                    <p className="text-sm text-foreground leading-relaxed pl-6">{narrative.executive_summary}</p>
+                  </div>
+                  <div className="border-t border-border pt-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4 text-warning shrink-0" />
+                      <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Risk Assessment</h4>
+                    </div>
+                    <p className="text-sm text-foreground leading-relaxed pl-6">{narrative.risk_assessment}</p>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-text-secondary py-2">Narrative unavailable.</p>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Clause-by-clause */}
           <Card className="border-border">
             <CardHeader className="pb-2">
@@ -242,9 +287,9 @@ export function ComplianceAnalysisResults({ data, onReanalyze, isReanalyzing }: 
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {data.clauses.length === 0
+              {displayedClauses.length === 0
                 ? <p className="text-sm text-text-secondary text-center py-4">No findings available</p>
-                : data.clauses.map(clause => <ClauseCard key={clause.id} clause={clause} />)
+                : displayedClauses.map(clause => <ClauseCard key={clause.id} clause={clause} />)
               }
             </CardContent>
           </Card>

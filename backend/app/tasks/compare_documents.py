@@ -17,8 +17,8 @@ from app.db.models.document import MizanDocument
 from app.db.models.base_document import BaseDocument
 from app.db.models.compliance_comparison import ComplianceComparison
 from app.db.models.compliance_report import ComplianceReport
-from app.db.models.mizan_document_chunk import MizanDocumentChunk
-from app.db.models.base_document_chunk import BaseDocumentChunk
+from app.db.models.mizan_document_article import MizanDocumentArticle
+from app.db.models.base_document_article import BaseDocumentArticle
 from app.db.session import WorkerAsyncSessionLocal as AsyncSessionLocal
 from app.services.audit import log_event
 from app.services.compliance_comparator import ComplianceComparator
@@ -82,46 +82,53 @@ async def _compare_documents_impl(mizan_doc_id: uuid.UUID, base_doc_id: uuid.UUI
 
             logger.info("Starting comparison: mizan_doc=%s base_doc=%s", mizan_doc_id, base_doc_id)
 
-            # Fetch chunks for both documents
-            stmt_mizan = select(MizanDocumentChunk).where(
-                MizanDocumentChunk.mizan_document_id == mizan_doc_id
-            ).order_by(MizanDocumentChunk.chunk_index)
-            result_mizan = await db.execute(stmt_mizan)
-            doc_a_chunks = result_mizan.scalars().all()
+            # Fetch articles for both documents
+            result_base = await db.execute(
+                select(BaseDocumentArticle)
+                .where(BaseDocumentArticle.base_document_id == base_doc_id)
+                .order_by(BaseDocumentArticle.article_index)
+            )
+            base_articles = result_base.scalars().all()
 
-            stmt_base = select(BaseDocumentChunk).where(
-                BaseDocumentChunk.base_document_id == base_doc_id
-            ).order_by(BaseDocumentChunk.chunk_index)
-            result_base = await db.execute(stmt_base)
-            doc_b_chunks = result_base.scalars().all()
+            result_mizan = await db.execute(
+                select(MizanDocumentArticle)
+                .where(MizanDocumentArticle.mizan_document_id == mizan_doc_id)
+                .order_by(MizanDocumentArticle.article_index)
+            )
+            mizan_articles = result_mizan.scalars().all()
 
-            if not doc_a_chunks or not doc_b_chunks:
-                logger.warning("Missing chunks: doc_a=%d doc_b=%d", len(doc_a_chunks), len(doc_b_chunks))
+            if not base_articles or not mizan_articles:
+                logger.warning("Missing articles: base=%d mizan=%d", len(base_articles), len(mizan_articles))
                 comparison.status = "failed"
-                comparison.error_message = f"Missing chunks: doc_a={len(doc_a_chunks)} doc_b={len(doc_b_chunks)}"
+                comparison.error_message = (
+                    f"Missing articles: base={len(base_articles)} mizan={len(mizan_articles)}. "
+                    "Ensure article extraction has completed for both documents."
+                )
                 await db.commit()
                 return
 
-            # Total chunks = only doc_a chunks (one LLM call per doc_a chunk)
-            total_chunks = len(doc_a_chunks)
-            comparison.total_chunks = total_chunks
+            # One LLM call per compliance (policy) section — compliance-doc-driven
+            # We ask: "Is each policy section accurate per the regulation?"
+            # This reflects real-world compliance: the policy is assessed against the law,
+            # not the other way around.
+            total_sections = len(mizan_articles)
+            comparison.total_chunks = total_sections
             comparison.current_chunk = 0
             await db.commit()
-            logger.info(f"Starting comparison: total_chunks={total_chunks}")
+            logger.info(f"Starting compliance-driven comparison: {total_sections} policy sections vs {len(base_articles)} regulation articles")
 
-            # Pre-format regulation once, then loop compliance doc chunks with live progress
             comparator = ComplianceComparator()
-            regulation_text = comparator.prepare_regulation(doc_b_chunks)
+            regulation_text = comparator.prepare_regulation_articles(base_articles)
 
             all_findings = []
-            for i, chunk_a in enumerate(doc_a_chunks):
-                chunk_index = i + 1
-                logger.info(f"Processing chunk {chunk_index}/{total_chunks}")
-                finding = await comparator.compare_chunk(chunk_a, chunk_index, regulation_text)
+            for i, mizan_article in enumerate(mizan_articles):
+                article_index = i + 1
+                logger.info(f"Processing policy section {article_index}/{total_sections}: {mizan_article.article_number}")
+                finding = await comparator.compare_compliance_section(mizan_article, article_index, regulation_text)
                 if finding:
                     all_findings.append(finding)
-                comparison.current_chunk = chunk_index
-                await db.commit()  # Commit every chunk so frontend sees 1→2→3
+                comparison.current_chunk = article_index
+                await db.commit()
 
             report, findings = comparator._compile_report(all_findings)
 

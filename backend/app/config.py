@@ -58,10 +58,6 @@ class Settings(BaseSettings):
     max_tokens_per_chunk: int = 400
     comparison_timeout: int = 600
 
-    # Superadmin
-    superadmin_email: str = "admin@mizan.local"
-    superadmin_password: SecretStr = SecretStr("admin123")
-
     model_config = {"env_file": ".env", "case_sensitive": False}
 
 
