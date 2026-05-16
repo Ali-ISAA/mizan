@@ -3,14 +3,14 @@
 # start.sh  —  Start Mizan locally (backend + worker in venv, frontend, superadmin)
 #              Infrastructure (Postgres, Redis) runs in Docker.
 #
-# Port map                         (DMS comparison)
-#   Postgres   localhost:5435      (DMS: 5434)
-#   Redis      localhost:6382      (DMS: 6381)
-#   Qdrant     cloud or localhost:7014 (DMS: 7004)
-#   Backend    localhost:8001      (DMS: 7001)
+# Port map
+#   Postgres   localhost:5435
+#   Redis      localhost:6382
+#   Qdrant     cloud or localhost:7014
+#   Backend    localhost:8001
 #   Worker     (no port)
-#   Frontend   localhost:8002      (DMS: 7002)
-#   Superadmin localhost:8003      (DMS: 7003)
+#   Frontend   localhost:8002
+#   Superadmin localhost:8003
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
