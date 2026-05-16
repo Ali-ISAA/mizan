@@ -394,11 +394,8 @@
 }
 
 /* Recharts overrides */
-.recharts-bar-background-rectangle,
-.recharts-bar-background rect,
-.recharts-bar-background {
-  fill: transparent !important;
-  opacity: 0 !important;
+.recharts-bar-background-rectangle {
+  display: none !important;
 }
 
 /* Keyframe animations */
