@@ -37,15 +37,16 @@ export function DocumentContentTab({ documentId }: DocumentContentTabProps) {
   }
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 overflow-y-auto h-full">
-      <div className="prose prose-sm max-w-none text-foreground
+    <div className="bg-surface border border-border rounded-lg p-6 overflow-y-auto scrollbar-thin h-full">
+      <div className="prose prose-sm dark:prose-invert max-w-none
         prose-headings:font-bold prose-headings:text-foreground
         prose-h1:text-xl prose-h2:text-lg prose-h3:text-base
+        prose-p:text-text-secondary prose-p:leading-relaxed prose-p:my-1
         prose-table:text-xs prose-table:border-collapse
-        prose-td:border prose-td:border-border prose-td:p-1.5 prose-td:align-top
-        prose-th:border prose-th:border-border prose-th:p-1.5 prose-th:bg-surface prose-th:font-semibold
-        prose-p:leading-relaxed prose-p:my-1
-        prose-a:text-accent-600">
+        prose-td:border prose-td:border-border prose-td:p-1.5 prose-td:align-top prose-td:text-text-secondary
+        prose-th:border prose-th:border-border prose-th:p-1.5 prose-th:bg-surface prose-th:font-semibold prose-th:text-text-secondary
+        prose-a:text-accent-600 prose-strong:text-foreground
+        prose-li:text-text-secondary">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {data?.content ?? ""}
         </ReactMarkdown>

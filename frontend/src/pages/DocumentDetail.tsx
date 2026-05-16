@@ -277,7 +277,7 @@ export default function DocumentDetail() {
               {activeTab === "document" && <DocumentContentTab documentId={documentId} />}
 
               {activeTab === "articles" && (
-                <div className="space-y-4 overflow-y-auto h-full">
+                <div className="space-y-4 overflow-y-auto scrollbar-thin h-full">
                   {/* Status row */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -338,9 +338,9 @@ export default function DocumentDetail() {
                         No articles extracted. Click Re-extract Articles to try again.
                       </div>
                     ) : (
-                      <div className="card-elevated overflow-hidden">
+                      <div className="card-elevated overflow-auto scrollbar-thin">
                         <table className="w-full text-sm">
-                          <thead className="bg-surface border-b border-border">
+                          <thead className="bg-surface border-b border-border sticky top-0">
                             <tr>
                               <th className="text-left text-xs font-semibold text-text-secondary uppercase tracking-wider px-5 py-3 w-36">Article #</th>
                               <th className="text-left text-xs font-semibold text-text-secondary uppercase tracking-wider px-5 py-3">Text</th>
@@ -352,7 +352,7 @@ export default function DocumentDetail() {
                               const isExpanded = expandedArticles.has(article.id);
                               return (
                                 <tr key={article.id} className="hover:bg-surface/60 transition-colors">
-                                  <td className="px-5 py-3 text-xs font-semibold text-accent-600 align-top whitespace-nowrap">
+                                  <td className="px-5 py-3 text-xs font-semibold text-foreground align-top whitespace-nowrap">
                                     {article.article_number}
                                   </td>
                                   <td className="px-5 py-3 text-sm text-text-secondary align-top leading-relaxed">
