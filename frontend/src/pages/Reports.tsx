@@ -268,10 +268,10 @@ export default function Reports() {
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={severity_distribution} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis type="number" tick={{ fontSize: 12 }} />
-                    <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={60} />
+                    <XAxis type="number" tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} axisLine={false} tickLine={false} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} width={60} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={tooltipStyle} />
-                    <Bar dataKey="value" radius={4} name="Findings">
+                    <Bar dataKey="value" radius={4} name="Findings" background={{ fill: 'transparent' }}>
                       {severity_distribution.map((entry, i) => (
                         <Cell key={i} fill={entry.color} />
                       ))}
@@ -378,10 +378,10 @@ export default function Reports() {
                 <ResponsiveContainer width="100%" height={Math.max(200, documents.length * 48)}>
                   <BarChart data={documents} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
-                    <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={180} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'hsl(var(--text-secondary))' }} axisLine={false} tickLine={false} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--text-secondary))' }} width={180} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v}%`, "Score"]} />
-                    <Bar dataKey="score" radius={4} name="Score">
+                    <Bar dataKey="score" radius={4} name="Score" background={{ fill: 'transparent' }}>
                       {documents.map((doc, i) => (
                         <Cell key={i} fill={doc.score >= 80 ? "#10b981" : doc.score >= 60 ? "#f59e0b" : "#ef4444"} />
                       ))}
