@@ -78,12 +78,13 @@ Mizan analyzes both and produces: compliance score, gap report, clause-by-clause
 - API client: `lib/api.ts` (axios with JWT interceptor)
 
 ### Port Map
-- Backend API: `localhost:8001`   (DMS uses 7001)
-- Frontend: `localhost:8002`      (DMS uses 7002)
-- Superadmin: `localhost:8003`    (DMS uses 7003)
-- Postgres: `localhost:5435`      (DMS uses 5434)
-- Redis: `localhost:6382`         (DMS uses 6381)
-- Qdrant: `localhost:7014`        (DMS uses 7004)
+
+- Backend API: `localhost:8001`
+- Frontend: `localhost:8002`
+- Superadmin: `localhost:8003`
+- Postgres: `localhost:5435`
+- Redis: `localhost:6382`
+- Qdrant: `localhost:7014`
 
 ### Key Patterns
 - All DB queries use async SQLAlchemy 2 (`async with AsyncSession`)

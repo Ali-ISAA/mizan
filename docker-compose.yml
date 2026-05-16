@@ -1,12 +1,12 @@
 # Port map (host → container)
 # ─────────────────────────────────────────────
-# Postgres   5435:5432   (DMS uses 5434)
-# Redis      6382:6379   (DMS uses 6381)
-# Qdrant     7014:6333   (DMS uses 7004)
-# Backend    8001:8000   (DMS uses 7001)
+# Postgres   5435:5432
+# Redis      6382:6379
+# Qdrant     7014:6333
+# Backend    8001:8000
 # Worker     (no host port — internal only)
-# Frontend   8002:7002   (DMS uses 7002)
-# Superadmin 8003:7003   (DMS uses 7003)
+# Frontend   8002:7002
+# Superadmin 8003:7003
 # ─────────────────────────────────────────────
 
 services:

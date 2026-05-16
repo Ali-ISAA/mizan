@@ -93,7 +93,7 @@ class NoesiaClient:
             if not start.is_success:
                 raise NoesiaError(start.status_code, start.text or f"HTTP {start.status_code}")
         collection_id, job_detail = await self._poll_for_completion(job_id)
-        document_map = {noesia_id: dms_id for noesia_id, dms_id in document_pairs}
+        document_map = {noesia_id: doc_id for noesia_id, doc_id in document_pairs}
         return IngestResult(job_id=job_id, collection_id=collection_id, document_map=document_map, job_detail=job_detail)
 
     async def _poll_for_completion(self, job_id: str, timeout: int = 600, interval: int = 10):
