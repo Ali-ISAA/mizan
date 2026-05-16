@@ -393,11 +393,6 @@
   }
 }
 
-/* Recharts overrides */
-.recharts-bar-background-rectangle {
-  display: none !important;
-}
-
 /* Keyframe animations */
 @keyframes fadeIn {
   from {

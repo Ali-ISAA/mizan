@@ -163,7 +163,7 @@ export default function Reports() {
                       <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                       <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                       <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                      <Tooltip contentStyle={tooltipStyle} />
+                      <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.06)' }} />
                       <Area type="monotone" dataKey="score" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} name="Avg Score" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -186,7 +186,7 @@ export default function Reports() {
                         <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.06)' }} />
                   </RechartsPieChart>
                 </ResponsiveContainer>
                 <div className="grid grid-cols-2 gap-2 mt-3">
@@ -244,7 +244,7 @@ export default function Reports() {
                     <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                     <YAxis yAxisId="left" domain={[0, 100]} tick={{ fontSize: 12 }} />
                     <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.06)' }} />
                     <Line yAxisId="left" type="monotone" dataKey="score" stroke="#3b82f6" name="Avg Score (%)" strokeWidth={2} dot />
                     <Line yAxisId="right" type="monotone" dataKey="comparisons" stroke="#10b981" name="Comparisons" strokeWidth={2} dot />
                   </LineChart>
@@ -270,7 +270,7 @@ export default function Reports() {
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                     <XAxis type="number" tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} width={60} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.06)' }} />
                     <Bar dataKey="value" radius={4} name="Findings">
                       {severity_distribution.map((entry, i) => (
                         <Cell key={i} fill={entry.color} />
@@ -380,7 +380,7 @@ export default function Reports() {
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'hsl(var(--text-secondary))' }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--text-secondary))' }} width={180} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v}%`, "Score"]} />
+                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.06)' }} formatter={(v) => [`${v}%`, "Score"]} />
                     <Bar dataKey="score" radius={4} name="Score">
                       {documents.map((doc, i) => (
                         <Cell key={i} fill={doc.score >= 80 ? "#10b981" : doc.score >= 60 ? "#f59e0b" : "#ef4444"} />
