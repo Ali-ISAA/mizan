@@ -1,6 +1,11 @@
+<div align="center">
+  <img src="images/mizan-icon-v11.png" alt="Mizan Logo" width="120" />
+
 # Mizan AI — Legal Compliance Platform
 
 > **Mizan** (ميزان) means *balance* or *scales* in Arabic — the foundation of justice and compliance.
+
+</div>
 
 Mizan is an AI-powered compliance analysis platform that compares policy documents against regulatory standards and produces detailed clause-by-clause compliance reports, gap analyses, and risk assessments.
 

@@ -37,7 +37,7 @@ export function AppSidebar() {
         {/* Header */}
         <div className="px-4 py-6 border-b border-sidebar-border/50">
           <div className="flex items-center gap-3">
-            <img src="/mizan-logo.png" alt="Mizan" className="h-9 w-9 rounded-lg object-contain" />
+            <img src="/mizan-logo.png" alt="Mizan" className="h-14 w-14 rounded-lg object-contain" />
             <div className="group-data-[collapsible=icon]:hidden">
               <h2 className="text-base font-semibold text-sidebar-foreground tracking-tight">
                 Mizan AI

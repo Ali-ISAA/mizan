@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <aside className="w-56 bg-slate-900 flex flex-col">
         <div className="px-4 py-5 border-b border-slate-700">
           <div className="flex items-center gap-2.5">
-            <img src="/mizan-logo.png" alt="Mizan" className="h-8 w-8 rounded-lg object-contain" />
+            <img src="/mizan-logo.png" alt="Mizan" className="h-14 w-14 rounded-lg object-contain" />
             <div>
               <h1 className="text-white font-bold text-base leading-tight">Mizan</h1>
               <p className="text-slate-400 text-xs">Superadmin</p>
