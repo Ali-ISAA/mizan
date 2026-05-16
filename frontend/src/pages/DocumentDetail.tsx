@@ -4,7 +4,6 @@ import { ArrowLeft, FileText, Trash2, AlertTriangle, Loader2, RotateCcw } from "
 import { api } from "@/lib/api";
 import { ChunksList } from "@/components/ChunksList";
 import { DocumentContentTab } from "@/components/DocumentContentTab";
-import { ComparisonResults } from "@/components/ComparisonResults";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,14 +54,14 @@ export default function DocumentDetail() {
   const queryClient = useQueryClient();
   const { documentId } = useParams<{ documentId: string }>();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<"chunks" | "document" | "articles" | "comparison">("chunks");
+  const [activeTab, setActiveTab] = useState<"chunks" | "document" | "articles">("chunks");
   const [expandedArticles, setExpandedArticles] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam === "comparison" || tabParam === "document" || tabParam === "chunks" || tabParam === "articles") {
-      setActiveTab(tabParam as any);
+    if (tabParam === "document" || tabParam === "chunks" || tabParam === "articles") {
+      setActiveTab(tabParam);
     }
   }, [searchParams]);
 
@@ -129,10 +128,9 @@ export default function DocumentDetail() {
   const statusCfg = pipelineStatusConfig[documentData.processing_status as keyof typeof pipelineStatusConfig] ?? pipelineStatusConfig.uploaded;
 
   const tabs = [
-    { id: "chunks",     label: "Chunks" },
-    { id: "document",   label: "Document" },
-    { id: "articles",   label: "Articles" },
-    { id: "comparison", label: "Compliance Analysis" },
+    { id: "chunks",   label: "Chunks" },
+    { id: "document", label: "Document" },
+    { id: "articles", label: "Articles" },
   ] as const;
 
   return (
@@ -347,7 +345,7 @@ export default function DocumentDetail() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border">
-                            {[...articlesData.articles].sort((a, b) => a.article_index - b.article_index).map((article) => {
+                            {[...articlesData.articles].sort((a, b) => (parseFloat(a.article_number) || 0) - (parseFloat(b.article_number) || 0)).map((article) => {
                               const isLong = article.article_text.length > 400;
                               const isExpanded = expandedArticles.has(article.id);
                               return (
@@ -387,9 +385,6 @@ export default function DocumentDetail() {
                 </div>
               )}
 
-              {activeTab === "comparison" && (
-                <ComparisonResults comparisonId={searchParams.get("comparison_id")} />
-              )}
             </div>
           </div>
         )}
