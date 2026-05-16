@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, FileText, Shield, AlertTriangle, CheckCircle, LogIn, Activity, ChevronRight } from "lucide-react";
+import { Clock, FileText, Shield, AlertTriangle, CheckCircle, LogIn, Activity as ActivityIcon, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
@@ -23,7 +23,7 @@ const ACTION_CONFIG: Record<string, { icon: React.ElementType; color: string; bg
   analysis_failed:    { icon: AlertTriangle, color: "text-critical",    bg: "bg-critical/15" },
   user_login:         { icon: LogIn,         color: "text-text-secondary", bg: "bg-surface" },
 };
-const DEFAULT_ACTION = { icon: Activity, color: "text-text-muted", bg: "bg-surface" };
+const DEFAULT_ACTION = { icon: ActivityIcon, color: "text-text-muted", bg: "bg-surface" };
 
 const SEVERITY_CONFIG: Record<string, { label: string; className: string }> = {
   success: { label: "Success", className: "bg-success/15 text-success border border-success/20" },
@@ -42,7 +42,7 @@ const FILTER_ACTIONS: Record<FilterKey, string[]> = {
 };
 
 const FILTER_CONFIG: { key: FilterKey; label: string; icon: React.ElementType; color: string; bg: string }[] = [
-  { key: "all",       label: "All Events",  icon: Activity,       color: "text-foreground",     bg: "bg-surface" },
+  { key: "all",       label: "All Events",  icon: ActivityIcon,   color: "text-foreground",     bg: "bg-surface" },
   { key: "documents", label: "Documents",   icon: FileText,       color: "text-accent-600",     bg: "bg-accent-600/15" },
   { key: "analysis",  label: "Analysis",    icon: Shield,         color: "text-blue-400",       bg: "bg-blue-400/15" },
   { key: "logins",    label: "Logins",      icon: LogIn,          color: "text-text-secondary", bg: "bg-surface" },

@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Shield, Upload, Settings, Home } from 'lucide-react';
+import { BarChart3, FileText, Shield, Upload, Settings, Home, History } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -17,6 +17,7 @@ const items = [
   { title: 'My Documents', url: '/documents', icon: FileText },
   { title: 'Compliance Rules', url: '/rules', icon: Shield },
   { title: 'Reports & Analytics', url: '/reports', icon: BarChart3 },
+  { title: 'Activity Log', url: '/activity', icon: History },
   { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
