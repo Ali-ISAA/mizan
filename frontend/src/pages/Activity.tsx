@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Clock, FileText, Shield, AlertTriangle, CheckCircle, LogIn, Activity as ActivityIcon, ChevronRight } from "lucide-react";
+import { Clock, FileText, Shield, AlertTriangle, CheckCircle, LogIn, Activity as ActivityIcon, ChevronRight, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface ActivityEvent {
   id: string;
@@ -127,82 +127,75 @@ export default function Activity() {
 
         {/* ── Right Events Panel ── */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          <div className="card-elevated flex flex-col overflow-hidden h-full">
+          <Card className="card-elevated flex flex-col overflow-hidden h-full">
 
-            {/* Panel header */}
-            <div className="px-6 py-4 border-b border-border flex-shrink-0 flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">
-                  {FILTER_CONFIG.find(f => f.key === activeFilter)?.label ?? "All Events"}
-                </h2>
-                <p className="text-xs text-text-muted mt-0.5">{filtered.length} events</p>
-              </div>
-            </div>
+            <CardHeader className="flex-shrink-0 pb-2">
+              <CardTitle>
+                {FILTER_CONFIG.find(f => f.key === activeFilter)?.label ?? "All Events"}
+              </CardTitle>
+              <CardDescription>{filtered.length} events recorded</CardDescription>
+            </CardHeader>
 
-            {/* Events list */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin divide-y divide-border">
-              {isLoading && (
-                <div className="flex items-center justify-center py-16 gap-2 text-text-muted">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span className="text-sm">Loading activity…</span>
-                </div>
-              )}
-              {isError && (
-                <p className="text-sm text-critical text-center py-16">Failed to load activity. Please refresh.</p>
-              )}
-              {!isLoading && filtered.length === 0 && (
-                <p className="text-sm text-text-muted text-center py-16">
-                  No events in this category yet.
-                </p>
-              )}
-
-              {filtered.map((event, index) => {
-                const cfg = ACTION_CONFIG[event.action] ?? DEFAULT_ACTION;
-                const sev = SEVERITY_CONFIG[event.severity] ?? SEVERITY_CONFIG.info;
-                const Icon = cfg.icon;
-                return (
-                  <div
-                    key={event.id}
-                    className="flex gap-4 px-6 py-4 hover:bg-surface/50 transition-colors animate-fade-in"
-                    style={{ animationDelay: `${index * 30}ms` }}
-                  >
-                    {/* Icon */}
-                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${cfg.bg} border border-border`}>
-                      <Icon className={`h-4 w-4 ${cfg.color}`} />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-medium text-foreground leading-snug">{event.title}</p>
-                        <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${sev.className}`}>
-                          {sev.label}
-                        </span>
-                      </div>
-                      {event.description && (
-                        <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">{event.description}</p>
-                      )}
-                      <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-xs text-text-muted">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {timeAgo(event.created_at)}
-                        </span>
-                        {event.actor_email && (
-                          <span className="font-mono truncate max-w-[200px]">{event.actor_email}</span>
-                        )}
-                        {event.resource_type && (
-                          <span className="capitalize bg-surface px-1.5 py-0.5 rounded border border-border">
-                            {event.resource_type}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+            <CardContent className="flex-1 overflow-hidden p-0">
+              <div className="flex-1 overflow-y-auto scrollbar-thin divide-y divide-border h-full">
+                {isLoading && (
+                  <div className="flex items-center justify-center py-16 gap-2 text-text-muted">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span className="text-sm">Loading activity…</span>
                   </div>
-                );
-              })}
-            </div>
+                )}
+                {isError && (
+                  <p className="text-sm text-critical text-center py-16">Failed to load activity. Please refresh.</p>
+                )}
+                {!isLoading && filtered.length === 0 && (
+                  <p className="text-sm text-text-muted text-center py-16">No events in this category yet.</p>
+                )}
 
-          </div>
+                {filtered.map((event, index) => {
+                  const cfg = ACTION_CONFIG[event.action] ?? DEFAULT_ACTION;
+                  const sev = SEVERITY_CONFIG[event.severity] ?? SEVERITY_CONFIG.info;
+                  const Icon = cfg.icon;
+                  return (
+                    <div
+                      key={event.id}
+                      className="flex gap-4 px-6 py-4 hover:bg-surface/50 transition-colors animate-fade-in"
+                      style={{ animationDelay: `${index * 30}ms` }}
+                    >
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${cfg.bg} border border-border`}>
+                        <Icon className={`h-4 w-4 ${cfg.color}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-sm font-medium text-foreground leading-snug">{event.title}</p>
+                          <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${sev.className}`}>
+                            {sev.label}
+                          </span>
+                        </div>
+                        {event.description && (
+                          <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">{event.description}</p>
+                        )}
+                        <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-xs text-text-muted">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {timeAgo(event.created_at)}
+                          </span>
+                          {event.actor_email && (
+                            <span className="font-mono truncate max-w-[200px]">{event.actor_email}</span>
+                          )}
+                          {event.resource_type && (
+                            <span className="capitalize bg-surface px-1.5 py-0.5 rounded border border-border">
+                              {event.resource_type}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+
+          </Card>
         </div>
 
       </div>
