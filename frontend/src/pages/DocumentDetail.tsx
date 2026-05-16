@@ -347,7 +347,7 @@ export default function DocumentDetail() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border">
-                            {articlesData.articles.map((article) => {
+                            {[...articlesData.articles].sort((a, b) => a.article_index - b.article_index).map((article) => {
                               const isLong = article.article_text.length > 400;
                               const isExpanded = expandedArticles.has(article.id);
                               return (
