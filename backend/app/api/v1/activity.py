@@ -30,12 +30,16 @@ class ActivityOut(BaseModel):
 @router.get("", response_model=list[ActivityOut])
 async def list_activity(
     limit: int = Query(default=20, le=100),
+    user_only: bool = Query(default=False),
     user: User = Depends(require_user),
     db: AsyncSession = Depends(get_db),
 ):
+    filters = [ActivityLog.tenant_id == user.tenant_id]
+    if user_only:
+        filters.append(ActivityLog.user_id == user.id)
     result = await db.execute(
         select(ActivityLog)
-        .where(ActivityLog.tenant_id == user.tenant_id)
+        .where(*filters)
         .order_by(ActivityLog.created_at.desc())
         .limit(limit)
     )

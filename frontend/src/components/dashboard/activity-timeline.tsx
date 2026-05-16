@@ -41,7 +41,7 @@ function timeAgo(isoString: string): string {
 export function ActivityTimeline() {
   const { data: events = [], isLoading, isError } = useQuery<ActivityEvent[]>({
     queryKey: ["activity-recent"],
-    queryFn: () => api.get("/activity?limit=5").then(r => r.data),
+    queryFn: () => api.get("/activity?limit=5&user_only=true").then(r => r.data),
     refetchInterval: 30_000,
   });
 
