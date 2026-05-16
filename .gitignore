@@ -54,3 +54,7 @@ yarn.lock
 
 # TypeScript build cache
 tsconfig.tsbuildinfo
+
+# Claude Code & Superpowers runtime files
+.claude/
+.superpowers/
