@@ -90,11 +90,19 @@ async def get_analytics(
     ]
 
     # ── Risk distribution (findings breakdown) ─────────────────────────────────
+    # Only count findings from the latest completed comparison per document
     finding_counts_q = await db.execute(text("""
         SELECT cf.status, cf.severity, COUNT(*) AS cnt
         FROM compliance_findings cf
         JOIN compliance_comparisons cc ON cc.id = cf.comparison_id
-        WHERE cc.tenant_id = :tid
+        JOIN (
+            SELECT mizan_document_id, MAX(created_at) AS max_ts
+            FROM compliance_comparisons
+            WHERE tenant_id = :tid AND status = 'completed'
+            GROUP BY mizan_document_id
+        ) latest ON latest.mizan_document_id = cc.mizan_document_id
+                 AND latest.max_ts = cc.created_at
+        WHERE cc.tenant_id = :tid AND cc.status = 'completed'
         GROUP BY cf.status, cf.severity
     """), {"tid": str(tid)})
 
@@ -119,7 +127,14 @@ async def get_analytics(
         SELECT cf.issue, cf.severity, COUNT(*) AS cnt
         FROM compliance_findings cf
         JOIN compliance_comparisons cc ON cc.id = cf.comparison_id
-        WHERE cc.tenant_id = :tid
+        JOIN (
+            SELECT mizan_document_id, MAX(created_at) AS max_ts
+            FROM compliance_comparisons
+            WHERE tenant_id = :tid AND status = 'completed'
+            GROUP BY mizan_document_id
+        ) latest ON latest.mizan_document_id = cc.mizan_document_id
+                 AND latest.max_ts = cc.created_at
+        WHERE cc.tenant_id = :tid AND cc.status = 'completed'
           AND cf.status NOT IN ('compliant', 'not_applicable')
           AND cf.issue != '' AND cf.issue IS NOT NULL
         GROUP BY cf.issue, cf.severity
