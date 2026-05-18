@@ -1,5 +1,7 @@
 import { BarChart3, FileText, Shield, Upload, Settings, Home, History } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api';
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +29,14 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
 
+  const { data: analytics } = useQuery({
+    queryKey: ["analytics-sidebar"],
+    queryFn: () => api.get("/analytics").then(r => r.data),
+    staleTime: 60_000,
+  });
+  const avgScore: number = analytics?.overview?.avg_score ?? 0;
+  const scoreColor = avgScore >= 80 ? "text-success" : avgScore >= 60 ? "text-warning" : "text-critical";
+
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarContent
@@ -36,14 +46,20 @@ export function AppSidebar() {
         }}
       >
         {/* Header */}
-        <div className="px-4 py-6 border-b border-sidebar-border/50">
-          <div className="flex items-center gap-3">
-            <img src="/mizan-logo.png" alt="Mizan" className="h-14 w-14 rounded-lg object-contain" />
-            <div className="group-data-[collapsible=icon]:hidden">
-              <h2 className="text-base font-semibold text-sidebar-foreground tracking-tight">
+        <div className="h-16 px-4 border-b border-sidebar-border/50 flex items-center group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:justify-center">
+          <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center w-full">
+            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:w-12">
+              <img
+                src="/mizan-logo.png"
+                alt="Mizan"
+                className="h-full w-full rounded-xl object-contain object-center"
+              />
+            </div>
+            <div className="group-data-[collapsible=icon]:hidden leading-none">
+              <h2 className="text-base font-semibold text-sidebar-foreground tracking-tight leading-tight">
                 Mizan AI
               </h2>
-              <p className="text-xs text-sidebar-foreground/60 font-medium">
+              <p className="text-xs text-sidebar-foreground/60 font-medium leading-tight mt-0.5">
                 Compliance Platform
               </p>
             </div>
@@ -107,12 +123,14 @@ export function AppSidebar() {
               <p className="text-xs font-medium text-sidebar-foreground/70">
                 Overall Compliance
               </p>
-              <span className="text-sm font-semibold text-success">87%</span>
+              <span className={`text-sm font-semibold ${scoreColor}`}>{avgScore}%</span>
             </div>
             <div className="relative h-2 bg-primary-900 rounded-full overflow-hidden">
               <div
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-success to-success/80 rounded-full transition-all duration-500"
-                style={{ width: '87%' }}
+                className={`absolute inset-y-0 left-0 bg-gradient-to-r rounded-full transition-all duration-500 ${
+                  avgScore >= 80 ? "from-success to-success/80" : avgScore >= 60 ? "from-warning to-warning/80" : "from-critical to-critical/80"
+                }`}
+                style={{ width: `${avgScore}%` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
               </div>

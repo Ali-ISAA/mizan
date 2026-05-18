@@ -3,7 +3,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -31,11 +30,9 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-accent-600 rounded-lg">
-              <Shield className="h-6 w-6 text-white" />
-            </div>
+            <img src="/mizan-logo.png" alt="Mizan" className="h-20 w-20 rounded-xl object-contain" />
           </div>
-          <CardTitle>Mizan</CardTitle>
+          <CardTitle className="text-2xl">Mizan</CardTitle>
           <CardDescription>Compliance Analysis Platform</CardDescription>
         </CardHeader>
         <CardContent>

@@ -264,6 +264,26 @@ async def get_document_chunks(
     return {"chunks": chunk_dicts, "total": len(chunk_dicts)}
 
 
+@router.delete("", status_code=204)
+async def delete_all_documents(
+    user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft delete all documents for the current tenant."""
+    docs_result = await db.execute(
+        select(MizanDocument).where(
+            MizanDocument.tenant_id == user.tenant_id,
+            MizanDocument.deleted_at.is_(None),
+        )
+    )
+    docs = docs_result.scalars().all()
+    now = datetime.utcnow()
+    for doc in docs:
+        doc.deleted_at = now
+    await db.commit()
+    return None
+
+
 @router.delete("/{document_id}", status_code=204)
 async def delete_document(
     document_id: str,

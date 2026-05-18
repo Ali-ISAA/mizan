@@ -108,6 +108,7 @@ const Documents = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
 
   const { data: documentsData = [], isLoading } = useQuery({
     queryKey: ["documents"],
@@ -126,6 +127,18 @@ const Documents = () => {
     },
     onError: (error: any) => {
       const message = error.response?.data?.detail || "Failed to delete document";
+      alert(message);
+    },
+  });
+
+  const deleteAllMutation = useMutation({
+    mutationFn: () => api.delete("/documents"),
+    onSuccess: () => {
+      setShowDeleteAllConfirm(false);
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.detail || "Failed to delete all documents";
       alert(message);
     },
   });
@@ -251,14 +264,58 @@ const Documents = () => {
         </div>
       )}
 
+      {/* Delete All confirmation dialog */}
+      {showDeleteAllConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-card border border-border rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-critical mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-foreground">Delete All Documents?</h3>
+                <p className="text-sm text-text-secondary mt-1">
+                  This will permanently delete all {documents.length} document{documents.length !== 1 ? "s" : ""} and their analysis results. This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button size="sm" variant="outline" onClick={() => setShowDeleteAllConfirm(false)}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => deleteAllMutation.mutate()}
+                disabled={deleteAllMutation.isPending}
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                {deleteAllMutation.isPending ? "Deleting..." : "Delete All"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="border-b border-border pb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Document Library
-        </h1>
-        <p className="text-text-secondary mt-2 text-base">
-          View, search, and manage your uploaded documents and their compliance status.
-        </p>
+      <div className="border-b border-border pb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Document Library
+          </h1>
+          <p className="text-text-secondary mt-2 text-base">
+            View, search, and manage your uploaded documents and their compliance status.
+          </p>
+        </div>
+        {documents.length > 0 && (
+          <Button
+            variant="destructive"
+            size="sm"
+            className="mt-1 flex-shrink-0"
+            onClick={() => setShowDeleteAllConfirm(true)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete All
+          </Button>
+        )}
       </div>
 
       {/* Stats Overview */}
