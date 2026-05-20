@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, Users, Building2, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Building2, LogOut, Moon, Sun } from "lucide-react";
+import { useTheme } from "../hooks/use-theme";
 
 const navItems = [
   { title: "Dashboard",      url: "/",          icon: LayoutDashboard },
@@ -10,6 +11,7 @@ const navItems = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
 
   function logout() {
     localStorage.removeItem("sa_token");
@@ -17,7 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-slate-950">
       {/* Sidebar */}
       <aside className="w-56 bg-slate-900 flex flex-col">
         <div className="px-4 py-5 border-b border-slate-700">
@@ -62,9 +64,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="h-14 flex items-center justify-end px-6 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex-shrink-0">
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative"
+          >
+            <Sun className="h-5 w-5 text-gray-600 dark:text-slate-400 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute top-2 right-2 h-5 w-5 text-gray-600 dark:text-slate-400 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </button>
+        </header>
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
