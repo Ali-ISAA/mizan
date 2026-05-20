@@ -12,12 +12,24 @@ interface BaseDoc {
 
 const DOC_TYPES = ["GDPR", "SOX", "HIPAA", "ISO 27001", "CCPA", "PCI DSS", "Others"];
 
-const STATUS_COLORS: Record<string, string> = {
-  completed: "bg-green-100 text-green-700",
-  processing: "bg-blue-100 text-blue-700",
-  pending: "bg-yellow-100 text-yellow-700",
-  failed: "bg-red-100 text-red-700",
-};
+function StatusBadge({ status }: { status: string }) {
+  const cls =
+    status === "completed"  ? "badge-compliant" :
+    status === "processing" ? "badge-info" :
+    status === "pending"    ? "badge-warning" :
+    "badge-critical";
+  return <span className={cls}>{status}</span>;
+}
+
+function formatSize(bytes: number | null) {
+  if (!bytes) return "—";
+  return bytes < 1024 * 1024
+    ? `${(bytes / 1024).toFixed(1)} KB`
+    : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+const inputCls = "w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-600 focus:border-transparent transition-all";
+const selectCls = "bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent-600 focus:border-transparent transition-all";
 
 export default function Documents() {
   const qc = useQueryClient();
@@ -79,24 +91,19 @@ export default function Documents() {
     },
   });
 
-  function formatSize(bytes: number | null) {
-    if (!bytes) return "—";
-    return bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-  }
-
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Base Documents</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Compliance reference documents for user comparison</p>
+          <h2 className="text-xl font-bold text-foreground">Base Documents</h2>
+          <p className="text-sm text-text-muted mt-0.5">Compliance reference documents for user comparison</p>
         </div>
         <div className="flex items-center gap-2">
           {docs.length > 0 && (
             <button
               onClick={() => setShowDeleteAll(true)}
-              className="flex items-center gap-2 text-red-600 border border-red-200 text-sm font-medium px-4 py-2 rounded-md hover:bg-red-50 transition-colors"
+              className="flex items-center gap-2 text-critical border border-critical/30 text-sm font-medium px-4 py-2 rounded-lg hover:bg-critical/5 transition-colors"
             >
               <Trash2 className="h-4 w-4" />
               Delete All
@@ -104,7 +111,7 @@ export default function Documents() {
           )}
           <button
             onClick={() => setShowUpload(true)}
-            className="flex items-center gap-2 bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-2 bg-accent-600 hover:bg-accent-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
           >
             <Upload className="h-4 w-4" />
             Upload Document
@@ -112,24 +119,24 @@ export default function Documents() {
         </div>
       </div>
 
-      {/* Delete All confirmation */}
+      {/* Delete confirmation */}
       {showDeleteAll && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-800 font-medium">
+        <div className="bg-critical/5 border border-critical/20 rounded-lg p-4">
+          <p className="text-sm text-critical font-medium">
             Delete {typeFilter || statusFilter ? "filtered" : "all"} {docs.length} document{docs.length !== 1 ? "s" : ""}?
           </p>
-          <p className="text-xs text-red-600 mt-1">This cannot be undone. All associated chunks and articles will be removed.</p>
+          <p className="text-xs text-critical/80 mt-1">This cannot be undone. All chunks and articles will be removed.</p>
           <div className="flex gap-2 mt-3">
             <button
               onClick={() => deleteAllMutation.mutate()}
               disabled={deleteAllMutation.isPending}
-              className="bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md hover:bg-red-700 disabled:opacity-50"
+              className="bg-critical hover:bg-critical/90 text-white text-sm font-medium px-3 py-1.5 rounded-lg disabled:opacity-50 transition-colors"
             >
               {deleteAllMutation.isPending ? "Deleting…" : `Yes, Delete ${docs.length}`}
             </button>
             <button
               onClick={() => setShowDeleteAll(false)}
-              className="text-sm text-gray-600 px-3 py-1.5 rounded-md border hover:bg-gray-50"
+              className="text-sm text-foreground px-3 py-1.5 rounded-lg border border-border hover:bg-surface transition-colors"
             >
               Cancel
             </button>
@@ -139,24 +146,24 @@ export default function Documents() {
 
       {/* Upload form */}
       {showUpload && (
-        <div className="bg-white border rounded-lg p-5 space-y-4">
-          <h3 className="font-semibold text-gray-900">Upload New Base Document</h3>
+        <div className="bg-card border border-border rounded-lg p-6 shadow-sm space-y-4">
+          <h3 className="text-sm font-semibold text-foreground">Upload New Base Document</h3>
 
           <div
-            className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-slate-400 transition-colors"
+            className="border-2 border-dashed border-border hover:border-accent-600 rounded-lg p-8 text-center cursor-pointer transition-colors"
             onClick={() => fileRef.current?.click()}
           >
             {selectedFile ? (
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-700">
-                <FileText className="h-5 w-5 text-slate-500" />
+              <div className="flex items-center justify-center gap-2 text-sm text-foreground">
+                <FileText className="h-5 w-5 text-accent-600 flex-shrink-0" />
                 <span className="font-medium">{selectedFile.name}</span>
-                <span className="text-gray-400">({formatSize(selectedFile.size)})</span>
+                <span className="text-text-muted">({formatSize(selectedFile.size)})</span>
               </div>
             ) : (
               <div>
-                <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600 font-medium">Click to choose a file</p>
-                <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX, TXT supported</p>
+                <Upload className="h-8 w-8 mx-auto text-text-muted mb-2" />
+                <p className="text-sm text-foreground font-medium">Click to choose a file</p>
+                <p className="text-xs text-text-muted mt-1">PDF, DOC, DOCX, TXT supported</p>
               </div>
             )}
             <input
@@ -169,30 +176,31 @@ export default function Documents() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Document Type</label>
             <select
               value={uploadType}
               onChange={e => setUploadType(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500"
+              className={selectCls}
+              style={{ width: "100%" }}
             >
               <option value="">Select type...</option>
               {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
 
-          {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
+          {uploadError && <p className="text-sm text-critical">{uploadError}</p>}
 
           <div className="flex gap-2">
             <button
               onClick={() => uploadMutation.mutate()}
               disabled={!selectedFile || !uploadType || uploadMutation.isPending}
-              className="bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              className="bg-accent-600 hover:bg-accent-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               {uploadMutation.isPending ? "Uploading..." : "Upload & Process"}
             </button>
             <button
               onClick={() => { setShowUpload(false); setSelectedFile(null); setUploadType(""); setUploadError(""); }}
-              className="text-sm text-gray-600 px-4 py-2 rounded-md border hover:bg-gray-50"
+              className="text-sm text-foreground px-4 py-2 rounded-lg border border-border hover:bg-surface transition-colors"
             >
               Cancel
             </button>
@@ -202,19 +210,11 @@ export default function Documents() {
 
       {/* Filters */}
       <div className="flex gap-3">
-        <select
-          value={typeFilter}
-          onChange={e => setTypeFilter(e.target.value)}
-          className="border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500"
-        >
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={selectCls}>
           <option value="">All Types</option>
           {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        <select
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-          className="border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500"
-        >
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={selectCls}>
           <option value="">All Statuses</option>
           {["pending", "processing", "completed", "failed"].map(s => (
             <option key={s} value={s}>{s}</option>
@@ -223,45 +223,41 @@ export default function Documents() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+        <table className="table-modern">
+          <thead>
             <tr>
               {["Filename", "Type", "Status", "Chunks", "Size", "Uploaded", ""].map(h => (
-                <th key={h} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{h}</th>
+                <th key={h}>{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody>
             {isLoading && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Loading...</td></tr>
+              <tr><td colSpan={7} className="text-center text-text-muted py-8">Loading...</td></tr>
             )}
             {!isLoading && docs.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No documents yet</td></tr>
+              <tr><td colSpan={7} className="text-center text-text-muted py-8">No documents yet</td></tr>
             )}
             {docs.map(doc => (
-              <tr key={doc.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2">
+              <tr key={doc.id}>
+                <td>
                   <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    <span className="font-medium text-gray-900 truncate max-w-xs">{doc.filename}</span>
+                    <FileText className="h-4 w-4 text-text-muted flex-shrink-0" />
+                    <span className="font-medium text-foreground truncate max-w-xs">{doc.filename}</span>
                   </div>
                 </td>
-                <td className="px-4 py-2">
-                  <span className="bg-slate-100 text-slate-700 text-xs font-medium px-2 py-0.5 rounded">{doc.doc_type}</span>
+                <td>
+                  <span className="badge-neutral">{doc.doc_type}</span>
                 </td>
-                <td className="px-4 py-2">
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[doc.processing_status] ?? "bg-gray-100 text-gray-600"}`}>
-                    {doc.processing_status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 text-gray-600">{doc.chunk_count || "—"}</td>
-                <td className="px-4 py-2 text-gray-500">{formatSize(doc.file_size)}</td>
-                <td className="px-4 py-2 text-gray-400 text-xs">{new Date(doc.created_at).toLocaleDateString()}</td>
-                <td className="px-4 py-2">
+                <td><StatusBadge status={doc.processing_status} /></td>
+                <td className="text-text-secondary">{doc.chunk_count || "—"}</td>
+                <td className="text-text-muted">{formatSize(doc.file_size)}</td>
+                <td className="text-text-muted text-xs">{new Date(doc.created_at).toLocaleDateString()}</td>
+                <td>
                   <Link
                     to={`/documents/${doc.id}`}
-                    className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900 font-medium"
+                    className="inline-flex items-center gap-1 text-xs text-accent-600 hover:text-accent-700 font-medium transition-colors"
                   >
                     <Eye className="h-3.5 w-3.5" />
                     View
