@@ -6,7 +6,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.auth import require_user
@@ -451,7 +451,9 @@ async def get_document_articles(
     stmt = (
         select(MizanDocumentArticle)
         .where(MizanDocumentArticle.mizan_document_id == doc_uuid)
-        .order_by(MizanDocumentArticle.article_index)
+        .order_by(text(
+            "CAST((regexp_match(article_number, '^\\d+\\.?\\d*'))[1] AS FLOAT) NULLS LAST, article_number"
+        ))
         .offset(offset)
         .limit(limit)
     )

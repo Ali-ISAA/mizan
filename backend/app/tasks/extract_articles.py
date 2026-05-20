@@ -34,6 +34,7 @@ LLM_SYSTEM_PROMPT = (
     "that belong to it.\n"
     "- Do NOT split an article from its sub-clauses.\n"
     "- Do NOT invent article numbers. Only extract what is explicitly numbered in the text.\n"
+    "- Do NOT include the Table of Contents or any index section.\n"
     "- Return ONLY a JSON array. No explanation, no markdown, no preamble.\n\n"
     'Output format:\n[{"article_number": "1", "article_text": "Full text..."}]'
 )
@@ -46,6 +47,16 @@ _NOISE_LINE = re.compile(
 
 # Arabic-Indic digit translation table
 _ARABIC_INDIC = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
+
+# Headers that indicate a Table of Contents — skip entirely
+_TOC_PATTERNS = re.compile(
+    r"^\s*(table\s+of\s+contents?|contents?|index|فهرس|جدول\s+المحتويات?)\s*$",
+    re.IGNORECASE | re.UNICODE,
+)
+
+
+def _is_toc(header: str) -> bool:
+    return bool(_TOC_PATTERNS.match(_fix_mojibake(header.strip())))
 
 
 def _clean_text(text: str) -> str:
@@ -104,7 +115,7 @@ def _parse_heading_articles(markdown: str) -> list[dict]:
         if _ARTICLE_HEADER.match(fixed):
             _save_current()
             label = re.sub(r"^##\s+", "", fixed).rstrip(": ").strip()
-            current_number = label
+            current_number = None if _is_toc(label) else label
             current_lines = []
         elif stripped.startswith("## "):
             _save_current()
@@ -192,7 +203,7 @@ def _extract_from_headers(chunks: list) -> list[dict]:
 
     for chunk in chunks:
         header = (chunk.section_header or "").strip()
-        if not header:
+        if not header or _is_toc(header):
             continue
         if header not in groups:
             groups[header] = []

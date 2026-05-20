@@ -16,6 +16,6 @@ class MizanDocumentArticle(Base):
         UUID(as_uuid=True), ForeignKey("mizan_documents.id", ondelete="CASCADE"), nullable=False
     )
     article_index: Mapped[int] = mapped_column(Integer, nullable=False)
-    article_number: Mapped[str] = mapped_column(String(50), nullable=False)
+    article_number: Mapped[str] = mapped_column(String(500), nullable=False)
     article_text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
