@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppLayout } from '@/components/ui/app-layout';
 import { AuthProvider } from '@/hooks/use-auth';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ThemeProvider } from '@/hooks/use-theme';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Index from './pages/Index';
@@ -22,6 +23,7 @@ import NotFound from './pages/NotFound';
 const queryClient = new QueryClient();
 
 const App = () => (
+  <ThemeProvider defaultTheme="light" storageKey="mizan-ui-theme">
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -129,6 +131,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

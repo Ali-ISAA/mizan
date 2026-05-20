@@ -46,13 +46,13 @@ export function AppSidebar() {
         }}
       >
         {/* Header */}
-        <div className="h-16 px-4 border-b border-sidebar-border/50 flex items-center group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:justify-center">
+        <div className="h-20 px-4 border-b border-sidebar-border/50 flex items-center group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:justify-center">
           <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center w-full">
-            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:w-12">
+            <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:w-14">
               <img
                 src="/mizan-logo.png"
                 alt="Mizan"
-                className="h-full w-full rounded-xl object-contain object-center"
+                className="h-full w-full object-contain object-center"
               />
             </div>
             <div className="group-data-[collapsible=icon]:hidden leading-none">
@@ -67,7 +67,7 @@ export function AppSidebar() {
         </div>
 
         {/* Navigation */}
-        <SidebarGroup className="px-3 py-4">
+        <SidebarGroup className="px-3 py-4 group-data-[collapsible=icon]:px-0">
           <SidebarGroupLabel className="px-3 text-xs uppercase tracking-wider text-sidebar-foreground/50 font-semibold mb-2">
             Navigation
           </SidebarGroupLabel>
@@ -84,6 +84,7 @@ export function AppSidebar() {
                         end
                         className={`
                           flex items-center gap-3 rounded-lg px-3 py-2.5
+                          group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:mx-auto
                           transition-all duration-200
                           group relative
                           ${active

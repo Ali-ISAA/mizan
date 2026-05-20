@@ -84,7 +84,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center gap-4 px-6">
+      <div className="flex h-20 items-center gap-4 px-6">
         {/* Sidebar Toggle */}
         <SidebarTrigger className="transition-all duration-200 hover:bg-surface rounded-lg" />
 
