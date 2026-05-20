@@ -19,45 +19,73 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-slate-950">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-56 bg-slate-900 flex flex-col">
-        <div className="px-4 py-5 border-b border-slate-700">
-          <div className="flex items-center gap-2.5">
-            <img src="/mizan-logo.png" alt="Mizan" className="h-14 w-14 rounded-lg object-contain" />
-            <div>
-              <h1 className="text-white font-bold text-base leading-tight">Mizan</h1>
-              <p className="text-slate-400 text-xs">Superadmin</p>
+      <aside
+        className="w-56 flex-shrink-0 flex flex-col border-r border-sidebar-border"
+        style={{ background: "var(--gradient-sidebar)" }}
+      >
+        {/* Header — matches frontend h-20 */}
+        <div className="h-20 px-4 border-b border-sidebar-border/50 flex items-center">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center">
+              <img src="/mizan-logo.png" alt="Mizan" className="h-full w-full object-contain" />
+            </div>
+            <div className="leading-none">
+              <h2 className="text-base font-semibold text-sidebar-foreground tracking-tight leading-tight">
+                Mizan AI
+              </h2>
+              <p className="text-xs text-sidebar-foreground/60 font-medium leading-tight mt-0.5">
+                Superadmin
+              </p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.url}
-              to={item.url}
-              end
-              className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
-                  isActive
-                    ? "bg-slate-700 text-white font-medium"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`
-              }
-            >
-              <item.icon className="h-4 w-4 flex-shrink-0" />
-              {item.title}
-            </NavLink>
-          ))}
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4">
+          <p className="px-3 text-xs uppercase tracking-wider text-sidebar-foreground/50 font-semibold mb-2">
+            Navigation
+          </p>
+          <ul className="space-y-1">
+            {navItems.map((item) => (
+              <li key={item.url}>
+                <NavLink
+                  to={item.url}
+                  end
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 relative group
+                    ${isActive
+                      ? "bg-sidebar-accent text-accent-600 font-medium shadow-sm"
+                      : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent-600 rounded-r-full" />
+                      )}
+                      <item.icon
+                        className={`h-4 w-4 flex-shrink-0 transition-all duration-200
+                          ${isActive ? "text-accent-600 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "group-hover:scale-110"}`}
+                      />
+                      <span className="text-sm">{item.title}</span>
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </nav>
 
-        <div className="px-3 py-4 border-t border-slate-700">
+        {/* Footer */}
+        <div className="px-3 py-4 border-t border-sidebar-border/50">
           <button
             onClick={logout}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-all duration-200 group"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 flex-shrink-0 group-hover:scale-110 transition-all duration-200" />
             Sign out
           </button>
         </div>
@@ -65,16 +93,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-14 flex items-center justify-end px-6 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex-shrink-0">
+        {/* Top bar — matches frontend h-20 */}
+        <header className="h-20 flex items-center justify-end px-6 border-b border-border bg-background flex-shrink-0 shadow-sm">
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative"
+            className="p-2 rounded-lg hover:bg-surface transition-colors relative"
           >
-            <Sun className="h-5 w-5 text-gray-600 dark:text-slate-400 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute top-2 right-2 h-5 w-5 text-gray-600 dark:text-slate-400 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-5 w-5 text-foreground/70 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute top-2 right-2 h-5 w-5 text-foreground/70 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </button>
         </header>
-        <main className="flex-1 overflow-y-auto">
+
+        <main className="flex-1 overflow-y-auto animate-fade-in">
           {children}
         </main>
       </div>

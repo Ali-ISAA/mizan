@@ -1,4 +1,196 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { font-family: system-ui, sans-serif; }
+
+/* Mizan AI - Shared Design System (mirrors frontend) */
+
+@layer base {
+  :root {
+    --primary-950: 2 6% 5%;
+    --primary-900: 222 47% 11%;
+    --primary-800: 217 33% 17%;
+    --primary-700: 215 25% 27%;
+    --primary-600: 215 20% 37%;
+    --primary-500: 215 16% 47%;
+
+    --accent-600: 217 91% 60%;
+    --accent-500: 213 97% 87%;
+    --accent-700: 221 83% 53%;
+    --accent-900: 222 47% 11%;
+
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 25 95% 10%;
+    --critical: 0 84% 60%;
+    --critical-foreground: 0 0% 100%;
+
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --surface: 210 20% 98%;
+    --surface-elevated: 0 0% 100%;
+
+    --text-primary: 222 47% 11%;
+    --text-secondary: 215 16% 47%;
+    --text-muted: 215 20% 65%;
+    --text-disabled: 214 32% 91%;
+
+    --border: 214 32% 91%;
+    --border-strong: 215 25% 27%;
+    --border-hover: 217 91% 60%;
+
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --secondary: 210 20% 98%;
+    --secondary-foreground: 222 47% 11%;
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-border: 215 25% 27%;
+    --sidebar-ring: 217 91% 60%;
+
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+    --glow-blue: 0 0 20px rgb(59 130 246 / 0.3), 0 0 40px rgb(59 130 246 / 0.1);
+    --glow-success: 0 0 20px rgb(16 185 129 / 0.3);
+    --glow-critical: 0 0 20px rgb(239 68 68 / 0.3);
+    --glow-warning: 0 0 20px rgb(245 158 11 / 0.3);
+
+    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    --gradient-sidebar: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --surface: 217 33% 17%;
+    --surface-elevated: 215 25% 27%;
+
+    --text-primary: 210 40% 98%;
+    --text-secondary: 215 20% 65%;
+    --text-muted: 215 16% 47%;
+    --text-disabled: 215 25% 27%;
+
+    --border: 215 25% 27%;
+    --border-strong: 215 20% 37%;
+    --border-hover: 217 91% 60%;
+
+    --input: 215 25% 27%;
+
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 210 40% 98%;
+
+    --sidebar-background: 2 6% 5%;
+    --sidebar-foreground: 210 40% 90%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-border: 215 25% 27%;
+
+    --gradient-surface: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    --gradient-sidebar: linear-gradient(180deg, #020617 0%, #000000 100%);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1 { @apply text-4xl font-bold tracking-tight; }
+  h2 { @apply text-3xl font-semibold tracking-tight; }
+  h3 { @apply text-2xl font-semibold tracking-tight; }
+  h4 { @apply text-xl font-semibold tracking-tight; }
+  h5 { @apply text-lg font-medium; }
+  h6 { @apply text-base font-medium; }
+}
+
+@layer components {
+  .badge-compliant {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    background-color: hsl(var(--success) / 0.1);
+    color: hsl(var(--success));
+    border: 1px solid hsl(var(--success) / 0.2);
+  }
+  .badge-warning {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    background-color: hsl(var(--warning) / 0.1);
+    color: hsl(var(--warning));
+    border: 1px solid hsl(var(--warning) / 0.2);
+  }
+  .badge-critical {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    background-color: hsl(var(--critical) / 0.1);
+    color: hsl(var(--critical));
+    border: 1px solid hsl(var(--critical) / 0.2);
+  }
+  .badge-info {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    background-color: hsl(var(--accent-600) / 0.1);
+    color: hsl(var(--accent-600));
+    border: 1px solid hsl(var(--accent-600) / 0.2);
+  }
+  .badge-neutral {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    background-color: hsl(var(--primary-600) / 0.1);
+    color: hsl(var(--text-secondary));
+    border: 1px solid hsl(var(--border));
+  }
+
+  .table-modern { @apply w-full border-collapse; }
+  .table-modern thead { @apply bg-surface border-b-2 border-border; }
+  .table-modern th {
+    @apply px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider;
+    color: hsl(var(--text-secondary));
+  }
+  .table-modern tbody tr {
+    @apply border-b border-border;
+    transition: background-color var(--transition-fast);
+  }
+  .table-modern tbody tr:hover { @apply bg-surface; }
+  .table-modern td { @apply px-6 py-4 text-sm; }
+
+  .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
