@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/mizan-icon-v11.png" alt="Mizan Logo" width="120" />
+  <img src="images/mizan-logo.png" alt="Mizan Logo" width="120" />
 
 # Mizan AI — Legal Compliance Platform
 
