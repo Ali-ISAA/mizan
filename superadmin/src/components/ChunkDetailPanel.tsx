@@ -18,12 +18,7 @@ interface Chunk {
   [key: string]: any;
 }
 
-interface ChunkDetailPanelProps {
-  chunk: Chunk;
-  onClose: () => void;
-}
-
-export function ChunkDetailPanel({ chunk, onClose }: ChunkDetailPanelProps) {
+export function ChunkDetailPanel({ chunk, onClose }: { chunk: Chunk; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {
@@ -33,92 +28,82 @@ export function ChunkDetailPanel({ chunk, onClose }: ChunkDetailPanelProps) {
   }
 
   return (
-    <div className="w-96 border-l bg-white overflow-y-auto flex flex-col">
-      {/* Header with close button */}
-      <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">Chunk Details</h3>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-        >
+    <div className="w-96 border-l border-border bg-card overflow-y-auto flex flex-col">
+      <div className="sticky top-0 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+        <h3 className="font-semibold text-foreground text-sm">Chunk Details</h3>
+        <button onClick={onClose} className="text-text-muted hover:text-foreground transition-colors">
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* ID */}
         <div>
-          <p className="text-xs font-medium text-gray-500 uppercase">ID</p>
-          <p className="text-sm text-gray-700 font-mono break-all mt-1">{chunk.id}</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">ID</p>
+          <p className="text-xs text-foreground font-mono break-all">{chunk.id}</p>
         </div>
 
-        {/* Source */}
         {chunk.metadata?.source && (
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase">Source</p>
-            <p className="text-sm text-gray-700 break-all mt-1">{chunk.metadata.source}</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">Source</p>
+            <p className="text-sm text-foreground break-all">{chunk.metadata.source}</p>
           </div>
         )}
 
-        {/* Chunk Index */}
         {chunk.metadata?.chunk_index !== undefined && (
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase">Chunk Index</p>
-            <p className="text-sm text-gray-700 mt-1">{chunk.metadata.chunk_index}</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">Chunk Index</p>
+            <p className="text-sm text-foreground">{chunk.metadata.chunk_index}</p>
           </div>
         )}
 
-        {/* Custom Metadata */}
         <div>
-          <p className="text-xs font-medium text-gray-500 uppercase mb-2">Metadata</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Metadata</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {chunk.metadata?.section_header && (
               <div>
-                <span className="text-gray-500">Section Header:</span>
-                <p className="text-gray-700 font-medium">{chunk.metadata.section_header}</p>
+                <span className="text-text-muted">Section Header:</span>
+                <p className="text-foreground font-medium mt-0.5">{chunk.metadata.section_header}</p>
               </div>
             )}
             {chunk.metadata?.section_level !== undefined && (
               <div>
-                <span className="text-gray-500">Level:</span>
-                <p className="text-gray-700 font-medium">{chunk.metadata.section_level}</p>
+                <span className="text-text-muted">Level:</span>
+                <p className="text-foreground font-medium mt-0.5">{chunk.metadata.section_level}</p>
               </div>
             )}
             {chunk.metadata?.processing_duration_ms && (
               <div>
-                <span className="text-gray-500">Processing:</span>
-                <p className="text-gray-700 font-medium">{chunk.metadata.processing_duration_ms}ms</p>
+                <span className="text-text-muted">Processing:</span>
+                <p className="text-foreground font-medium mt-0.5">{chunk.metadata.processing_duration_ms}ms</p>
               </div>
             )}
             {chunk.metadata?.page_count && (
               <div>
-                <span className="text-gray-500">Pages:</span>
-                <p className="text-gray-700 font-medium">{chunk.metadata.page_count}</p>
+                <span className="text-text-muted">Pages:</span>
+                <p className="text-foreground font-medium mt-0.5">{chunk.metadata.page_count}</p>
               </div>
             )}
             {chunk.metadata?.project_id && (
               <div>
-                <span className="text-gray-500">Project:</span>
-                <p className="text-gray-700 font-medium">{chunk.metadata.project_id}</p>
+                <span className="text-text-muted">Project:</span>
+                <p className="text-foreground font-medium mt-0.5">{chunk.metadata.project_id}</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Content */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-medium text-gray-500 uppercase">Content</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Content</p>
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900 transition-colors"
+              className="flex items-center gap-1 text-xs text-accent-600 hover:text-accent-700 transition-colors"
             >
               <Copy className="h-3.5 w-3.5" />
               {copied ? "Copied!" : "Copy"}
             </button>
           </div>
-          <div className="bg-gray-50 rounded border p-3 text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
+          <div className="bg-surface border border-border rounded-lg p-3 text-sm text-foreground whitespace-pre-wrap overflow-x-auto font-mono">
             {chunk.text || "No content available"}
           </div>
         </div>
