@@ -257,27 +257,29 @@ export default function DocumentDetail() {
                     No articles extracted yet. Click Re-extract Articles to begin.
                   </div>
                 ) : (
-                  <div className="bg-card border border-border rounded-lg overflow-hidden">
-                    <table className="table-modern">
-                      <thead>
-                        <tr>
-                          <th className="w-28">Article #</th>
-                          <th>Text</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {articlesData.articles.map(article => (
-                          <tr key={article.id}>
-                            <td className="font-semibold text-accent-600 align-top whitespace-nowrap w-28">
-                              {article.article_number}
-                            </td>
-                            <td className="align-top text-foreground">
-                              <ArticleTextCell text={article.article_text} />
-                            </td>
+                  <div className="bg-card border border-border rounded-lg overflow-hidden flex flex-col" style={{ maxHeight: "calc(100vh - 380px)" }}>
+                    <div className="overflow-y-auto flex-1">
+                      <table className="table-modern">
+                        <thead className="sticky top-0 z-10">
+                          <tr>
+                            <th className="w-28">Article #</th>
+                            <th>Text</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {articlesData.articles.map(article => (
+                            <tr key={article.id}>
+                              <td className="font-semibold text-accent-600 align-top whitespace-nowrap w-28">
+                                {article.article_number}
+                              </td>
+                              <td className="align-top text-foreground">
+                                <ArticleTextCell text={article.article_text} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )
               )}

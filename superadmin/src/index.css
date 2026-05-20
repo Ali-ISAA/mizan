@@ -194,3 +194,13 @@
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* Custom scrollbar — adapts to light/dark via design tokens */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--text-muted)); }
+* { scrollbar-width: thin; scrollbar-color: hsl(var(--border)) transparent; }
