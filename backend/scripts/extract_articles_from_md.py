@@ -73,6 +73,15 @@ NUM_SECTION_RE = re.compile(
     re.UNICODE,
 )
 
+# Pattern C: plain-text "Article (NUMBER):" with NO ## prefix.
+# Anchored at both ends so it does NOT match inline references
+# like "provisions of Article (30) of this Law".
+ART_PLAIN_RE = re.compile(
+    r'^\s*' + _KEYWORDS + r'\s*'
+    r'[\(（]?(' + MIXED_NUM + r')[\)）]\s*:?\s*$',
+    re.IGNORECASE | re.UNICODE,
+)
+
 
 def detect_article_heading(line: str):
     m = ART_RE.match(line)
@@ -81,6 +90,9 @@ def detect_article_heading(line: str):
     m = NUM_SECTION_RE.match(line)
     if m:
         return m.group(2)
+    m = ART_PLAIN_RE.match(line)
+    if m:
+        return m.group(1)
     return None
 
 
