@@ -26,3 +26,34 @@ def test_prompts_module_exports():
                  "EXTRACT_USER", "VALIDATE_SYSTEM", "VALIDATE_USER"]:
         value = getattr(prompts, name)
         assert isinstance(value, str) and len(value) > 50
+
+
+def test_parse_json_array_valid():
+    from app.services.article_extraction.nodes import _parse_json_array
+    raw = '[{"articleNumber": "1", "articleText": "Content"}]'
+    result = _parse_json_array(raw)
+    assert result is not None
+    assert len(result) == 1
+    assert result[0]["articleNumber"] == "1"
+
+def test_parse_json_array_strips_fences():
+    from app.services.article_extraction.nodes import _parse_json_array
+    raw = '```json\n[{"articleNumber": "2", "articleText": "X"}]\n```'
+    result = _parse_json_array(raw)
+    assert result is not None
+    assert result[0]["articleNumber"] == "2"
+
+def test_parse_json_array_invalid_returns_none():
+    from app.services.article_extraction.nodes import _parse_json_array
+    assert _parse_json_array("not json") is None
+
+def test_parse_json_object_valid():
+    from app.services.article_extraction.nodes import _parse_json_object
+    raw = '{"document_type": "law", "estimated_count": 10}'
+    result = _parse_json_object(raw)
+    assert result["document_type"] == "law"
+    assert result["estimated_count"] == 10
+
+def test_parse_json_object_invalid_returns_none():
+    from app.services.article_extraction.nodes import _parse_json_object
+    assert _parse_json_object("[1,2,3]") is None  # array, not object
