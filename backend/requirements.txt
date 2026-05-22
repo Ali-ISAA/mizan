@@ -19,5 +19,6 @@ python-slugify>=8.0.4
 cryptography>=43.0.0,<44.0.0
 qdrant-client>=1.7.0,<2.0.0
 litellm>=1.0.0,<2.0.0
+langgraph>=1.2.0,<2.0.0
 tiktoken>=0.7.0,<1.0.0
 reportlab>=4.0.0,<5.0.0
