@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import { ArrowLeft, Trash2, FileText } from "lucide-react";
+import { ArrowLeft, Trash2, FileText, Loader2 } from "lucide-react";
 import { ChunksTab } from "../components/ChunksTab";
 import { DocumentsTab } from "../components/DocumentsTab";
 
@@ -244,8 +244,14 @@ export default function DocumentDetail() {
               )}
 
               {(doc.articles_status === "pending" || doc.articles_status === "processing") && (
-                <div className="bg-accent-600/10 border border-accent-600/20 rounded-lg p-4 text-sm text-accent-600">
-                  Extracting articles from chunks using AI. Page auto-refreshes every 3 seconds.
+                <div className="bg-accent-600/10 border border-accent-600/20 rounded-lg p-4 flex items-center gap-3 text-sm text-accent-600">
+                  <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
+                  <span>
+                    {doc.articles_status === "pending"
+                      ? "Queued — waiting for worker to pick up the task…"
+                      : "Extracting articles using the AI agent… this may take several minutes for large documents."}
+                    {" "}Page auto-refreshes every 3 seconds.
+                  </span>
                 </div>
               )}
 

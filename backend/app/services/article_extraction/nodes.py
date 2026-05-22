@@ -91,6 +91,7 @@ def _parse_json_object(raw: str) -> dict | None:
 async def fetch_markdown(state: ExtractionState) -> dict:
     """
     Fetch the full document markdown from Noesia.
+    Sets articles_status to "processing" immediately so the UI reflects progress.
     Sets state["markdown"] on success, state["error"] on failure.
     """
     import uuid
@@ -113,6 +114,10 @@ async def fetch_markdown(state: ExtractionState) -> dict:
         noesia_doc_id = getattr(doc, "noesia_document_id", None)
         if not noesia_doc_id:
             return {"error": f"Document {doc_id} has no Noesia document ID"}
+
+        doc.articles_status = "processing"
+        doc.articles_error = None
+        await db.commit()
 
     try:
         client = NoesiaClient()
