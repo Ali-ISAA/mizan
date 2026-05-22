@@ -57,3 +57,13 @@ def test_parse_json_object_valid():
 def test_parse_json_object_invalid_returns_none():
     from app.services.article_extraction.nodes import _parse_json_object
     assert _parse_json_object("[1,2,3]") is None  # array, not object
+
+
+def test_graph_compiles():
+    from app.services.article_extraction.graph import build_graph
+    graph = build_graph()
+    assert "fetch_markdown" in graph.nodes
+    assert "analyze_document" in graph.nodes
+    assert "extract_articles" in graph.nodes
+    assert "validate_extraction" in graph.nodes
+    assert "save_to_db" in graph.nodes
