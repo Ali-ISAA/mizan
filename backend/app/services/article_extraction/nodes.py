@@ -33,27 +33,57 @@ def _strip_fences(text: str) -> str:
 
 
 def _parse_json_array(raw: str) -> list[dict] | None:
-    """Parse a JSON array from LLM output. Returns None on failure."""
+    """Parse a JSON array from LLM output, with truncation recovery. Returns None on failure."""
+    stripped = _strip_fences(raw)
     try:
-        data = json.loads(_strip_fences(raw))
-        if not isinstance(data, list):
-            return None
-        return data
-    except json.JSONDecodeError:
-        logger.warning("_parse_json_array: failed to parse: %s…", raw[:200])
+        data = json.loads(stripped)
+        if isinstance(data, list):
+            return data
         return None
+    except json.JSONDecodeError:
+        pass
+
+    # Truncation recovery: close the array after the last complete object.
+    # If max_tokens cut the response mid-element, this salvages all complete articles.
+    last_brace = stripped.rfind("}")
+    if last_brace > 0:
+        try:
+            data = json.loads(stripped[:last_brace + 1] + "\n]")
+            if isinstance(data, list):
+                logger.warning("_parse_json_array: recovered %d items from truncated response", len(data))
+                return data
+        except json.JSONDecodeError:
+            pass
+
+    logger.warning("_parse_json_array: failed to parse: %s…", raw[:200])
+    return None
 
 
 def _parse_json_object(raw: str) -> dict | None:
-    """Parse a JSON object from LLM output. Returns None on failure."""
+    """Parse a JSON object from LLM output, with truncation recovery. Returns None on failure."""
+    stripped = _strip_fences(raw)
     try:
-        data = json.loads(_strip_fences(raw))
-        if not isinstance(data, dict):
-            return None
-        return data
-    except json.JSONDecodeError:
-        logger.warning("_parse_json_object: failed to parse: %s…", raw[:200])
+        data = json.loads(stripped)
+        if isinstance(data, dict):
+            return data
         return None
+    except json.JSONDecodeError:
+        pass
+
+    # Truncation recovery for nested objects containing arrays (e.g. validate response).
+    last_brace = stripped.rfind("}")
+    if last_brace > 0:
+        for closing in ["\n]\n}", "\n]}", "]\n}", "]}"]:
+            try:
+                data = json.loads(stripped[:last_brace + 1] + closing)
+                if isinstance(data, dict):
+                    logger.warning("_parse_json_object: recovered from truncated response")
+                    return data
+            except json.JSONDecodeError:
+                continue
+
+    logger.warning("_parse_json_object: failed to parse: %s…", raw[:200])
+    return None
 
 
 # ── Node 1: fetch_markdown ─────────────────────────────────────────────────────
@@ -171,7 +201,7 @@ async def extract_articles(state: ExtractionState) -> dict:
     ]
 
     try:
-        raw = await llm_chat(messages, max_tokens=16000, temperature=0)
+        raw = await llm_chat(messages, temperature=0)
         articles = _parse_json_array(raw)
         if articles is None:
             logger.warning("extract_articles: LLM returned unparseable response")
@@ -222,7 +252,7 @@ async def validate_extraction(state: ExtractionState) -> dict:
     ]
 
     try:
-        raw = await llm_chat(messages, max_tokens=8000, temperature=0)
+        raw = await llm_chat(messages, temperature=0)
         result = _parse_json_object(raw)
 
         if not result:

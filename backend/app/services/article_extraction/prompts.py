@@ -63,10 +63,10 @@ Extraction rules:
 7. Do NOT invent provisions. Only extract what is explicitly in the document.
 
 Return a JSON array. Each element:
-{
+{{
   "articleNumber": "<provision number exactly as in document>",
   "articleText": "<full clean text of the provision>"
-}
+}}
 
 Return ONLY the JSON array. No explanation, no markdown fences.\
 """
