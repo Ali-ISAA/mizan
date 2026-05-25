@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Text, ForeignKey, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Integer, String, Text, ForeignKey, func
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
@@ -19,6 +19,11 @@ class ComplianceFinding(Base):
     severity: Mapped[str] = mapped_column(String(30))
     issue: Mapped[str] = mapped_column(Text)
     recommendation: Mapped[str] = mapped_column(Text)
+
+    # Extended fields captured by the regulation-first agent
+    coverage_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    gaps: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    policy_sections: Mapped[list | None] = mapped_column(JSONB, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 

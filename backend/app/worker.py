@@ -12,6 +12,7 @@ celery_app = Celery(
         "app.tasks.process_user_document",
         "app.tasks.compare_documents",
         "app.tasks.extract_articles",
+        "app.tasks.compliance_report_task",
     ],
 )
 

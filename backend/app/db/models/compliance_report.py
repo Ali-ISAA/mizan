@@ -24,6 +24,13 @@ class ComplianceReport(Base):
     summary: Mapped[str] = mapped_column(Text, default="")
     raw_response: Mapped[dict] = mapped_column(JSONB, default=dict)
 
+    # Extended fields from regulation-first analysis
+    regulation_coverage_score: Mapped[float | None] = mapped_column(Integer, nullable=True)
+    fully_covered_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    partially_covered_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    executive_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    risk_assessment: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 

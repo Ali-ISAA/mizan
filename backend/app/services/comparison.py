@@ -10,7 +10,7 @@ from app.db.models.base_document import BaseDocument
 from app.db.models.compliance_comparison import ComplianceComparison
 from app.db.models.compliance_report import ComplianceReport
 from app.db.models.compliance_finding import ComplianceFinding
-from app.tasks.compare_documents import compare_documents_task
+from app.tasks.compliance_report_task import generate_compliance_report_task
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +58,8 @@ class ComparisonService:
 
             logger.info(f"Created ComplianceComparison {comparison.id} for MizanDocument {mizan_doc_id}")
 
-            # Enqueue Celery task
-            compare_documents_task.delay(str(mizan_doc_id), str(base_doc_id), str(comparison.id))
+            # Enqueue regulation-first compliance report task
+            generate_compliance_report_task.delay(str(comparison.id))
 
             return comparison
 
