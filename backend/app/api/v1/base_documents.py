@@ -247,9 +247,7 @@ async def get_base_doc_articles(
     stmt = (
         select(BaseDocumentArticle)
         .where(BaseDocumentArticle.base_document_id == doc.id)
-        .order_by(text(
-            "CAST((regexp_match(article_number, '^\\d+\\.?\\d*'))[1] AS FLOAT) NULLS LAST, article_number"
-        ))
+        .order_by(BaseDocumentArticle.article_index)
         .offset(offset)
         .limit(limit)
     )

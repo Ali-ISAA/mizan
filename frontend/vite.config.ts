@@ -7,6 +7,7 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8002,
+    watch: { usePolling: true, interval: 500 },
   },
   plugins: [
     react(),

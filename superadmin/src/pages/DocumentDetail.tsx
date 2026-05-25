@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
@@ -76,8 +76,8 @@ export default function DocumentDetail() {
     enabled: doc?.processing_status === "completed",
   });
 
-  const { data: articlesData, isLoading: articlesLoading } = useQuery<ArticlesResponse>({
-    queryKey: ["base-doc-articles", id, doc?.articles_status],
+  const { data: articlesData, isLoading: articlesLoading, refetch: refetchArticles } = useQuery<ArticlesResponse>({
+    queryKey: ["base-doc-articles", id],
     queryFn: () => api.get(`/superadmin/base-documents/${id}/articles?limit=2000`).then(r => r.data),
     enabled: doc?.processing_status === "completed",
     refetchInterval: (query) => {
@@ -85,6 +85,12 @@ export default function DocumentDetail() {
       return s === "pending" || s === "processing" ? 3000 : false;
     },
   });
+
+  useEffect(() => {
+    if (doc?.articles_status === "completed") {
+      refetchArticles();
+    }
+  }, [doc?.articles_status]);
 
   const deleteMutation = useMutation({
     mutationFn: () => api.delete(`/superadmin/base-documents/${id}`),

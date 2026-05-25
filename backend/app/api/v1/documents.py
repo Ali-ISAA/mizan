@@ -562,18 +562,22 @@ async def get_comparison_report(
                 "low_count": report.low_count,
                 "summary": report.summary
             },
-            "findings": [
-                {
-                    "id": str(f.id),
-                    "doc_a_section": f.doc_a_section,
-                    "doc_b_section": f.doc_b_section,
-                    "status": f.status,
-                    "severity": f.severity,
-                    "issue": f.issue,
-                    "recommendation": f.recommendation
-                }
-                for f in findings
-            ]
+            "findings": sorted(
+                [
+                    {
+                        "id": str(f.id),
+                        "doc_a_section": f.doc_a_section,
+                        "doc_b_section": f.doc_b_section,
+                        "status": f.status,
+                        "severity": f.severity,
+                        "issue": f.issue,
+                        "recommendation": f.recommendation,
+                        "coverage_score": f.coverage_score,
+                    }
+                    for f in findings
+                ],
+                key=lambda f: int(f["doc_b_section"]) if f["doc_b_section"] and f["doc_b_section"].isdigit() else 9999,
+            )
         }
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -606,12 +610,19 @@ async def get_comparison_narrative(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
+    # Return cached narratives if already generated — avoid regenerating on every page visit
+    if report.executive_summary and report.risk_assessment:
+        return {
+            "executive_summary": report.executive_summary,
+            "risk_assessment": report.risk_assessment,
+        }
+
+    # Fallback: generate and cache for older reports that pre-date saved narratives
     findings_result = await db.execute(
         select(ComplianceFinding).where(ComplianceFinding.comparison_id == comp_uuid)
     )
     findings = findings_result.scalars().all()
 
-    # Resolve doc and regulation names
     doc = await db.get(MizanDocument, comparison.mizan_document_id)
     from app.db.models.base_document import BaseDocument
     base_doc = await db.get(BaseDocument, comparison.base_document_id)
@@ -635,5 +646,10 @@ async def get_comparison_narrative(
             for f in findings
         ],
     )
+
+    # Save so future visits are instant
+    report.executive_summary = narrative.get("executive_summary")
+    report.risk_assessment = narrative.get("risk_assessment")
+    await db.commit()
 
     return narrative
