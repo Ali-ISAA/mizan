@@ -51,6 +51,7 @@ uploads/
 .pnp.cjs
 .pnp.loader.mjs
 yarn.lock
+.yarn/
 
 # TypeScript build cache
 tsconfig.tsbuildinfo
