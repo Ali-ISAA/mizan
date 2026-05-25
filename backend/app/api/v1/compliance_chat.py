@@ -46,6 +46,18 @@ _TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "mizan_list_documents",
+            "description": "List all policy documents available in this account. Use this when the user asks what documents exist, what files are available, or wants to see document names.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "mizan_search",
             "description": "Semantic search across document chunks using vector similarity.",
             "parameters": {
@@ -146,6 +158,7 @@ _TOOLS = [
 ]
 
 _TOOL_LABELS: dict[str, str] = {
+    "mizan_list_documents": "Listing documents…",
     "mizan_search": "Searching documents…",
     "mizan_get_document_info": "Fetching document info…",
     "mizan_get_articles": "Listing articles…",
@@ -197,6 +210,24 @@ async def _resolve_context(
         report = result.scalar_one_or_none()
         if not doc and comparison.mizan_document_id:
             doc = await db.get(MizanDocument, comparison.mizan_document_id)
+    elif doc:
+        # Auto-resolve the latest completed comparison for this document
+        cmp_result = await db.execute(
+            select(ComplianceComparison)
+            .where(
+                ComplianceComparison.mizan_document_id == doc.id,
+                ComplianceComparison.status == "completed",
+                ComplianceComparison.tenant_id == user.tenant_id,
+            )
+            .order_by(ComplianceComparison.created_at.desc())
+            .limit(1)
+        )
+        comparison = cmp_result.scalar_one_or_none()
+        if comparison:
+            rpt_result = await db.execute(
+                select(ComplianceReport).where(ComplianceReport.comparison_id == comparison.id)
+            )
+            report = rpt_result.scalar_one_or_none()
 
     return doc, comparison, report
 
@@ -306,6 +337,28 @@ async def _tool_search(
             }
             for r in results
         ]
+    })
+
+
+async def _tool_list_documents(args: dict, user: User, db: AsyncSession) -> str:
+    stmt = (
+        select(MizanDocument)
+        .where(MizanDocument.tenant_id == user.tenant_id)
+        .order_by(MizanDocument.created_at.desc())
+        .limit(50)
+    )
+    docs = (await db.execute(stmt)).scalars().all()
+    return json.dumps({
+        "total": len(docs),
+        "documents": [
+            {
+                "id": str(d.id),
+                "name": d.name,
+                "file_type": d.file_type,
+                "processing_status": d.processing_status,
+            }
+            for d in docs
+        ],
     })
 
 
@@ -546,7 +599,9 @@ async def _dispatch_tool(
     sources: list[dict],
 ) -> str:
     try:
-        if tool_name == "mizan_search":
+        if tool_name == "mizan_list_documents":
+            return await _tool_list_documents(tool_args, user, db)
+        elif tool_name == "mizan_search":
             return await _tool_search(tool_args, user, db, comparison, sources)
         elif tool_name == "mizan_get_document_info":
             return await _tool_document_info(tool_args, user, db)
