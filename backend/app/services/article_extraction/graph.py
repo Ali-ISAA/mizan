@@ -1,8 +1,7 @@
 """
 Builds and compiles the LangGraph article extraction graph.
 
-Graph: fetch_markdown → analyze_document → extract_articles
-                      → validate_extraction → save_to_db → END
+Graph: fetch_markdown → regex_extract → save_to_db → END
 """
 from __future__ import annotations
 
@@ -13,9 +12,7 @@ from langgraph.graph import StateGraph, END
 from app.services.article_extraction.state import ExtractionState
 from app.services.article_extraction.nodes import (
     fetch_markdown,
-    analyze_document,
-    extract_articles,
-    validate_extraction,
+    regex_extract,
     save_to_db,
 )
 
@@ -27,16 +24,12 @@ def build_graph() -> StateGraph:
     builder = StateGraph(ExtractionState)
 
     builder.add_node("fetch_markdown", fetch_markdown)
-    builder.add_node("analyze_document", analyze_document)
-    builder.add_node("extract_articles", extract_articles)
-    builder.add_node("validate_extraction", validate_extraction)
+    builder.add_node("regex_extract", regex_extract)
     builder.add_node("save_to_db", save_to_db)
 
     builder.set_entry_point("fetch_markdown")
-    builder.add_edge("fetch_markdown", "analyze_document")
-    builder.add_edge("analyze_document", "extract_articles")
-    builder.add_edge("extract_articles", "validate_extraction")
-    builder.add_edge("validate_extraction", "save_to_db")
+    builder.add_edge("fetch_markdown", "regex_extract")
+    builder.add_edge("regex_extract", "save_to_db")
     builder.add_edge("save_to_db", END)
 
     return builder.compile()
@@ -53,16 +46,11 @@ def _get_graph():
 
 
 async def run_extraction_agent(document_id: str, document_type: str) -> None:
-    """
-    Entry point called by the Celery task.
-    Builds initial state, runs the graph, and returns when done.
-    """
+    """Entry point called by the Celery task."""
     initial_state: ExtractionState = {
         "document_id": document_id,
         "document_type": document_type,
         "markdown": "",
-        "analysis": {},
-        "articles": [],
         "validated_articles": [],
         "error": None,
     }
