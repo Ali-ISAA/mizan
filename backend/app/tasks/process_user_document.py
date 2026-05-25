@@ -78,6 +78,8 @@ async def _process_document(document_id: str, file_path: str):
 
             # Create ingest job with unique collection name per document
             collection_name = f"user_doc_{uuid.uuid4().hex[:8]}"
+            doc.qdrant_collection_name = collection_name
+            await db.commit()   # persist before ingest so name survives failures
             logger.info(f"Creating ingest job for {doc.name}")
             ingest_result = await noesia_client.ingest_documents(
                 document_pairs=[(noesia_document_id, str(doc.id))],
