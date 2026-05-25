@@ -15,7 +15,7 @@ interface Clause {
   doc_b_section?: string;
   status: 'compliant' | 'gap' | 'conflict' | 'missing' | 'not_applicable';
   severity?: 'critical' | 'medium' | 'low' | 'none';
-  confidence: number;
+  confidence: number | null;
   summary?: string;
   recommendation?: string;
 }
@@ -49,6 +49,7 @@ interface ComplianceAnalysisResultsProps {
   narrativeLoading?: boolean;
   onReanalyze?: () => void;
   isReanalyzing?: boolean;
+  onStartChat?: () => void;
 }
 
 const STATUS_CONFIG = {
@@ -68,9 +69,9 @@ function ClauseCard({ clause }: { clause: Clause }) {
   const cfg = STATUS_CONFIG[clause.status];
   const { Icon } = cfg;
 
-  // doc_b_section stores regulation references separated by "\n\n"
-  const regulationRefs = clause.doc_b_section
-    ? clause.doc_b_section.split('\n\n').map(r => r.trim()).filter(Boolean)
+  // doc_b_section stores the law articles this policy section addresses (comma-separated)
+  const regulationRefs = clause.doc_b_section && clause.doc_b_section !== '—'
+    ? clause.doc_b_section.split(',').map(r => r.trim()).filter(Boolean)
     : [];
 
   return (
@@ -80,9 +81,10 @@ function ClauseCard({ clause }: { clause: Clause }) {
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <Icon className={`h-5 w-5 mt-0.5 shrink-0 ${cfg.color}`} />
             <div className="min-w-0">
-              {/* Show "Chunk X" as the primary label, not raw text */}
               <h4 className="font-semibold text-foreground text-sm">{clause.name}</h4>
-              <p className="text-xs text-text-secondary mt-0.5">Confidence: {clause.confidence}%</p>
+              {clause.confidence !== null && (
+                <p className="text-xs text-text-secondary mt-0.5">Compliance score: {clause.confidence}%</p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -106,14 +108,13 @@ function ClauseCard({ clause }: { clause: Clause }) {
           {regulationRefs.length > 0 && (
             <div className="bg-surface rounded p-3">
               <p className="text-xs text-text-secondary font-medium uppercase tracking-wider mb-2">
-                Regulation References ({regulationRefs.length})
+                Law Articles Addressed ({regulationRefs.length})
               </p>
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-1.5">
                 {regulationRefs.map((ref, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <span className="text-xs text-accent-600 font-bold shrink-0 mt-0.5">#{idx + 1}</span>
-                    <p className="text-sm text-foreground">{ref}</p>
-                  </div>
+                  <span key={idx} className="text-xs bg-accent-600/10 text-accent-600 font-medium px-2 py-0.5 rounded">
+                    Art. {ref}
+                  </span>
                 ))}
               </div>
             </div>
@@ -135,7 +136,7 @@ function ClauseCard({ clause }: { clause: Clause }) {
   );
 }
 
-export function ComplianceAnalysisResults({ data, narrative, narrativeLoading, onReanalyze, isReanalyzing }: ComplianceAnalysisResultsProps) {
+export function ComplianceAnalysisResults({ data, narrative, narrativeLoading, onReanalyze, isReanalyzing, onStartChat }: ComplianceAnalysisResultsProps) {
   const navigate = useNavigate();
 
   const scoreColor =
@@ -150,8 +151,7 @@ export function ComplianceAnalysisResults({ data, narrative, narrativeLoading, o
 
   const pct = (n: number) => `${Math.round((n / total) * 100)}%`;
 
-  // Exclude not_applicable from the displayed list — they're informational noise
-  const displayedClauses = data.clauses.filter(c => c.status !== 'not_applicable');
+  const displayedClauses = data.clauses;
   const nonCompliantWithRecs = displayedClauses.filter(c => c.status !== 'compliant' && c.recommendation);
 
   return (
@@ -356,7 +356,7 @@ export function ComplianceAnalysisResults({ data, narrative, narrativeLoading, o
                   </li>
                 ))}
               </ul>
-              <Button className="w-full gap-2" size="sm">
+              <Button className="w-full gap-2" size="sm" onClick={onStartChat}>
                 <MessageSquare className="h-3.5 w-3.5" />
                 Start Chat
               </Button>

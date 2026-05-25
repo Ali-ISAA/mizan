@@ -1,6 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { useChatStore } from "@/stores/chatStore";
 import { ArrowLeft, AlertCircle, AlertTriangle, Loader, RotateCcw } from "lucide-react";
 import { api } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,10 +43,11 @@ interface ComplianceFinding {
   id: string;
   doc_a_section: string;
   doc_b_section: string;
-  status: "compliant" | "gap" | "conflict" | "missing";
-  severity: "critical" | "medium" | "low";
+  status: "compliant" | "gap" | "conflict" | "missing" | "not_applicable";
+  severity: "critical" | "medium" | "low" | "none";
   issue: string;
   recommendation: string;
+  coverage_score: number | null;
 }
 
 interface ReportResponse {
@@ -58,6 +60,8 @@ export default function ComplianceAnalysisView() {
   const { documentId } = useParams<{ documentId: string }>();
   const [searchParams] = useSearchParams();
   const comparisonId = searchParams.get("comparison_id");
+
+  const { openChat } = useChatStore();
 
   const { data: documentData, isLoading: docLoading } = useQuery({
     queryKey: ["document", documentId],
@@ -247,7 +251,7 @@ export default function ComplianceAnalysisView() {
     },
     overview: {
       compliance_score: report.compliance_score,
-      total_clauses: findings.filter((f) => f.status !== "not_applicable").length,
+      total_clauses: findings.length,
       issues_found: findings.filter((f) => f.status !== "compliant" && f.status !== "not_applicable").length,
       compliant_clauses: findings.filter((f) => f.status === "compliant").length,
       needs_review: findings.filter((f) => f.status === "gap").length,
@@ -255,12 +259,11 @@ export default function ComplianceAnalysisView() {
     },
     clauses: findings.map((f) => ({
       id: f.id,
-      name: f.doc_a_section || "Section",
-      doc_b_section: f.doc_b_section,
+      name: `Policy Section ${f.doc_b_section || "—"}`,
+      doc_b_section: f.doc_a_section,  // law articles this section addresses
       status: f.status,
       severity: f.severity,
-      confidence:
-        f.status === "compliant" ? 92 : f.severity === "critical" ? 40 : f.severity === "medium" ? 60 : 75,
+      confidence: f.status === "not_applicable" ? null : (f.coverage_score ?? null),
       summary: f.issue,
       recommendation: f.recommendation !== "No action required" ? f.recommendation : undefined,
     })),
@@ -274,6 +277,7 @@ export default function ComplianceAnalysisView() {
         narrativeLoading={narrativeLoading}
         onReanalyze={() => reanalyze()}
         isReanalyzing={isReanalyzing}
+        onStartChat={openChat}
       />
       {reanalyzeError && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
