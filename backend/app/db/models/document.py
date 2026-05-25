@@ -39,6 +39,7 @@ class MizanDocument(Base):
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
     articles_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
     articles_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    qdrant_collection_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
 
     base_document_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("base_documents.id"))
     chunks: Mapped[list["MizanDocumentChunk"]] = relationship("MizanDocumentChunk", back_populates="mizan_document", cascade="all, delete-orphan")  # type: ignore[name-defined]
