@@ -1,7 +1,7 @@
 """
 Builds and compiles the LangGraph article extraction graph.
 
-Graph: fetch_markdown → regex_extract → save_to_db → END
+Graph: fetch_markdown → regex_extract → [llm_extract if regex found nothing] → save_to_db → END
 """
 from __future__ import annotations
 
@@ -13,10 +13,20 @@ from app.services.article_extraction.state import ExtractionState
 from app.services.article_extraction.nodes import (
     fetch_markdown,
     regex_extract,
+    llm_extract,
     save_to_db,
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _after_regex(state: ExtractionState) -> str:
+    """Route to LLM extraction only when regex found nothing and no fatal error occurred."""
+    if state.get("error"):
+        return "save_to_db"
+    if state.get("validated_articles"):
+        return "save_to_db"
+    return "llm_extract"
 
 
 def build_graph() -> StateGraph:
@@ -25,11 +35,17 @@ def build_graph() -> StateGraph:
 
     builder.add_node("fetch_markdown", fetch_markdown)
     builder.add_node("regex_extract", regex_extract)
+    builder.add_node("llm_extract", llm_extract)
     builder.add_node("save_to_db", save_to_db)
 
     builder.set_entry_point("fetch_markdown")
     builder.add_edge("fetch_markdown", "regex_extract")
-    builder.add_edge("regex_extract", "save_to_db")
+    builder.add_conditional_edges(
+        "regex_extract",
+        _after_regex,
+        {"save_to_db": "save_to_db", "llm_extract": "llm_extract"},
+    )
+    builder.add_edge("llm_extract", "save_to_db")
     builder.add_edge("save_to_db", END)
 
     return builder.compile()

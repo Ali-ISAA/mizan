@@ -1,0 +1,1 @@
+{"nodes": [], "edges": [{"source": "chat_compliancetemplates_compliancetemplates", "target": "chat_types_compliancetemplate", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "frontend/src/components/chat/ComplianceTemplates.tsx", "source_location": null, "weight": 1.0}], "hyperedges": []}

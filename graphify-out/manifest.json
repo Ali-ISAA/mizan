@@ -1,0 +1,1767 @@
+{
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/start-docker.sh": {
+    "mtime": 1780509157.7734933,
+    "ast_hash": "2ce80d0f136bde1eee00b79e6a524822",
+    "semantic_hash": "2ce80d0f136bde1eee00b79e6a524822"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/start.sh": {
+    "mtime": 1780509157.7735724,
+    "ast_hash": "c6b45dedb338e4375fe9027b40a7c5b0",
+    "semantic_hash": "c6b45dedb338e4375fe9027b40a7c5b0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/tsconfig.node.json": {
+    "mtime": 1780509157.758408,
+    "ast_hash": "1417fb05378a1d1102f085e60b20db0e",
+    "semantic_hash": "1417fb05378a1d1102f085e60b20db0e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/tsconfig.app.json": {
+    "mtime": 1780509157.7582567,
+    "ast_hash": "ffe0e5efeba4bb692e7cf562160c6c5e",
+    "semantic_hash": "ffe0e5efeba4bb692e7cf562160c6c5e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/jest.config.js": {
+    "mtime": 1780509157.7268598,
+    "ast_hash": "1eb469d9d350601ef319a2d37d5765eb",
+    "semantic_hash": "1eb469d9d350601ef319a2d37d5765eb"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/tailwind.config.ts": {
+    "mtime": 1780509157.7581265,
+    "ast_hash": "be1fe36da4207c0026b9405929a58198",
+    "semantic_hash": "be1fe36da4207c0026b9405929a58198"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/package.json": {
+    "mtime": 1780509157.7279866,
+    "ast_hash": "d5ba9785c6a4dcf46c4d40b769a689f4",
+    "semantic_hash": "d5ba9785c6a4dcf46c4d40b769a689f4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/tsconfig.json": {
+    "mtime": 1780509157.7583349,
+    "ast_hash": "0fc7b2489a984ece8406dc8d6acbbfce",
+    "semantic_hash": "0fc7b2489a984ece8406dc8d6acbbfce"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/vite.config.ts": {
+    "mtime": 1780509157.7584813,
+    "ast_hash": "291ee9506b379922b7bc9c1c72dd9ad7",
+    "semantic_hash": "291ee9506b379922b7bc9c1c72dd9ad7"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/postcss.config.js": {
+    "mtime": 1780509157.7280552,
+    "ast_hash": "ef3ba2a81ba19f8ea5ddf625521e96f0",
+    "semantic_hash": "ef3ba2a81ba19f8ea5ddf625521e96f0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/App.tsx": {
+    "mtime": 1780509157.7361126,
+    "ast_hash": "a308712b99023c7fbc614e80233576f6",
+    "semantic_hash": "a308712b99023c7fbc614e80233576f6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/main.tsx": {
+    "mtime": 1780509157.744366,
+    "ast_hash": "15da54e39d48ef50de2df869b054c181",
+    "semantic_hash": "15da54e39d48ef50de2df869b054c181"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/vite-env.d.ts": {
+    "mtime": 1780509157.7462914,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ProtectedRoute.tsx": {
+    "mtime": 1780509157.7362454,
+    "ast_hash": "05a2031868b54e0302436a7a714ebf19",
+    "semantic_hash": "05a2031868b54e0302436a7a714ebf19"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/enhanced-document-detail.tsx": {
+    "mtime": 1780509157.7381454,
+    "ast_hash": "64e6a8543fce59c335c5ad8f54d3cc21",
+    "semantic_hash": "64e6a8543fce59c335c5ad8f54d3cc21"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/app-sidebar.tsx": {
+    "mtime": 1780509157.7364783,
+    "ast_hash": "93e575af28e6b2a5880719799808b0ba",
+    "semantic_hash": "93e575af28e6b2a5880719799808b0ba"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/app-header.tsx": {
+    "mtime": 1780509157.7363706,
+    "ast_hash": "72730484e62d1b7721cd910b42fe99f9",
+    "semantic_hash": "72730484e62d1b7721cd910b42fe99f9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/rule-detail.tsx": {
+    "mtime": 1780509157.7383304,
+    "ast_hash": "e0f05ad1c9232439ef95e9b38e3977e4",
+    "semantic_hash": "e0f05ad1c9232439ef95e9b38e3977e4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/document-detail.tsx": {
+    "mtime": 1780509157.738055,
+    "ast_hash": "8fcf3552a7cff0e07277a1093a5ad796",
+    "semantic_hash": "8fcf3552a7cff0e07277a1093a5ad796"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/aspect-ratio.tsx": {
+    "mtime": 1780509157.738763,
+    "ast_hash": "ea9c6ff6c2931b5089972bfba3fa5c1f",
+    "semantic_hash": "ea9c6ff6c2931b5089972bfba3fa5c1f"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/alert-dialog.tsx": {
+    "mtime": 1780509157.7385485,
+    "ast_hash": "aca8996e4020285a789d58348abce552",
+    "semantic_hash": "aca8996e4020285a789d58348abce552"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/pagination.tsx": {
+    "mtime": 1780509157.741242,
+    "ast_hash": "de159ac89490951ee82b4991f604e394",
+    "semantic_hash": "de159ac89490951ee82b4991f604e394"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/tabs.tsx": {
+    "mtime": 1780509157.742734,
+    "ast_hash": "f707716323c4c8541d135da0636365c9",
+    "semantic_hash": "f707716323c4c8541d135da0636365c9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/card.tsx": {
+    "mtime": 1780509157.739293,
+    "ast_hash": "8ea844f1fbee5e12d2540b8a26cd2f6c",
+    "semantic_hash": "8ea844f1fbee5e12d2540b8a26cd2f6c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/slider.tsx": {
+    "mtime": 1780509157.742374,
+    "ast_hash": "ccbb4f4470af296eafa94f9972e8a4f9",
+    "semantic_hash": "ccbb4f4470af296eafa94f9972e8a4f9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/popover.tsx": {
+    "mtime": 1780509157.7413373,
+    "ast_hash": "b177b8aa44e03c0a5d2a9f00b11d55be",
+    "semantic_hash": "b177b8aa44e03c0a5d2a9f00b11d55be"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/progress.tsx": {
+    "mtime": 1780509157.741418,
+    "ast_hash": "9202867eacff0cb1b253a05d5d65bfc0",
+    "semantic_hash": "9202867eacff0cb1b253a05d5d65bfc0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/toaster.tsx": {
+    "mtime": 1780509157.7430036,
+    "ast_hash": "d0e062810c47a46b9bb4e8ea19875a02",
+    "semantic_hash": "d0e062810c47a46b9bb4e8ea19875a02"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/input-otp.tsx": {
+    "mtime": 1780509157.7407486,
+    "ast_hash": "084089343296a7ebcb40fff14c62cb30",
+    "semantic_hash": "084089343296a7ebcb40fff14c62cb30"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/chart.tsx": {
+    "mtime": 1780509157.7397196,
+    "ast_hash": "8d4b13c80ec8ade9908712155bf0d117",
+    "semantic_hash": "8d4b13c80ec8ade9908712155bf0d117"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/hover-card.tsx": {
+    "mtime": 1780509157.7406702,
+    "ast_hash": "004259115672f57e95da0b72ea2c613e",
+    "semantic_hash": "004259115672f57e95da0b72ea2c613e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/sheet.tsx": {
+    "mtime": 1780509157.742056,
+    "ast_hash": "daa150998b6073011abdfc39df425359",
+    "semantic_hash": "daa150998b6073011abdfc39df425359"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/scroll-area.tsx": {
+    "mtime": 1780509157.7417638,
+    "ast_hash": "c4d63c56a99feb600ed0e9bbcfd70829",
+    "semantic_hash": "c4d63c56a99feb600ed0e9bbcfd70829"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/resizable.tsx": {
+    "mtime": 1780509157.7416613,
+    "ast_hash": "cf5896bc9f1524c3f3fb2d4f24eb54bf",
+    "semantic_hash": "cf5896bc9f1524c3f3fb2d4f24eb54bf"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/label.tsx": {
+    "mtime": 1780509157.740938,
+    "ast_hash": "7ea839d3fa873fb063a9709a79e47561",
+    "semantic_hash": "7ea839d3fa873fb063a9709a79e47561"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/sonner.tsx": {
+    "mtime": 1780509157.742465,
+    "ast_hash": "5cc4d43770ff3cffb5ba65d5ea3ee26d",
+    "semantic_hash": "5cc4d43770ff3cffb5ba65d5ea3ee26d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/navigation-menu.tsx": {
+    "mtime": 1780509157.7411516,
+    "ast_hash": "630417e56e3f5f9a5f323565ed86d430",
+    "semantic_hash": "630417e56e3f5f9a5f323565ed86d430"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/accordion.tsx": {
+    "mtime": 1780509157.7384605,
+    "ast_hash": "1543fc386d0aba4654f3199bf017eaab",
+    "semantic_hash": "1543fc386d0aba4654f3199bf017eaab"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/drawer.tsx": {
+    "mtime": 1780509157.740398,
+    "ast_hash": "1caf6dac62a50b2558dd36d6d7644891",
+    "semantic_hash": "1caf6dac62a50b2558dd36d6d7644891"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/tooltip.tsx": {
+    "mtime": 1780509157.7432485,
+    "ast_hash": "336ca01a98037c9a1dfe936bde3ee549",
+    "semantic_hash": "336ca01a98037c9a1dfe936bde3ee549"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/alert.tsx": {
+    "mtime": 1780509157.7386239,
+    "ast_hash": "48dac79c18e0c3ff687c320c6fcf1590",
+    "semantic_hash": "48dac79c18e0c3ff687c320c6fcf1590"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/use-toast.ts": {
+    "mtime": 1780509157.7433255,
+    "ast_hash": "4f094014a1315ca1081cbdc7f78d55cc",
+    "semantic_hash": "4f094014a1315ca1081cbdc7f78d55cc"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/switch.tsx": {
+    "mtime": 1780509157.7425516,
+    "ast_hash": "1210b13831d433e8a9488bab91432dd4",
+    "semantic_hash": "1210b13831d433e8a9488bab91432dd4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/calendar.tsx": {
+    "mtime": 1780509157.739212,
+    "ast_hash": "577b2299d7782fffe974b558233dba3a",
+    "semantic_hash": "577b2299d7782fffe974b558233dba3a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/breadcrumb.tsx": {
+    "mtime": 1780509157.739033,
+    "ast_hash": "377763c80b5d08aa7748a2d532bb290e",
+    "semantic_hash": "377763c80b5d08aa7748a2d532bb290e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/radio-group.tsx": {
+    "mtime": 1780509157.741552,
+    "ast_hash": "3ace644678cd101153deee82d72048d9",
+    "semantic_hash": "3ace644678cd101153deee82d72048d9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/command.tsx": {
+    "mtime": 1780509157.7400992,
+    "ast_hash": "f7bf707fa618dc27429ec5f1c19028c6",
+    "semantic_hash": "f7bf707fa618dc27429ec5f1c19028c6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/toggle-group.tsx": {
+    "mtime": 1780509157.7430859,
+    "ast_hash": "6338f2936a2474998e1e546c6a1664a6",
+    "semantic_hash": "6338f2936a2474998e1e546c6a1664a6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/avatar.tsx": {
+    "mtime": 1780509157.7388606,
+    "ast_hash": "ce4fe60f4c48c01a5a601d9835648b40",
+    "semantic_hash": "ce4fe60f4c48c01a5a601d9835648b40"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/menubar.tsx": {
+    "mtime": 1780509157.741057,
+    "ast_hash": "a3a53eadb4e2d52cb841ebd2a910d33d",
+    "semantic_hash": "a3a53eadb4e2d52cb841ebd2a910d33d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/dialog.tsx": {
+    "mtime": 1780509157.7403102,
+    "ast_hash": "3ca438e8db79dc5fa9fb4662372afadd",
+    "semantic_hash": "3ca438e8db79dc5fa9fb4662372afadd"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/badge.tsx": {
+    "mtime": 1780509157.7389367,
+    "ast_hash": "0ee5d4ebc83a3c6c43efe519e7e505e6",
+    "semantic_hash": "0ee5d4ebc83a3c6c43efe519e7e505e6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/sidebar.tsx": {
+    "mtime": 1780509157.742178,
+    "ast_hash": "27c8db4816b123901768861c586f1cdb",
+    "semantic_hash": "27c8db4816b123901768861c586f1cdb"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/table.tsx": {
+    "mtime": 1780509157.7426467,
+    "ast_hash": "8cd787f9c71ad404c87b26238ed6479a",
+    "semantic_hash": "8cd787f9c71ad404c87b26238ed6479a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/separator.tsx": {
+    "mtime": 1780509157.7419536,
+    "ast_hash": "e970901b62fe8b73d2b9254fad77f583",
+    "semantic_hash": "e970901b62fe8b73d2b9254fad77f583"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/button.tsx": {
+    "mtime": 1780509157.739124,
+    "ast_hash": "10ded83cf8e5eadfd550732a08530b88",
+    "semantic_hash": "10ded83cf8e5eadfd550732a08530b88"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/toggle.tsx": {
+    "mtime": 1780509157.743173,
+    "ast_hash": "5840a6d0f51ab73d9f40592fd0db4899",
+    "semantic_hash": "5840a6d0f51ab73d9f40592fd0db4899"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/app-layout.tsx": {
+    "mtime": 1780509157.7386947,
+    "ast_hash": "27ab4859366d95905a202b65e35cf47f",
+    "semantic_hash": "27ab4859366d95905a202b65e35cf47f"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/toast.tsx": {
+    "mtime": 1780509157.742923,
+    "ast_hash": "6b9ed7f669208f6631d1c44bbd556877",
+    "semantic_hash": "6b9ed7f669208f6631d1c44bbd556877"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/checkbox.tsx": {
+    "mtime": 1780509157.7398973,
+    "ast_hash": "ca06e9d95214f6c4b90a760098d21830",
+    "semantic_hash": "ca06e9d95214f6c4b90a760098d21830"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/collapsible.tsx": {
+    "mtime": 1780509157.74,
+    "ast_hash": "8bcc61ee503a05663fb77ad9b7ec064a",
+    "semantic_hash": "8bcc61ee503a05663fb77ad9b7ec064a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/dropdown-menu.tsx": {
+    "mtime": 1780509157.7405148,
+    "ast_hash": "cf7fe61c5c91eae0bdb3b3864508d48d",
+    "semantic_hash": "cf7fe61c5c91eae0bdb3b3864508d48d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/select.tsx": {
+    "mtime": 1780509157.7418618,
+    "ast_hash": "22886e4c5f841c13755088e26c7387e3",
+    "semantic_hash": "22886e4c5f841c13755088e26c7387e3"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/textarea.tsx": {
+    "mtime": 1780509157.7428226,
+    "ast_hash": "fb19dce4f1d33ed093b75db5cefed562",
+    "semantic_hash": "fb19dce4f1d33ed093b75db5cefed562"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/input.tsx": {
+    "mtime": 1780509157.7408433,
+    "ast_hash": "e3644dbbe60e0b7780864542a22c8880",
+    "semantic_hash": "e3644dbbe60e0b7780864542a22c8880"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/skeleton.tsx": {
+    "mtime": 1780509157.7422843,
+    "ast_hash": "a5a4d6d5551d4c7feb8176a23e7eb07c",
+    "semantic_hash": "a5a4d6d5551d4c7feb8176a23e7eb07c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/context-menu.tsx": {
+    "mtime": 1780509157.740205,
+    "ast_hash": "d4964b3b39ddf550f9b30c104e0080d8",
+    "semantic_hash": "d4964b3b39ddf550f9b30c104e0080d8"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/form.tsx": {
+    "mtime": 1780509157.740593,
+    "ast_hash": "0ed732617aace88aa93d42fe438dd281",
+    "semantic_hash": "0ed732617aace88aa93d42fe438dd281"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/ui/carousel.tsx": {
+    "mtime": 1780509157.7393796,
+    "ast_hash": "005a47594c5c8f09e27f0ed1f02197cd",
+    "semantic_hash": "005a47594c5c8f09e27f0ed1f02197cd"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/ChatInterface.tsx": {
+    "mtime": 1780509157.7367039,
+    "ast_hash": "a190276040e8bd4c958efc963e3979bb",
+    "semantic_hash": "a190276040e8bd4c958efc963e3979bb"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/types.ts": {
+    "mtime": 1780509157.7374125,
+    "ast_hash": "9b11d4483c83c1cc7dba961934f3695e",
+    "semantic_hash": "9b11d4483c83c1cc7dba961934f3695e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/FloatingChatButton.tsx": {
+    "mtime": 1780509157.736971,
+    "ast_hash": "e1fd285caf5647699aecb4196f8031a9",
+    "semantic_hash": "e1fd285caf5647699aecb4196f8031a9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/ComplianceTemplates.tsx": {
+    "mtime": 1780509157.736892,
+    "ast_hash": "d6266efb90d42c7ebf49e1182a24250a",
+    "semantic_hash": "d6266efb90d42c7ebf49e1182a24250a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/GeneralChatInterface.tsx": {
+    "mtime": 1780509157.7371342,
+    "ast_hash": "0219b2856c509630bcb87c7ea56d7760",
+    "semantic_hash": "0219b2856c509630bcb87c7ea56d7760"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/index.ts": {
+    "mtime": 1780509157.7373283,
+    "ast_hash": "7f09c03006fa779b4d6d558f980e035a",
+    "semantic_hash": "7f09c03006fa779b4d6d558f980e035a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/ChatMessage.tsx": {
+    "mtime": 1780509157.7367914,
+    "ast_hash": "c04c132be6a2352d0b6edf927c022dcb",
+    "semantic_hash": "c04c132be6a2352d0b6edf927c022dcb"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/dashboard/recent-uploads.tsx": {
+    "mtime": 1780509157.7378054,
+    "ast_hash": "12628e6751ebdd86c6a149faca089a8e",
+    "semantic_hash": "12628e6751ebdd86c6a149faca089a8e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/dashboard/quick-actions.tsx": {
+    "mtime": 1780509157.7377107,
+    "ast_hash": "eec6ce6b9990b447946ac1936b33e1f3",
+    "semantic_hash": "eec6ce6b9990b447946ac1936b33e1f3"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/dashboard/activity-timeline.tsx": {
+    "mtime": 1780509157.7375455,
+    "ast_hash": "ef37a2b066882701a299fbd1c863da25",
+    "semantic_hash": "ef37a2b066882701a299fbd1c863da25"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/dashboard/stats-cards.tsx": {
+    "mtime": 1780509157.737893,
+    "ast_hash": "0c4b81ba9799c8d4464fd354d3827895",
+    "semantic_hash": "0c4b81ba9799c8d4464fd354d3827895"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/dashboard/compliance-chart.tsx": {
+    "mtime": 1780509157.7376285,
+    "ast_hash": "5bef81115c0f2cd7f8a50ac910acc4e7",
+    "semantic_hash": "5bef81115c0f2cd7f8a50ac910acc4e7"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/hooks/use-mobile.tsx": {
+    "mtime": 1780509157.7435663,
+    "ast_hash": "209b5193af16624cdd89d3591480dd48",
+    "semantic_hash": "209b5193af16624cdd89d3591480dd48"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/hooks/use-auth.tsx": {
+    "mtime": 1780509157.7434788,
+    "ast_hash": "dfbc6cb40f074dd109a620c1b8b3d2d0",
+    "semantic_hash": "dfbc6cb40f074dd109a620c1b8b3d2d0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/hooks/use-toast.ts": {
+    "mtime": 1780509157.743749,
+    "ast_hash": "bc4be55df07bc8727d5df9ed7799ad64",
+    "semantic_hash": "bc4be55df07bc8727d5df9ed7799ad64"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/hooks/use-theme.tsx": {
+    "mtime": 1780509157.7436547,
+    "ast_hash": "dd0e81aa55317e9882c5d452422f8828",
+    "semantic_hash": "dd0e81aa55317e9882c5d452422f8828"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/lib/utils.ts": {
+    "mtime": 1780509157.7442756,
+    "ast_hash": "5a6fd53fdcf2be529e9cc0b718fde352",
+    "semantic_hash": "5a6fd53fdcf2be529e9cc0b718fde352"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/Settings.tsx": {
+    "mtime": 1780509157.7459838,
+    "ast_hash": "11cdb30d33051c92b8aacf90fa4ea8c5",
+    "semantic_hash": "11cdb30d33051c92b8aacf90fa4ea8c5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/Index.tsx": {
+    "mtime": 1780509157.7447355,
+    "ast_hash": "e756ad5395bedf481787fa05fd189c18",
+    "semantic_hash": "e756ad5395bedf481787fa05fd189c18"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/Reports.tsx": {
+    "mtime": 1780509157.745356,
+    "ast_hash": "4dbca0e4a35325bd3df2a9dd7ade8e88",
+    "semantic_hash": "4dbca0e4a35325bd3df2a9dd7ade8e88"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/Login.tsx": {
+    "mtime": 1780509157.745113,
+    "ast_hash": "6c8f613e382f88b2e97e0a43ebd59d7f",
+    "semantic_hash": "6c8f613e382f88b2e97e0a43ebd59d7f"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/Rules.tsx": {
+    "mtime": 1780509157.7454724,
+    "ast_hash": "159e42d1d9eb0f911546671c08fcc21e",
+    "semantic_hash": "159e42d1d9eb0f911546671c08fcc21e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/Documents.tsx": {
+    "mtime": 1780509157.744639,
+    "ast_hash": "97948b3e9ae1026718c62ab07043e8d8",
+    "semantic_hash": "97948b3e9ae1026718c62ab07043e8d8"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/Upload.tsx": {
+    "mtime": 1780509157.7462103,
+    "ast_hash": "12e39f093529e55a779994f5debe8722",
+    "semantic_hash": "12e39f093529e55a779994f5debe8722"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/pages/NotFound.tsx": {
+    "mtime": 1780509157.745199,
+    "ast_hash": "7f6f4e93331684fdf5a149fdf712cb80",
+    "semantic_hash": "7f6f4e93331684fdf5a149fdf712cb80"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/App.tsx": {
+    "mtime": 1780509157.7465134,
+    "ast_hash": "dfa10197cdc649c4feb8d5b5e9e11621",
+    "semantic_hash": "dfa10197cdc649c4feb8d5b5e9e11621"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/main.tsx": {
+    "mtime": 1780509157.7551568,
+    "ast_hash": "15da54e39d48ef50de2df869b054c181",
+    "semantic_hash": "15da54e39d48ef50de2df869b054c181"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/setupTests.ts": {
+    "mtime": 1780509157.7576773,
+    "ast_hash": "00e47f7b9836e8f731101981fa2bb2de",
+    "semantic_hash": "00e47f7b9836e8f731101981fa2bb2de"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/vite-env.d.ts": {
+    "mtime": 1780509157.7578704,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/stores/chatStore.ts": {
+    "mtime": 1780509157.7577932,
+    "ast_hash": "b208ec77817abf404c02aaf40f793d25",
+    "semantic_hash": "b208ec77817abf404c02aaf40f793d25"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ProtectedRoute.tsx": {
+    "mtime": 1780509157.7473578,
+    "ast_hash": "b3fe46bc40644a81f684817682256aff",
+    "semantic_hash": "b3fe46bc40644a81f684817682256aff"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ExtractedContentView.tsx": {
+    "mtime": 1780509157.7472126,
+    "ast_hash": "b43ed312aebb3e1c361f7a0f673b8958",
+    "semantic_hash": "b43ed312aebb3e1c361f7a0f673b8958"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ComparisonResults.tsx": {
+    "mtime": 1780509157.7470458,
+    "ast_hash": "547937c02c3b2d741f83fe7ee2c3914d",
+    "semantic_hash": "547937c02c3b2d741f83fe7ee2c3914d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/enhanced-document-detail.tsx": {
+    "mtime": 1780509157.7495265,
+    "ast_hash": "64e6a8543fce59c335c5ad8f54d3cc21",
+    "semantic_hash": "64e6a8543fce59c335c5ad8f54d3cc21"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/app-sidebar.tsx": {
+    "mtime": 1780509157.7478983,
+    "ast_hash": "5c61c704569e1bec5468da754fecebca",
+    "semantic_hash": "5c61c704569e1bec5468da754fecebca"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ChunksList.tsx": {
+    "mtime": 1780509157.746833,
+    "ast_hash": "46177ca67d8bc50f597212602cd4ae70",
+    "semantic_hash": "46177ca67d8bc50f597212602cd4ae70"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/DocumentContentTab.tsx": {
+    "mtime": 1780509157.7471366,
+    "ast_hash": "44e091617c86bd3e8adbf6fa241f67cd",
+    "semantic_hash": "44e091617c86bd3e8adbf6fa241f67cd"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ChunksModal.tsx": {
+    "mtime": 1780509157.7469578,
+    "ast_hash": "8237e7e64096fa82314910ce56978090",
+    "semantic_hash": "8237e7e64096fa82314910ce56978090"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/app-header.tsx": {
+    "mtime": 1780509157.7478023,
+    "ast_hash": "050967b385741dd9bc71cf94db37e076",
+    "semantic_hash": "050967b385741dd9bc71cf94db37e076"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/rule-detail.tsx": {
+    "mtime": 1780509157.7496872,
+    "ast_hash": "e0f05ad1c9232439ef95e9b38e3977e4",
+    "semantic_hash": "e0f05ad1c9232439ef95e9b38e3977e4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/document-detail.tsx": {
+    "mtime": 1780509157.7494576,
+    "ast_hash": "8fcf3552a7cff0e07277a1093a5ad796",
+    "semantic_hash": "8fcf3552a7cff0e07277a1093a5ad796"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ProgressIndicator.tsx": {
+    "mtime": 1780509157.747291,
+    "ast_hash": "12b4094e72c312db118cf92716d24c76",
+    "semantic_hash": "12b4094e72c312db118cf92716d24c76"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/aspect-ratio.tsx": {
+    "mtime": 1780509157.75013,
+    "ast_hash": "ea9c6ff6c2931b5089972bfba3fa5c1f",
+    "semantic_hash": "ea9c6ff6c2931b5089972bfba3fa5c1f"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/alert-dialog.tsx": {
+    "mtime": 1780509157.7498794,
+    "ast_hash": "aca8996e4020285a789d58348abce552",
+    "semantic_hash": "aca8996e4020285a789d58348abce552"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/pagination.tsx": {
+    "mtime": 1780509157.7521424,
+    "ast_hash": "de159ac89490951ee82b4991f604e394",
+    "semantic_hash": "de159ac89490951ee82b4991f604e394"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/tabs.tsx": {
+    "mtime": 1780509157.7532742,
+    "ast_hash": "f707716323c4c8541d135da0636365c9",
+    "semantic_hash": "f707716323c4c8541d135da0636365c9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/card.tsx": {
+    "mtime": 1780509157.750626,
+    "ast_hash": "8ea844f1fbee5e12d2540b8a26cd2f6c",
+    "semantic_hash": "8ea844f1fbee5e12d2540b8a26cd2f6c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/slider.tsx": {
+    "mtime": 1780509157.7529883,
+    "ast_hash": "ccbb4f4470af296eafa94f9972e8a4f9",
+    "semantic_hash": "ccbb4f4470af296eafa94f9972e8a4f9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/popover.tsx": {
+    "mtime": 1780509157.75222,
+    "ast_hash": "b177b8aa44e03c0a5d2a9f00b11d55be",
+    "semantic_hash": "b177b8aa44e03c0a5d2a9f00b11d55be"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/progress.tsx": {
+    "mtime": 1780509157.7522905,
+    "ast_hash": "9202867eacff0cb1b253a05d5d65bfc0",
+    "semantic_hash": "9202867eacff0cb1b253a05d5d65bfc0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/toaster.tsx": {
+    "mtime": 1780509157.7534995,
+    "ast_hash": "d0e062810c47a46b9bb4e8ea19875a02",
+    "semantic_hash": "d0e062810c47a46b9bb4e8ea19875a02"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/input-otp.tsx": {
+    "mtime": 1780509157.7517288,
+    "ast_hash": "084089343296a7ebcb40fff14c62cb30",
+    "semantic_hash": "084089343296a7ebcb40fff14c62cb30"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/chart.tsx": {
+    "mtime": 1780509157.750857,
+    "ast_hash": "8d4b13c80ec8ade9908712155bf0d117",
+    "semantic_hash": "8d4b13c80ec8ade9908712155bf0d117"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/hover-card.tsx": {
+    "mtime": 1780509157.7516556,
+    "ast_hash": "004259115672f57e95da0b72ea2c613e",
+    "semantic_hash": "004259115672f57e95da0b72ea2c613e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/sheet.tsx": {
+    "mtime": 1780509157.7527509,
+    "ast_hash": "daa150998b6073011abdfc39df425359",
+    "semantic_hash": "daa150998b6073011abdfc39df425359"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/scroll-area.tsx": {
+    "mtime": 1780509157.7525227,
+    "ast_hash": "c4d63c56a99feb600ed0e9bbcfd70829",
+    "semantic_hash": "c4d63c56a99feb600ed0e9bbcfd70829"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/resizable.tsx": {
+    "mtime": 1780509157.7524438,
+    "ast_hash": "cf5896bc9f1524c3f3fb2d4f24eb54bf",
+    "semantic_hash": "cf5896bc9f1524c3f3fb2d4f24eb54bf"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/label.tsx": {
+    "mtime": 1780509157.751872,
+    "ast_hash": "7ea839d3fa873fb063a9709a79e47561",
+    "semantic_hash": "7ea839d3fa873fb063a9709a79e47561"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/sonner.tsx": {
+    "mtime": 1780509157.7530575,
+    "ast_hash": "5cc4d43770ff3cffb5ba65d5ea3ee26d",
+    "semantic_hash": "5cc4d43770ff3cffb5ba65d5ea3ee26d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/navigation-menu.tsx": {
+    "mtime": 1780509157.7520657,
+    "ast_hash": "630417e56e3f5f9a5f323565ed86d430",
+    "semantic_hash": "630417e56e3f5f9a5f323565ed86d430"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/accordion.tsx": {
+    "mtime": 1780509157.7497983,
+    "ast_hash": "1543fc386d0aba4654f3199bf017eaab",
+    "semantic_hash": "1543fc386d0aba4654f3199bf017eaab"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/drawer.tsx": {
+    "mtime": 1780509157.7513773,
+    "ast_hash": "1caf6dac62a50b2558dd36d6d7644891",
+    "semantic_hash": "1caf6dac62a50b2558dd36d6d7644891"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/tooltip.tsx": {
+    "mtime": 1780509157.7537665,
+    "ast_hash": "336ca01a98037c9a1dfe936bde3ee549",
+    "semantic_hash": "336ca01a98037c9a1dfe936bde3ee549"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/alert.tsx": {
+    "mtime": 1780509157.7499542,
+    "ast_hash": "48dac79c18e0c3ff687c320c6fcf1590",
+    "semantic_hash": "48dac79c18e0c3ff687c320c6fcf1590"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/use-toast.ts": {
+    "mtime": 1780509157.7538683,
+    "ast_hash": "4f094014a1315ca1081cbdc7f78d55cc",
+    "semantic_hash": "4f094014a1315ca1081cbdc7f78d55cc"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/switch.tsx": {
+    "mtime": 1780509157.7531247,
+    "ast_hash": "1210b13831d433e8a9488bab91432dd4",
+    "semantic_hash": "1210b13831d433e8a9488bab91432dd4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/calendar.tsx": {
+    "mtime": 1780509157.750541,
+    "ast_hash": "577b2299d7782fffe974b558233dba3a",
+    "semantic_hash": "577b2299d7782fffe974b558233dba3a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/breadcrumb.tsx": {
+    "mtime": 1780509157.7503676,
+    "ast_hash": "377763c80b5d08aa7748a2d532bb290e",
+    "semantic_hash": "377763c80b5d08aa7748a2d532bb290e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/radio-group.tsx": {
+    "mtime": 1780509157.7523677,
+    "ast_hash": "3ace644678cd101153deee82d72048d9",
+    "semantic_hash": "3ace644678cd101153deee82d72048d9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/command.tsx": {
+    "mtime": 1780509157.7511108,
+    "ast_hash": "f7bf707fa618dc27429ec5f1c19028c6",
+    "semantic_hash": "f7bf707fa618dc27429ec5f1c19028c6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/toggle-group.tsx": {
+    "mtime": 1780509157.7535715,
+    "ast_hash": "6338f2936a2474998e1e546c6a1664a6",
+    "semantic_hash": "6338f2936a2474998e1e546c6a1664a6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/avatar.tsx": {
+    "mtime": 1780509157.7502067,
+    "ast_hash": "ce4fe60f4c48c01a5a601d9835648b40",
+    "semantic_hash": "ce4fe60f4c48c01a5a601d9835648b40"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/menubar.tsx": {
+    "mtime": 1780509157.7519748,
+    "ast_hash": "a3a53eadb4e2d52cb841ebd2a910d33d",
+    "semantic_hash": "a3a53eadb4e2d52cb841ebd2a910d33d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/dialog.tsx": {
+    "mtime": 1780509157.751297,
+    "ast_hash": "3ca438e8db79dc5fa9fb4662372afadd",
+    "semantic_hash": "3ca438e8db79dc5fa9fb4662372afadd"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/badge.tsx": {
+    "mtime": 1780509157.7502844,
+    "ast_hash": "0ee5d4ebc83a3c6c43efe519e7e505e6",
+    "semantic_hash": "0ee5d4ebc83a3c6c43efe519e7e505e6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/sidebar.tsx": {
+    "mtime": 1780509157.7528417,
+    "ast_hash": "d90c4055ff814a002965ebfc05e833d5",
+    "semantic_hash": "d90c4055ff814a002965ebfc05e833d5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/table.tsx": {
+    "mtime": 1780509157.7531931,
+    "ast_hash": "8cd787f9c71ad404c87b26238ed6479a",
+    "semantic_hash": "8cd787f9c71ad404c87b26238ed6479a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/separator.tsx": {
+    "mtime": 1780509157.7526684,
+    "ast_hash": "e970901b62fe8b73d2b9254fad77f583",
+    "semantic_hash": "e970901b62fe8b73d2b9254fad77f583"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/button.tsx": {
+    "mtime": 1780509157.7504504,
+    "ast_hash": "10ded83cf8e5eadfd550732a08530b88",
+    "semantic_hash": "10ded83cf8e5eadfd550732a08530b88"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/toggle.tsx": {
+    "mtime": 1780509157.7536492,
+    "ast_hash": "5840a6d0f51ab73d9f40592fd0db4899",
+    "semantic_hash": "5840a6d0f51ab73d9f40592fd0db4899"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/app-layout.tsx": {
+    "mtime": 1780509157.7500458,
+    "ast_hash": "4bbbb19fbc7d715d6aa4063a34523885",
+    "semantic_hash": "4bbbb19fbc7d715d6aa4063a34523885"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/toast.tsx": {
+    "mtime": 1780509157.7534266,
+    "ast_hash": "6b9ed7f669208f6631d1c44bbd556877",
+    "semantic_hash": "6b9ed7f669208f6631d1c44bbd556877"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/checkbox.tsx": {
+    "mtime": 1780509157.7509387,
+    "ast_hash": "ca06e9d95214f6c4b90a760098d21830",
+    "semantic_hash": "ca06e9d95214f6c4b90a760098d21830"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/collapsible.tsx": {
+    "mtime": 1780509157.7510192,
+    "ast_hash": "8bcc61ee503a05663fb77ad9b7ec064a",
+    "semantic_hash": "8bcc61ee503a05663fb77ad9b7ec064a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/dropdown-menu.tsx": {
+    "mtime": 1780509157.7514775,
+    "ast_hash": "cf7fe61c5c91eae0bdb3b3864508d48d",
+    "semantic_hash": "cf7fe61c5c91eae0bdb3b3864508d48d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/select.tsx": {
+    "mtime": 1780509157.7525997,
+    "ast_hash": "22886e4c5f841c13755088e26c7387e3",
+    "semantic_hash": "22886e4c5f841c13755088e26c7387e3"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/textarea.tsx": {
+    "mtime": 1780509157.7533479,
+    "ast_hash": "fb19dce4f1d33ed093b75db5cefed562",
+    "semantic_hash": "fb19dce4f1d33ed093b75db5cefed562"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/input.tsx": {
+    "mtime": 1780509157.7517986,
+    "ast_hash": "e3644dbbe60e0b7780864542a22c8880",
+    "semantic_hash": "e3644dbbe60e0b7780864542a22c8880"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/skeleton.tsx": {
+    "mtime": 1780509157.752918,
+    "ast_hash": "a5a4d6d5551d4c7feb8176a23e7eb07c",
+    "semantic_hash": "a5a4d6d5551d4c7feb8176a23e7eb07c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/context-menu.tsx": {
+    "mtime": 1780509157.7512038,
+    "ast_hash": "d4964b3b39ddf550f9b30c104e0080d8",
+    "semantic_hash": "d4964b3b39ddf550f9b30c104e0080d8"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/form.tsx": {
+    "mtime": 1780509157.7515733,
+    "ast_hash": "0ed732617aace88aa93d42fe438dd281",
+    "semantic_hash": "0ed732617aace88aa93d42fe438dd281"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/ui/carousel.tsx": {
+    "mtime": 1780509157.7507236,
+    "ast_hash": "005a47594c5c8f09e27f0ed1f02197cd",
+    "semantic_hash": "005a47594c5c8f09e27f0ed1f02197cd"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/ChatInterface.tsx": {
+    "mtime": 1780509157.748032,
+    "ast_hash": "59303051243ad617e7f27c2a9fd5b1e4",
+    "semantic_hash": "59303051243ad617e7f27c2a9fd5b1e4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/types.ts": {
+    "mtime": 1780509157.748855,
+    "ast_hash": "9b11d4483c83c1cc7dba961934f3695e",
+    "semantic_hash": "9b11d4483c83c1cc7dba961934f3695e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/FloatingChatButton.tsx": {
+    "mtime": 1780509157.7483463,
+    "ast_hash": "e1fd285caf5647699aecb4196f8031a9",
+    "semantic_hash": "e1fd285caf5647699aecb4196f8031a9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/ChatPanel.tsx": {
+    "mtime": 1780509157.748186,
+    "ast_hash": "ba760ab5f263c2a75e8b1f7a0d3ff1f2",
+    "semantic_hash": "ba760ab5f263c2a75e8b1f7a0d3ff1f2"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/ComplianceTemplates.tsx": {
+    "mtime": 1780509157.7482743,
+    "ast_hash": "d6266efb90d42c7ebf49e1182a24250a",
+    "semantic_hash": "d6266efb90d42c7ebf49e1182a24250a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/GeneralChatInterface.tsx": {
+    "mtime": 1780509157.7484832,
+    "ast_hash": "0219b2856c509630bcb87c7ea56d7760",
+    "semantic_hash": "0219b2856c509630bcb87c7ea56d7760"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/index.ts": {
+    "mtime": 1780509157.7487793,
+    "ast_hash": "7f09c03006fa779b4d6d558f980e035a",
+    "semantic_hash": "7f09c03006fa779b4d6d558f980e035a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/ChatMessage.tsx": {
+    "mtime": 1780509157.748117,
+    "ast_hash": "c04c132be6a2352d0b6edf927c022dcb",
+    "semantic_hash": "c04c132be6a2352d0b6edf927c022dcb"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/dashboard/recent-uploads.tsx": {
+    "mtime": 1780509157.7492166,
+    "ast_hash": "0ded0683b2251d5dc2e3f612d62452c0",
+    "semantic_hash": "0ded0683b2251d5dc2e3f612d62452c0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/dashboard/quick-actions.tsx": {
+    "mtime": 1780509157.749141,
+    "ast_hash": "eec6ce6b9990b447946ac1936b33e1f3",
+    "semantic_hash": "eec6ce6b9990b447946ac1936b33e1f3"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/dashboard/activity-timeline.tsx": {
+    "mtime": 1780509157.7489986,
+    "ast_hash": "c870b8a3b688527934d82fe96ec72266",
+    "semantic_hash": "c870b8a3b688527934d82fe96ec72266"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/dashboard/stats-cards.tsx": {
+    "mtime": 1780509157.7493203,
+    "ast_hash": "4b45ba6886e729ceaab56f7071d094af",
+    "semantic_hash": "4b45ba6886e729ceaab56f7071d094af"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/dashboard/compliance-chart.tsx": {
+    "mtime": 1780509157.7490659,
+    "ast_hash": "b1c56a13a6440c555da988fa2904ed99",
+    "semantic_hash": "b1c56a13a6440c555da988fa2904ed99"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/__tests__/ActivityTimeline.test.tsx": {
+    "mtime": 1780509157.7474966,
+    "ast_hash": "18e329df214947718a0e1d6f70b051f7",
+    "semantic_hash": "18e329df214947718a0e1d6f70b051f7"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/__tests__/ProgressIndicator.test.tsx": {
+    "mtime": 1780509157.747568,
+    "ast_hash": "fbe3d6791a62356b6165ce8a26f9610b",
+    "semantic_hash": "fbe3d6791a62356b6165ce8a26f9610b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/__tests__/compliance-flow.e2e.test.tsx": {
+    "mtime": 1780509157.746683,
+    "ast_hash": "c200f40a3cdd34fd78b3b0b1af749686",
+    "semantic_hash": "c200f40a3cdd34fd78b3b0b1af749686"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/use-mobile.tsx": {
+    "mtime": 1780509157.754077,
+    "ast_hash": "209b5193af16624cdd89d3591480dd48",
+    "semantic_hash": "209b5193af16624cdd89d3591480dd48"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/useProject.ts": {
+    "mtime": 1780509157.75447,
+    "ast_hash": "1c244036cfd90c9d9864e6e3028019f1",
+    "semantic_hash": "1c244036cfd90c9d9864e6e3028019f1"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/use-auth.tsx": {
+    "mtime": 1780509157.7540026,
+    "ast_hash": "7b3ecd1e52e5b7321dbc217853024886",
+    "semantic_hash": "7b3ecd1e52e5b7321dbc217853024886"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/useDocuments.ts": {
+    "mtime": 1780509157.7543852,
+    "ast_hash": "10dfab0ddc6ca0df9bd4693d6794f702",
+    "semantic_hash": "10dfab0ddc6ca0df9bd4693d6794f702"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/use-toast.ts": {
+    "mtime": 1780509157.7542214,
+    "ast_hash": "bc4be55df07bc8727d5df9ed7799ad64",
+    "semantic_hash": "bc4be55df07bc8727d5df9ed7799ad64"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/useComparison.ts": {
+    "mtime": 1780509157.7543037,
+    "ast_hash": "9019a5164b42cced4ff17b2e696d801b",
+    "semantic_hash": "9019a5164b42cced4ff17b2e696d801b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/use-theme.tsx": {
+    "mtime": 1780509157.7541478,
+    "ast_hash": "dd0e81aa55317e9882c5d452422f8828",
+    "semantic_hash": "dd0e81aa55317e9882c5d452422f8828"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/hooks/useProjects.ts": {
+    "mtime": 1780509157.7545393,
+    "ast_hash": "d099dfcec0d84ecca44da201aa936be2",
+    "semantic_hash": "d099dfcec0d84ecca44da201aa936be2"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/lib/utils.ts": {
+    "mtime": 1780509157.7550898,
+    "ast_hash": "5a6fd53fdcf2be529e9cc0b718fde352",
+    "semantic_hash": "5a6fd53fdcf2be529e9cc0b718fde352"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/lib/api.ts": {
+    "mtime": 1780509157.7549403,
+    "ast_hash": "618738328e6c4b3c88a4ab41524b35fe",
+    "semantic_hash": "618738328e6c4b3c88a4ab41524b35fe"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/lib/auth.ts": {
+    "mtime": 1780509157.7550163,
+    "ast_hash": "0db384a3a72bc1e1e845a86716c9e5c1",
+    "semantic_hash": "0db384a3a72bc1e1e845a86716c9e5c1"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Settings.tsx": {
+    "mtime": 1780509157.7570503,
+    "ast_hash": "11cdb30d33051c92b8aacf90fa4ea8c5",
+    "semantic_hash": "11cdb30d33051c92b8aacf90fa4ea8c5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Projects.tsx": {
+    "mtime": 1780509157.7564383,
+    "ast_hash": "47a7889ceb82ce99c341979e6a70f298",
+    "semantic_hash": "47a7889ceb82ce99c341979e6a70f298"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Index.tsx": {
+    "mtime": 1780509157.7560952,
+    "ast_hash": "e756ad5395bedf481787fa05fd189c18",
+    "semantic_hash": "e756ad5395bedf481787fa05fd189c18"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Reports.tsx": {
+    "mtime": 1780509157.7566192,
+    "ast_hash": "f246187086b7df13dd0f6f5c634e5170",
+    "semantic_hash": "f246187086b7df13dd0f6f5c634e5170"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/ComplianceAnalysisView.tsx": {
+    "mtime": 1780509157.7558382,
+    "ast_hash": "0eedd30b967c688b275e2217814f46cb",
+    "semantic_hash": "0eedd30b967c688b275e2217814f46cb"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Login.tsx": {
+    "mtime": 1780509157.7561789,
+    "ast_hash": "342224fed6f2584e865e99f087d92c6b",
+    "semantic_hash": "342224fed6f2584e865e99f087d92c6b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Rules.tsx": {
+    "mtime": 1780509157.756735,
+    "ast_hash": "159e42d1d9eb0f911546671c08fcc21e",
+    "semantic_hash": "159e42d1d9eb0f911546671c08fcc21e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/ComplianceAnalysisResults.tsx": {
+    "mtime": 1780509157.7556531,
+    "ast_hash": "4115edffb8c3fd86225bb86104eff873",
+    "semantic_hash": "4115edffb8c3fd86225bb86104eff873"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/ProjectDetail.tsx": {
+    "mtime": 1780509157.756338,
+    "ast_hash": "15a0b1646716f1358841f3e13bf3e7c1",
+    "semantic_hash": "15a0b1646716f1358841f3e13bf3e7c1"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Register.tsx": {
+    "mtime": 1780509157.756525,
+    "ast_hash": "84d07348629020ad66e12c45545ad5d0",
+    "semantic_hash": "84d07348629020ad66e12c45545ad5d0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/DocumentDetail.tsx": {
+    "mtime": 1780509157.755933,
+    "ast_hash": "9fb066ece81017a79b8936a27e6d4208",
+    "semantic_hash": "9fb066ece81017a79b8936a27e6d4208"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Activity.tsx": {
+    "mtime": 1780509157.7554462,
+    "ast_hash": "2d39b28b068c47a0e158829ea379b73d",
+    "semantic_hash": "2d39b28b068c47a0e158829ea379b73d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Documents.tsx": {
+    "mtime": 1780509157.7560172,
+    "ast_hash": "f780b554133e695f77f89a674e62ecab",
+    "semantic_hash": "f780b554133e695f77f89a674e62ecab"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/Upload.tsx": {
+    "mtime": 1780509157.7572162,
+    "ast_hash": "5bedf640b69a7ea1c38074d484acca15",
+    "semantic_hash": "5bedf640b69a7ea1c38074d484acca15"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/AnalysisResults.tsx": {
+    "mtime": 1780509157.7555456,
+    "ast_hash": "063cfea2a8c9b13f8f8b31c5b5e6bb49",
+    "semantic_hash": "063cfea2a8c9b13f8f8b31c5b5e6bb49"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/NotFound.tsx": {
+    "mtime": 1780509157.756248,
+    "ast_hash": "7f6f4e93331684fdf5a149fdf712cb80",
+    "semantic_hash": "7f6f4e93331684fdf5a149fdf712cb80"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/__tests__/ComplianceAnalysisResults.test.tsx": {
+    "mtime": 1780509157.757435,
+    "ast_hash": "727b55d2f87f876787d5162066190b12",
+    "semantic_hash": "727b55d2f87f876787d5162066190b12"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/__tests__/ComplianceAnalysisView.test.tsx": {
+    "mtime": 1780509157.7575226,
+    "ast_hash": "d701809750d847c9e6c9f04c2a26eb88",
+    "semantic_hash": "d701809750d847c9e6c9f04c2a26eb88"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/__tests__/Activity.test.tsx": {
+    "mtime": 1780509157.7573404,
+    "ast_hash": "ca787fd498a3437a54e621113602464e",
+    "semantic_hash": "ca787fd498a3437a54e621113602464e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/pages/__tests__/DocumentDetail.test.tsx": {
+    "mtime": 1780509157.7576091,
+    "ast_hash": "06675849109f756223a594b64431bf86",
+    "semantic_hash": "06675849109f756223a594b64431bf86"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/tailwind.config.js": {
+    "mtime": 1780509157.7770286,
+    "ast_hash": "905c55c2838db9e792f4fa7a60cc8037",
+    "semantic_hash": "905c55c2838db9e792f4fa7a60cc8037"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/package.json": {
+    "mtime": 1780509157.7742112,
+    "ast_hash": "3f72e625650c86ab127f952e37ae23e5",
+    "semantic_hash": "3f72e625650c86ab127f952e37ae23e5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/tsconfig.json": {
+    "mtime": 1780509157.7771175,
+    "ast_hash": "ec4ef92222b0c85ceda55ebb15f86900",
+    "semantic_hash": "ec4ef92222b0c85ceda55ebb15f86900"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/vite.config.ts": {
+    "mtime": 1780509157.7772546,
+    "ast_hash": "b12f2d0bc274d0060d0caf6cccfc9841",
+    "semantic_hash": "b12f2d0bc274d0060d0caf6cccfc9841"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/postcss.config.js": {
+    "mtime": 1780509157.7742772,
+    "ast_hash": "222a79a9879c7cd4d9980533b7639465",
+    "semantic_hash": "222a79a9879c7cd4d9980533b7639465"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/App.tsx": {
+    "mtime": 1780509157.774787,
+    "ast_hash": "c9de69dc69777bf2cde9ba128b11c7e0",
+    "semantic_hash": "c9de69dc69777bf2cde9ba128b11c7e0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/main.tsx": {
+    "mtime": 1780509157.7758946,
+    "ast_hash": "593b76e1efad1e117887efc68fe8aed0",
+    "semantic_hash": "593b76e1efad1e117887efc68fe8aed0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/env.d.ts": {
+    "mtime": 1780509157.7753568,
+    "ast_hash": "8d22188f646f0481d15fdf7aad2de934",
+    "semantic_hash": "8d22188f646f0481d15fdf7aad2de934"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/components/ExtractedContent.tsx": {
+    "mtime": 1780509157.775184,
+    "ast_hash": "847b595b1e264d2b68b994d1d029322e",
+    "semantic_hash": "847b595b1e264d2b68b994d1d029322e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/components/DocumentsTab.tsx": {
+    "mtime": 1780509157.7751114,
+    "ast_hash": "2f478a4e84bd25574dfc6c017c8c8d88",
+    "semantic_hash": "2f478a4e84bd25574dfc6c017c8c8d88"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/components/ChunkDetailPanel.tsx": {
+    "mtime": 1780509157.7749257,
+    "ast_hash": "608f43b1d6e4248490b7fa6a71320c51",
+    "semantic_hash": "608f43b1d6e4248490b7fa6a71320c51"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/components/Layout.tsx": {
+    "mtime": 1780509157.775286,
+    "ast_hash": "f25fffaf27ab95798d94bc5680a8f89a",
+    "semantic_hash": "f25fffaf27ab95798d94bc5680a8f89a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/components/ChunksTab.tsx": {
+    "mtime": 1780509157.7750282,
+    "ast_hash": "7d7ba77a604c7ab678c19f546b71ec61",
+    "semantic_hash": "7d7ba77a604c7ab678c19f546b71ec61"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/hooks/use-theme.tsx": {
+    "mtime": 1780509157.7754781,
+    "ast_hash": "4d71b885b45f4a743178fc0cf681db17",
+    "semantic_hash": "4d71b885b45f4a743178fc0cf681db17"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/lib/api.ts": {
+    "mtime": 1780509157.7758248,
+    "ast_hash": "fa0b30ff4678410b5b664cb11815cee6",
+    "semantic_hash": "fa0b30ff4678410b5b664cb11815cee6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/pages/Tenants.tsx": {
+    "mtime": 1780509157.7767892,
+    "ast_hash": "b21de323fc7b0587ded38097cf76d10c",
+    "semantic_hash": "b21de323fc7b0587ded38097cf76d10c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/pages/Login.tsx": {
+    "mtime": 1780509157.776698,
+    "ast_hash": "061219cc9bef15e9b0a46d4b6b6ae0a5",
+    "semantic_hash": "061219cc9bef15e9b0a46d4b6b6ae0a5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/pages/Dashboard.tsx": {
+    "mtime": 1780509157.7760587,
+    "ast_hash": "8010dcb6eec2521fe57351b5b6e5c8ed",
+    "semantic_hash": "8010dcb6eec2521fe57351b5b6e5c8ed"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/pages/DocumentDetail.tsx": {
+    "mtime": 1780509157.7762737,
+    "ast_hash": "8dcabb9c5d6616a753a45407b96bdd0f",
+    "semantic_hash": "8dcabb9c5d6616a753a45407b96bdd0f"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/pages/Users.tsx": {
+    "mtime": 1780509157.7769442,
+    "ast_hash": "878838fb732834d682b7fdf9e79b18d5",
+    "semantic_hash": "878838fb732834d682b7fdf9e79b18d5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/src/pages/Documents.tsx": {
+    "mtime": 1780509157.7766035,
+    "ast_hash": "4fdc3abbecf10e1f90dcad3055e18c57",
+    "semantic_hash": "4fdc3abbecf10e1f90dcad3055e18c57"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/worker.py": {
+    "mtime": 1780509157.7187626,
+    "ast_hash": "8844a4dfb72479132f839393215a70ef",
+    "semantic_hash": "8844a4dfb72479132f839393215a70ef"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/config.py": {
+    "mtime": 1780509157.7133524,
+    "ast_hash": "573c904fd4c75d5c9b85389ed5a0b0b4",
+    "semantic_hash": "573c904fd4c75d5c9b85389ed5a0b0b4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/__init__.py": {
+    "mtime": 1780509157.711439,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/main.py": {
+    "mtime": 1780509157.7153666,
+    "ast_hash": "5716cefcf55f774eb149cc1c14f67ac3",
+    "semantic_hash": "5716cefcf55f774eb149cc1c14f67ac3"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/analysis.py": {
+    "mtime": 1780509157.71793,
+    "ast_hash": "7f43d8981dda5f4cf7aefb5b41e5959f",
+    "semantic_hash": "7f43d8981dda5f4cf7aefb5b41e5959f"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/process_user_document.py": {
+    "mtime": 1780509157.7185736,
+    "ast_hash": "bca1f679e8e1de4c166a942b2e1f75e2",
+    "semantic_hash": "bca1f679e8e1de4c166a942b2e1f75e2"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/__init__.py": {
+    "mtime": 1780509157.7177925,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/compliance_report_task.py": {
+    "mtime": 1780509157.718125,
+    "ast_hash": "823eb3c47abaa36b8f8db82cf4f3867c",
+    "semantic_hash": "823eb3c47abaa36b8f8db82cf4f3867c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/extract_articles.py": {
+    "mtime": 1780509157.718348,
+    "ast_hash": "717820abf37ec4d5e5f937325899ea1a",
+    "semantic_hash": "717820abf37ec4d5e5f937325899ea1a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/compare_documents.py": {
+    "mtime": 1780509157.7180295,
+    "ast_hash": "388c32aec556312376ea8b6db1abde9a",
+    "semantic_hash": "388c32aec556312376ea8b6db1abde9a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/processing.py": {
+    "mtime": 1780509157.718679,
+    "ast_hash": "5e2647035ad2c589d6853e7902f9c6c6",
+    "semantic_hash": "5e2647035ad2c589d6853e7902f9c6c6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/tasks/process_base_document.py": {
+    "mtime": 1780509157.7184854,
+    "ast_hash": "770a220a22edeb87fc51466f3a73edf9",
+    "semantic_hash": "770a220a22edeb87fc51466f3a73edf9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/session.py": {
+    "mtime": 1780509157.7152648,
+    "ast_hash": "14bb8e552e70e2fa767f7a18197d9c50",
+    "semantic_hash": "14bb8e552e70e2fa767f7a18197d9c50"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/__init__.py": {
+    "mtime": 1780509157.7134402,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/base.py": {
+    "mtime": 1780509157.713544,
+    "ast_hash": "16deb2759f7de2cf86f328dce6b2d38b",
+    "semantic_hash": "16deb2759f7de2cf86f328dce6b2d38b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/superadmin.py": {
+    "mtime": 1780509157.7148175,
+    "ast_hash": "a014b87ed0498631dc00653c5df09e34",
+    "semantic_hash": "a014b87ed0498631dc00653c5df09e34"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/base_document_chunk.py": {
+    "mtime": 1780509157.714122,
+    "ast_hash": "05c2225883e1e5f8a73d2c7e4cff2e57",
+    "semantic_hash": "05c2225883e1e5f8a73d2c7e4cff2e57"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/user.py": {
+    "mtime": 1780509157.7151692,
+    "ast_hash": "c58d37a9715522ee5bf813902887545e",
+    "semantic_hash": "c58d37a9715522ee5bf813902887545e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/tenant.py": {
+    "mtime": 1780509157.7150373,
+    "ast_hash": "48440bef8b0af4e42d58f614379041b8",
+    "semantic_hash": "48440bef8b0af4e42d58f614379041b8"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/analysis.py": {
+    "mtime": 1780511276.7285447,
+    "ast_hash": "13d13f9db747a8471bc8d6711a86a6f0",
+    "semantic_hash": "13d13f9db747a8471bc8d6711a86a6f0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/compliance_comparison.py": {
+    "mtime": 1780509157.7142043,
+    "ast_hash": "8e5e9e0c72d021ae7489ee147c3d55fe",
+    "semantic_hash": "8e5e9e0c72d021ae7489ee147c3d55fe"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/mizan_document_article.py": {
+    "mtime": 1780509157.7146177,
+    "ast_hash": "3967722e59950efe265a8a1fdd285d58",
+    "semantic_hash": "3967722e59950efe265a8a1fdd285d58"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/activity.py": {
+    "mtime": 1780509157.7137759,
+    "ast_hash": "ca450ec9df5870cb8fd810c4f9d95a01",
+    "semantic_hash": "ca450ec9df5870cb8fd810c4f9d95a01"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/__init__.py": {
+    "mtime": 1780509157.7136824,
+    "ast_hash": "cc5b548e4f0e95e1c9204418875c3887",
+    "semantic_hash": "cc5b548e4f0e95e1c9204418875c3887"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/compliance_report.py": {
+    "mtime": 1780509157.7143626,
+    "ast_hash": "51fe60465a5c1878a9514000d21074fa",
+    "semantic_hash": "51fe60465a5c1878a9514000d21074fa"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/mizan_document_chunk.py": {
+    "mtime": 1780509157.7147198,
+    "ast_hash": "73fefaedaa3d9a6d15ccf39244461cc7",
+    "semantic_hash": "73fefaedaa3d9a6d15ccf39244461cc7"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/base_document.py": {
+    "mtime": 1780509157.713957,
+    "ast_hash": "e9da7e35a8327ca4f0575e5073706a1c",
+    "semantic_hash": "e9da7e35a8327ca4f0575e5073706a1c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/base_document_article.py": {
+    "mtime": 1780509157.7140424,
+    "ast_hash": "a3a5945ba9268365e2b4014ee13862e0",
+    "semantic_hash": "a3a5945ba9268365e2b4014ee13862e0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/document.py": {
+    "mtime": 1780509157.714491,
+    "ast_hash": "1b2a95d6260686fcaf4f8af8172d1e72",
+    "semantic_hash": "1b2a95d6260686fcaf4f8af8172d1e72"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/db/models/compliance_finding.py": {
+    "mtime": 1780509157.7142851,
+    "ast_hash": "7b671b315d43d7e74de056fb6f8ffe52",
+    "semantic_hash": "7b671b315d43d7e74de056fb6f8ffe52"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/__init__.py": {
+    "mtime": 1780509157.7115583,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/superadmin.py": {
+    "mtime": 1780509157.713272,
+    "ast_hash": "9ed4a66b909f0beb2c10a9cb9c3a0910",
+    "semantic_hash": "9ed4a66b909f0beb2c10a9cb9c3a0910"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/compliance_chat.py": {
+    "mtime": 1780509157.7126863,
+    "ast_hash": "62493f8bd856eaa1ec5bc18bcca2af26",
+    "semantic_hash": "62493f8bd856eaa1ec5bc18bcca2af26"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/auth.py": {
+    "mtime": 1780509157.7123506,
+    "ast_hash": "f3b8ac3a8ef9e33a0ed3e855219a125b",
+    "semantic_hash": "f3b8ac3a8ef9e33a0ed3e855219a125b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/analysis.py": {
+    "mtime": 1780509157.7120163,
+    "ast_hash": "79e11856ccd272366d31e0732275f1e9",
+    "semantic_hash": "79e11856ccd272366d31e0732275f1e9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/ai_chat.py": {
+    "mtime": 1780509157.7119105,
+    "ast_hash": "4d5e368a84d99a870c7ef68abffd1e48",
+    "semantic_hash": "4d5e368a84d99a870c7ef68abffd1e48"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/documents.py": {
+    "mtime": 1780509157.7129364,
+    "ast_hash": "df7ff86dbb23eafc027555b9d2bb5a92",
+    "semantic_hash": "df7ff86dbb23eafc027555b9d2bb5a92"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/activity.py": {
+    "mtime": 1780509157.7118115,
+    "ast_hash": "8e737a6c73a93330217bd2ae4b47abf5",
+    "semantic_hash": "8e737a6c73a93330217bd2ae4b47abf5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/__init__.py": {
+    "mtime": 1780509157.7116818,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/compliance_report.py": {
+    "mtime": 1780509157.7128062,
+    "ast_hash": "4a7df7bf813f1dd9dcf0f88e21d99da1",
+    "semantic_hash": "4a7df7bf813f1dd9dcf0f88e21d99da1"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/reports.py": {
+    "mtime": 1780509157.7130816,
+    "ast_hash": "b698fc160520d4f4655b90c0916409bd",
+    "semantic_hash": "b698fc160520d4f4655b90c0916409bd"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/base_documents.py": {
+    "mtime": 1780509157.7125626,
+    "ast_hash": "2af5adcd572d370a4f2d50c19e462c81",
+    "semantic_hash": "2af5adcd572d370a4f2d50c19e462c81"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/search.py": {
+    "mtime": 1780509157.713173,
+    "ast_hash": "7abdca0d757943fd649ebb421af56e63",
+    "semantic_hash": "7abdca0d757943fd649ebb421af56e63"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/api/v1/analytics.py": {
+    "mtime": 1780509157.7122478,
+    "ast_hash": "4cb2f0c08273e626decbbb027c66ea97",
+    "semantic_hash": "4cb2f0c08273e626decbbb027c66ea97"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/audit.py": {
+    "mtime": 1780509157.716244,
+    "ast_hash": "6641dbcb9da1aacfb4a385e2c9156965",
+    "semantic_hash": "6641dbcb9da1aacfb4a385e2c9156965"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/qdrant_search.py": {
+    "mtime": 1780509157.717553,
+    "ast_hash": "6457626bbc134e66aa853bc01ee0dd8c",
+    "semantic_hash": "6457626bbc134e66aa853bc01ee0dd8c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/compliance.py": {
+    "mtime": 1780509157.716447,
+    "ast_hash": "3f818fd01b04b13e138a211609a26e8b",
+    "semantic_hash": "3f818fd01b04b13e138a211609a26e8b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/__init__.py": {
+    "mtime": 1780509157.7154558,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/llm.py": {
+    "mtime": 1780509157.7171059,
+    "ast_hash": "ba5270ef9a60a442baa11b02d847de8a",
+    "semantic_hash": "ba5270ef9a60a442baa11b02d847de8a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/comparison.py": {
+    "mtime": 1780509157.7163482,
+    "ast_hash": "63543ccdddff8273964471675b01bc58",
+    "semantic_hash": "63543ccdddff8273964471675b01bc58"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/noesia.py": {
+    "mtime": 1780509157.7174284,
+    "ast_hash": "56c1b8c61d3d73928bb371ecd6927bce",
+    "semantic_hash": "56c1b8c61d3d73928bb371ecd6927bce"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/compliance_comparator.py": {
+    "mtime": 1780509157.7165544,
+    "ast_hash": "3af263c0e799aee06a6c758d63474efa",
+    "semantic_hash": "3af263c0e799aee06a6c758d63474efa"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/report.py": {
+    "mtime": 1780509157.7176776,
+    "ast_hash": "b26cd0843100596c9da70b948278c94e",
+    "semantic_hash": "b26cd0843100596c9da70b948278c94e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/compliance_report_agent.py": {
+    "mtime": 1780509157.716743,
+    "ast_hash": "fc3f3bb4972be2053fc52d4ed1345d67",
+    "semantic_hash": "fc3f3bb4972be2053fc52d4ed1345d67"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/article_extraction/regex_extractor.py": {
+    "mtime": 1780509157.7160723,
+    "ast_hash": "beda2fe113fcd611a555d02e314772f7",
+    "semantic_hash": "beda2fe113fcd611a555d02e314772f7"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/article_extraction/graph.py": {
+    "mtime": 1780513088.2987094,
+    "ast_hash": "735f6477d2a36639017d4d781f1510cf",
+    "semantic_hash": "735f6477d2a36639017d4d781f1510cf"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/article_extraction/__init__.py": {
+    "mtime": 1780509157.715603,
+    "ast_hash": "1aa0902cb62fe8e400ee47cc5c1602d4",
+    "semantic_hash": "1aa0902cb62fe8e400ee47cc5c1602d4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/article_extraction/prompts.py": {
+    "mtime": 1780509157.7159486,
+    "ast_hash": "054295364e885fb72f7997035ffab2a6",
+    "semantic_hash": "054295364e885fb72f7997035ffab2a6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/article_extraction/nodes.py": {
+    "mtime": 1780513075.0131223,
+    "ast_hash": "24fdeac128c9f1860d72e45e8662961f",
+    "semantic_hash": "24fdeac128c9f1860d72e45e8662961f"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/app/services/article_extraction/state.py": {
+    "mtime": 1780509157.7161565,
+    "ast_hash": "17437db49418a83269906cd4c30fe724",
+    "semantic_hash": "17437db49418a83269906cd4c30fe724"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/tests/test_extraction_agent.py": {
+    "mtime": 1780509157.7210524,
+    "ast_hash": "4968f1b61a1b60bf1c379df8ec3e9c02",
+    "semantic_hash": "4968f1b61a1b60bf1c379df8ec3e9c02"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/tests/test_audit_model.py": {
+    "mtime": 1780509157.7208786,
+    "ast_hash": "5725858f0c31677f6b368a1a6b73dfca",
+    "semantic_hash": "5725858f0c31677f6b368a1a6b73dfca"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/tests/__init__.py": {
+    "mtime": 1780509157.720692,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/tests/test_progress_tracking.py": {
+    "mtime": 1780509157.7211416,
+    "ast_hash": "bf09cbf66c3c7efabeadcae4e83c1abe",
+    "semantic_hash": "bf09cbf66c3c7efabeadcae4e83c1abe"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/tests/test_article_extraction.py": {
+    "mtime": 1780509157.7207952,
+    "ast_hash": "b95ef6934fb52a1ad1d699be369916dc",
+    "semantic_hash": "b95ef6934fb52a1ad1d699be369916dc"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/tests/test_audit_service.py": {
+    "mtime": 1780509157.7209568,
+    "ast_hash": "e345b8a598d3fd35c1dd12fff70bff98",
+    "semantic_hash": "e345b8a598d3fd35c1dd12fff70bff98"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/scripts/extract_articles_from_md.py": {
+    "mtime": 1780509157.7191243,
+    "ast_hash": "2513de3595cd2c14dff8cdcfd09bf363",
+    "semantic_hash": "2513de3595cd2c14dff8cdcfd09bf363"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/scripts/output/ecc-en.pdf.json": {
+    "mtime": 1780509157.7205284,
+    "ast_hash": "d751713988987e9331980363e24189ce",
+    "semantic_hash": "d751713988987e9331980363e24189ce"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/scripts/output/PoliciesEn_agent.json": {
+    "mtime": 1780509157.7201357,
+    "ast_hash": "430ac43e630b89ec6a7dc75c4b27c409",
+    "semantic_hash": "430ac43e630b89ec6a7dc75c4b27c409"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/scripts/output/LABOR_LAW.pdf.json": {
+    "mtime": 1780509157.7194324,
+    "ast_hash": "4a9f4ce03e821329a04d2ede4a60b841",
+    "semantic_hash": "4a9f4ce03e821329a04d2ede4a60b841"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/scripts/output/LABOR_LAW_agent.json": {
+    "mtime": 1780509157.7197363,
+    "ast_hash": "7ee7fc5600f989da58a344ac76917a4a",
+    "semantic_hash": "7ee7fc5600f989da58a344ac76917a4a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/scripts/output/ecc-en_agent.json": {
+    "mtime": 1780509157.7206109,
+    "ast_hash": "d751713988987e9331980363e24189ce",
+    "semantic_hash": "d751713988987e9331980363e24189ce"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/scripts/output/PoliciesEn.pdf.json": {
+    "mtime": 1780509157.720003,
+    "ast_hash": "047321d0c5418de60c32cd519154bf8a",
+    "semantic_hash": "047321d0c5418de60c32cd519154bf8a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/alembic/env.py": {
+    "mtime": 1780509157.7106786,
+    "ast_hash": "b854eb561338765ee3f1ebd72234d1a0",
+    "semantic_hash": "b854eb561338765ee3f1ebd72234d1a0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/README.md": {
+    "mtime": 1780509157.6988428,
+    "ast_hash": "2d556fb4f1c23b8f4cef7a2c6352685a",
+    "semantic_hash": "2d556fb4f1c23b8f4cef7a2c6352685a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docker-compose.yml": {
+    "mtime": 1780510262.4038193,
+    "ast_hash": "124c6b32c77c3197d15c88c3eb20dcf1",
+    "semantic_hash": "124c6b32c77c3197d15c88c3eb20dcf1"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/CLAUDE.md": {
+    "mtime": 1780509157.698705,
+    "ast_hash": "f9db6e8bdb9a31fb4bc8094819a455b7",
+    "semantic_hash": "f9db6e8bdb9a31fb4bc8094819a455b7"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/tasks/todo.md": {
+    "mtime": 1780509157.7775054,
+    "ast_hash": "72033c7f5a633a6b9d9b0c6b1a8dd3f5",
+    "semantic_hash": "72033c7f5a633a6b9d9b0c6b1a8dd3f5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/tasks/lessons.md": {
+    "mtime": 1780509157.7774324,
+    "ast_hash": "ad7e9a5d0fa71f73d8b21ad9b4142990",
+    "semantic_hash": "ad7e9a5d0fa71f73d8b21ad9b4142990"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/index.html": {
+    "mtime": 1780509157.7267704,
+    "ast_hash": "4f333c206e0576dc2b294f9f6c7bdcec",
+    "semantic_hash": "4f333c206e0576dc2b294f9f6c7bdcec"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src.backup/components/chat/README.md": {
+    "mtime": 1780509157.7372444,
+    "ast_hash": "aebe4d2730911fbfc961e5c8c73e018d",
+    "semantic_hash": "aebe4d2730911fbfc961e5c8c73e018d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/src/components/chat/README.md": {
+    "mtime": 1780509157.7487113,
+    "ast_hash": "aebe4d2730911fbfc961e5c8c73e018d",
+    "semantic_hash": "aebe4d2730911fbfc961e5c8c73e018d"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/index.html": {
+    "mtime": 1780509157.7738004,
+    "ast_hash": "316811f9b45331a4bd8c3c73972b0828",
+    "semantic_hash": "316811f9b45331a4bd8c3c73972b0828"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/backend/requirements.txt": {
+    "mtime": 1780509157.7188575,
+    "ast_hash": "050ab591f57e61764036aeacc71c94a6",
+    "semantic_hash": "050ab591f57e61764036aeacc71c94a6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/TEST_RESULTS_SUMMARY.md": {
+    "mtime": 1780509157.7223873,
+    "ast_hash": "eebbe42466e1e03c7064fa537c9c0a69",
+    "semantic_hash": "eebbe42466e1e03c7064fa537c9c0a69"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/architecture.md": {
+    "mtime": 1780509157.7226245,
+    "ast_hash": "ee88408df956c707d602bcb0d644611e",
+    "semantic_hash": "ee88408df956c707d602bcb0d644611e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/INTEGRATION_TEST_RESULTS.md": {
+    "mtime": 1780509157.7216678,
+    "ast_hash": "f7667cb3a422a11cfb1fdd30294e9be9",
+    "semantic_hash": "f7667cb3a422a11cfb1fdd30294e9be9"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/TESTING_REPORT.md": {
+    "mtime": 1780509157.722146,
+    "ast_hash": "9eb36c6d1ba0971d5d32d8c16206d9d6",
+    "semantic_hash": "9eb36c6d1ba0971d5d32d8c16206d9d6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/INTEGRATION_TEST_COMPLETE.md": {
+    "mtime": 1780509157.7215514,
+    "ast_hash": "df6a4cb67a89aa11839ad09f9342a45b",
+    "semantic_hash": "df6a4cb67a89aa11839ad09f9342a45b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/MANUAL_TEST_GUIDE.md": {
+    "mtime": 1780509157.721877,
+    "ast_hash": "8ff5efbe97641fd83572888981962599",
+    "semantic_hash": "8ff5efbe97641fd83572888981962599"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/QUICK_REFERENCE.md": {
+    "mtime": 1780509157.7219834,
+    "ast_hash": "8aaaf8672c86bc4a8d7be4d1d9021b3b",
+    "semantic_hash": "8aaaf8672c86bc4a8d7be4d1d9021b3b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/TEST_DOCUMENTATION_INDEX.md": {
+    "mtime": 1780509157.7222579,
+    "ast_hash": "72d9954a734d15e38ed79bf0c857700c",
+    "semantic_hash": "72d9954a734d15e38ed79bf0c857700c"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-19-superadmin-base-documents.md": {
+    "mtime": 1780509157.7232862,
+    "ast_hash": "4c6be111e26bfe26babea9c297854a08",
+    "semantic_hash": "4c6be111e26bfe26babea9c297854a08"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-08-frontend-migration.md": {
+    "mtime": 1780509157.7230613,
+    "ast_hash": "27cace7559b62f56a28153f17df2dde2",
+    "semantic_hash": "27cace7559b62f56a28153f17df2dde2"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-28-realtime-compliance-analysis-implementation.md": {
+    "mtime": 1780509157.724069,
+    "ast_hash": "84744cf1df0ad76781528c07f9124e52",
+    "semantic_hash": "84744cf1df0ad76781528c07f9124e52"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-21-document-upload-pipeline.md": {
+    "mtime": 1780509157.7236602,
+    "ast_hash": "3a4804a14bd01101eda5411b90f5df62",
+    "semantic_hash": "3a4804a14bd01101eda5411b90f5df62"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-28-three-way-document-routing.md": {
+    "mtime": 1780509157.7242224,
+    "ast_hash": "9fb87d0c79733c58c738dca326e86dc6",
+    "semantic_hash": "9fb87d0c79733c58c738dca326e86dc6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-05-13-article-extraction-superadmin.md": {
+    "mtime": 1780509157.7245572,
+    "ast_hash": "f68e9008217a3badc4bd217f3ef98823",
+    "semantic_hash": "f68e9008217a3badc4bd217f3ef98823"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-26-compliance-comparison-implementation.md": {
+    "mtime": 1780509157.723867,
+    "ast_hash": "1e1ab5588485a04abcd8272392f35d77",
+    "semantic_hash": "1e1ab5588485a04abcd8272392f35d77"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-05-25-compliance-chat.md": {
+    "mtime": 1780509157.7248833,
+    "ast_hash": "67364d115099a374d6a1ee82fc0ccf41",
+    "semantic_hash": "67364d115099a374d6a1ee82fc0ccf41"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-29-audit-events.md": {
+    "mtime": 1780509157.72438,
+    "ast_hash": "f524d237d1838619308aeab06ce329b4",
+    "semantic_hash": "f524d237d1838619308aeab06ce329b4"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-04-20-document-detail-tabs.md": {
+    "mtime": 1780509157.7234669,
+    "ast_hash": "0408cadf1147e1af82728e8eac3ca2b6",
+    "semantic_hash": "0408cadf1147e1af82728e8eac3ca2b6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/plans/2026-05-22-langgraph-article-extraction.md": {
+    "mtime": 1780509157.7247007,
+    "ast_hash": "d32c57e9a051868806665401bce16706",
+    "semantic_hash": "d32c57e9a051868806665401bce16706"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-04-20-document-detail-tabs-design.md": {
+    "mtime": 1780509157.7254722,
+    "ast_hash": "bc9dfd54ad926b113372a70964c85526",
+    "semantic_hash": "bc9dfd54ad926b113372a70964c85526"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-04-28-realtime-compliance-analysis-design.md": {
+    "mtime": 1780509157.7260592,
+    "ast_hash": "70486c236824e5048e601efb99072a99",
+    "semantic_hash": "70486c236824e5048e601efb99072a99"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-04-27-three-way-document-routing-design.md": {
+    "mtime": 1780509157.7258613,
+    "ast_hash": "c9040f0f8c4e98523ca8c446c36a6380",
+    "semantic_hash": "c9040f0f8c4e98523ca8c446c36a6380"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-04-26-compliance-comparison-design.md": {
+    "mtime": 1780509157.7257454,
+    "ast_hash": "171e01d62e5bafb20f5ddf3a92d9fc8a",
+    "semantic_hash": "171e01d62e5bafb20f5ddf3a92d9fc8a"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-05-25-compliance-chat-design.md": {
+    "mtime": 1780509157.7265139,
+    "ast_hash": "9df4be185e6440e00d80efd21ab993a5",
+    "semantic_hash": "9df4be185e6440e00d80efd21ab993a5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-05-13-article-extraction-design.md": {
+    "mtime": 1780509157.726182,
+    "ast_hash": "911c8cb50aa48ab308efff59d1df95c6",
+    "semantic_hash": "911c8cb50aa48ab308efff59d1df95c6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-05-15-article-comparison-design.md": {
+    "mtime": 1780509157.7262902,
+    "ast_hash": "bafb7e90dba98db0d8d8c57b1c84786e",
+    "semantic_hash": "bafb7e90dba98db0d8d8c57b1c84786e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/docs/superpowers/specs/2026-05-17-reports-data-tables-design.md": {
+    "mtime": 1780509157.7263973,
+    "ast_hash": "6d5171f8d775be81d33a6292838eac3b",
+    "semantic_hash": "6d5171f8d775be81d33a6292838eac3b"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/.remember/today-2026-06-03.md": {
+    "mtime": 1780511737.8871434,
+    "ast_hash": "6bbfa06aec004d2a9a8b61f9841acfc0",
+    "semantic_hash": "6bbfa06aec004d2a9a8b61f9841acfc0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/.remember/now.md": {
+    "mtime": 1780512786.0696514,
+    "ast_hash": "a1cb97d26b814457ca17e1a8ffc0004e",
+    "semantic_hash": "a1cb97d26b814457ca17e1a8ffc0004e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/Sample Docs/Saudi Labour Law/LABOR LAW.pdf": {
+    "mtime": 1780509157.7082176,
+    "ast_hash": "5131c3405dff35582a9969eae3589047",
+    "semantic_hash": "5131c3405dff35582a9969eae3589047"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/Sample Docs/NDMO/PoliciesEn.pdf": {
+    "mtime": 1780509157.7044601,
+    "ast_hash": "ba29382716b53f90ecfd231605fb49f6",
+    "semantic_hash": "ba29382716b53f90ecfd231605fb49f6"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/public/favicon-512x512.png": {
+    "mtime": 1780509157.735355,
+    "ast_hash": "8bf2c93c36b2a1b64c572e4dbe88e03e",
+    "semantic_hash": "8bf2c93c36b2a1b64c572e4dbe88e03e"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/public/mizan-logo.png": {
+    "mtime": 1780509157.7358642,
+    "ast_hash": "8173d01ba16095f0485ba9b8060a20bc",
+    "semantic_hash": "8173d01ba16095f0485ba9b8060a20bc"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/frontend/public/favicon-2048x2048.png": {
+    "mtime": 1780509157.732222,
+    "ast_hash": "aca0b0d54fb1b4b5ae763548620bedc2",
+    "semantic_hash": "aca0b0d54fb1b4b5ae763548620bedc2"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/images/mizan-logo-gemini.png": {
+    "mtime": 1780509157.772548,
+    "ast_hash": "ecdc9394ba02d90c4a363ba12a979ca5",
+    "semantic_hash": "ecdc9394ba02d90c4a363ba12a979ca5"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/images/favicon-512x512.png": {
+    "mtime": 1780509157.7682219,
+    "ast_hash": "632e61d679a6be3f4ee153755eaa58fe",
+    "semantic_hash": "632e61d679a6be3f4ee153755eaa58fe"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/images/mizan-logo.png": {
+    "mtime": 1780509157.772881,
+    "ast_hash": "8173d01ba16095f0485ba9b8060a20bc",
+    "semantic_hash": "8173d01ba16095f0485ba9b8060a20bc"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/images/favicon-2048x2048.png": {
+    "mtime": 1780509157.7635384,
+    "ast_hash": "29d2458d42e103fc3a318e60a8f5d364",
+    "semantic_hash": "29d2458d42e103fc3a318e60a8f5d364"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/images/mizan-icon-v11.png": {
+    "mtime": 1780509157.771448,
+    "ast_hash": "423dccd43001a5a303f278fa687572a0",
+    "semantic_hash": "423dccd43001a5a303f278fa687572a0"
+  },
+  "/Users/saadmujeeb/Documents/Work/Saad/mizan/superadmin/public/mizan-logo.png": {
+    "mtime": 1780509157.7746646,
+    "ast_hash": "8173d01ba16095f0485ba9b8060a20bc",
+    "semantic_hash": "8173d01ba16095f0485ba9b8060a20bc"
+  }
+}

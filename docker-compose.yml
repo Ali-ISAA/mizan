@@ -36,17 +36,8 @@ services:
       timeout: 3s
       retries: 5
 
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "7014:6333"
-    volumes:
-      - qdrant-data:/qdrant/storage
-    healthcheck:
-      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+  # NOTE: Local Qdrant removed — the app reads from cloud Qdrant (QDRANT_HOST in .env),
+  # which Noesia populates during ingestion. Nothing reads/writes the local container.
 
   backend:
     build: ./backend
@@ -68,8 +59,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      qdrant:
-        condition: service_started
 
   worker:
     build: ./backend
@@ -117,7 +106,6 @@ services:
 
 volumes:
   pg-data:
-  qdrant-data:
   uploads:
   frontend_node_modules:
   superadmin_node_modules:

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "scripts_output_ecc_en_regulation", "label": "ECC-EN regulation (Essential Cybersecurity Controls)", "file_type": "concept", "source_file": "backend/scripts/output/ecc-en_agent.json", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "article_extraction_regex_extractor_extract_articles", "label": "regex_extractor.extract_articles", "file_type": "code", "source_file": "backend/app/services/article_extraction/regex_extractor.py", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

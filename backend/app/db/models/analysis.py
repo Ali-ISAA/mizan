@@ -45,7 +45,6 @@ class RequirementItem(Base):
     analysis_result_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("analysis_results.id", ondelete="CASCADE")
     )
-    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"))
     requirement_text: Mapped[str] = mapped_column(Text, nullable=False)
     section_ref: Mapped[str | None] = mapped_column(String(255))  # e.g. "Section 3.2", "Article 5"
@@ -70,7 +69,6 @@ class ComplianceMapping(Base):
     requirement_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("requirement_items.id", ondelete="CASCADE")
     )
-    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
     matched_clause_text: Mapped[str | None] = mapped_column(Text)
     doc_b_section_ref: Mapped[str | None] = mapped_column(String(255))
     match_score: Mapped[float | None] = mapped_column(Float)  # semantic similarity 0.0 – 1.0
@@ -92,7 +90,6 @@ class GapItem(Base):
     requirement_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("requirement_items.id", ondelete="SET NULL")
     )
-    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"))
     gap_description: Mapped[str] = mapped_column(Text, nullable=False)
     severity: Mapped[str] = mapped_column(String(20), default="major")  # critical | major | minor
